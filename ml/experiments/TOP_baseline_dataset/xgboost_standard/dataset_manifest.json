@@ -1,0 +1,45 @@
+{
+  "dataset_name": "TOP_baseline_dataset",
+  "dataset_path": "/home/v/mini-project/EVShield/ml/processed/TOP_baseline_dataset",
+  "train_rows": 4152,
+  "test_rows": 3592,
+  "feature_columns": [
+    "count",
+    "mean",
+    "max",
+    "sum"
+  ],
+  "train_conditions": [
+    "Correct_ID/Random_CS_ON/Gaussian_Off",
+    "Wrong_ID/Random_CS_OFF/Gaussian_Off"
+  ],
+  "test_conditions": [
+    "Correct_ID/Random_CS_OFF/Gaussian_Off",
+    "Wrong_ID/Random_CS_ON/Gaussian_Off"
+  ],
+  "label_encoding": {
+    "normal": 0,
+    "attack": 1
+  },
+  "train_class_distribution": {
+    "normal": 1136,
+    "attack": 3016
+  },
+  "test_class_distribution": {
+    "normal": 1219,
+    "attack": 2373
+  },
+  "missing_values": {
+    "train": 0,
+    "test": 0
+  },
+  "nan_values": {
+    "train": 0,
+    "test": 0
+  },
+  "inf_values": {
+    "train": 0,
+    "test": 0
+  },
+  "preprocessing_reference": "/home/v/mini-project/EVShield/ml/processed/preprocessing_config.json"
+}

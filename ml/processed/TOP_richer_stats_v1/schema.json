@@ -1,0 +1,39 @@
+{
+  "dataset_name": "TOP_richer_stats_v1",
+  "source_family": "TOP",
+  "profiling_context": null,
+  "metric": null,
+  "columns": [
+    "condition_directory",
+    "source_family",
+    "profiling_context",
+    "entity_id",
+    "metric",
+    "raw_symbol_name",
+    "label",
+    "count",
+    "mean",
+    "max",
+    "sum",
+    "std",
+    "min",
+    "median",
+    "q1",
+    "q3",
+    "iqr"
+  ],
+  "feature_count": 10,
+  "feature_definitions": {
+    "std_ddof": 0,
+    "quantile_method": "numpy.linear",
+    "iqr": "q3 - q1"
+  },
+  "label_column": "label",
+  "label_encoding": {
+    "normal": 0,
+    "attack": 1
+  },
+  "sample_definition": "one complete labelled TOP data_point[] series = one ML sample",
+  "no_cross_family_alignment": true,
+  "raw_symbol_name_is_metadata_only": true
+}

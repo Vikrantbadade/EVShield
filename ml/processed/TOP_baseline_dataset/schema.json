@@ -1,0 +1,25 @@
+{
+  "dataset_name": "TOP_baseline_dataset",
+  "source_family": "TOP",
+  "profiling_context": null,
+  "metric": null,
+  "columns": [
+    "condition_directory",
+    "source_family",
+    "profiling_context",
+    "entity_id",
+    "metric",
+    "raw_symbol_name",
+    "label",
+    "count",
+    "mean",
+    "max",
+    "sum"
+  ],
+  "feature_count": 4,
+  "label_column": "label",
+  "label_encoding": {
+    "normal": 0,
+    "attack": 1
+  }
+}

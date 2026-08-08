@@ -1,0 +1,58 @@
+[
+  {
+    "accuracy": 0.8269517652909001,
+    "precision": 0.8589500316255535,
+    "recall": 0.9157113958192852,
+    "f1": 0.8864229765013055,
+    "roc_auc": 0.8777923792885018,
+    "pr_auc": 0.9493714603662041,
+    "tn": 305,
+    "fp": 223,
+    "fn": 125,
+    "tp": 1358,
+    "fpr": 0.42234848484848486,
+    "confusion_matrix": [
+      [
+        305,
+        223
+      ],
+      [
+        125,
+        1358
+      ]
+    ],
+    "diagnostic": "A",
+    "fit_condition": "Correct_ID/Random_CS_ON/Gaussian_Off",
+    "validation_condition": "Wrong_ID/Random_CS_OFF/Gaussian_Off",
+    "fit_rows": 2141,
+    "validation_rows": 2011
+  },
+  {
+    "accuracy": 0.7781410555815039,
+    "precision": 0.8356598984771574,
+    "recall": 0.8590998043052838,
+    "f1": 0.8472177549051142,
+    "roc_auc": 0.8274582002952586,
+    "pr_auc": 0.9182805630017721,
+    "tn": 349,
+    "fp": 259,
+    "fn": 216,
+    "tp": 1317,
+    "fpr": 0.42598684210526316,
+    "confusion_matrix": [
+      [
+        349,
+        259
+      ],
+      [
+        216,
+        1317
+      ]
+    ],
+    "diagnostic": "B",
+    "fit_condition": "Wrong_ID/Random_CS_OFF/Gaussian_Off",
+    "validation_condition": "Correct_ID/Random_CS_ON/Gaussian_Off",
+    "fit_rows": 2011,
+    "validation_rows": 2141
+  }
+]

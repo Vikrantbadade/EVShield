@@ -1,0 +1,26 @@
+{
+  "dataset_name": "TIME_DELTA_dataset",
+  "source_family": "TIME_DELTA",
+  "profiling_context": null,
+  "metric": null,
+  "columns": [
+    "condition_directory",
+    "source_family",
+    "profiling_context",
+    "entity_id",
+    "metric",
+    "label",
+    "count",
+    "mean",
+    "std",
+    "min",
+    "max",
+    "median"
+  ],
+  "feature_count": 6,
+  "label_column": "label",
+  "label_encoding": {
+    "normal": 0,
+    "attack": 1
+  }
+}

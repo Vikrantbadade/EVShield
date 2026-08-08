@@ -1,0 +1,26 @@
+{
+  "dataset_name": "STAT_CS_instructions",
+  "source_family": "STAT",
+  "profiling_context": "CS",
+  "metric": "instructions",
+  "columns": [
+    "condition_directory",
+    "source_family",
+    "profiling_context",
+    "entity_id",
+    "metric",
+    "label",
+    "count",
+    "mean",
+    "std",
+    "min",
+    "max",
+    "median"
+  ],
+  "feature_count": 6,
+  "label_column": "label",
+  "label_encoding": {
+    "normal": 0,
+    "attack": 1
+  }
+}

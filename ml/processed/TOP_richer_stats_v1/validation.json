@@ -1,0 +1,56 @@
+{
+  "train": {
+    "rows": 4152,
+    "label_counts": {
+      "normal": 1136,
+      "attack": 3016
+    },
+    "condition_directories": [
+      "Correct_ID/Random_CS_ON/Gaussian_Off",
+      "Wrong_ID/Random_CS_OFF/Gaussian_Off"
+    ],
+    "missing_values": 0,
+    "nan_values": 0,
+    "inf_values": 0,
+    "duplicate_metadata_rows": 0
+  },
+  "test": {
+    "rows": 3592,
+    "label_counts": {
+      "normal": 1219,
+      "attack": 2373
+    },
+    "condition_directories": [
+      "Correct_ID/Random_CS_OFF/Gaussian_Off",
+      "Wrong_ID/Random_CS_ON/Gaussian_Off"
+    ],
+    "missing_values": 0,
+    "nan_values": 0,
+    "inf_values": 0,
+    "duplicate_metadata_rows": 0
+  },
+  "dataset_name": "TOP_richer_stats_v1",
+  "feature_columns": [
+    "count",
+    "mean",
+    "max",
+    "sum",
+    "std",
+    "min",
+    "median",
+    "q1",
+    "q3",
+    "iqr"
+  ],
+  "train_conditions": [
+    "Correct_ID/Random_CS_ON/Gaussian_Off",
+    "Wrong_ID/Random_CS_OFF/Gaussian_Off"
+  ],
+  "test_conditions": [
+    "Correct_ID/Random_CS_OFF/Gaussian_Off",
+    "Wrong_ID/Random_CS_ON/Gaussian_Off"
+  ],
+  "baseline_equivalence_verified": true,
+  "dataset_source_modified": false,
+  "preprocessing_pipeline_modified": false
+}

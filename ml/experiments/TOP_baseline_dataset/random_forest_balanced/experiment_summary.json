@@ -1,0 +1,33 @@
+{
+  "config_name": "random_forest_balanced",
+  "family": "random_forest",
+  "balance_mode": "balanced",
+  "class_weight": "balanced",
+  "cv_selection_metric": "pr_auc",
+  "cv_mean_pr_auc": 0.9003809841211983,
+  "test_metrics": {
+    "accuracy": 0.6130289532293987,
+    "precision": 0.7310766337564645,
+    "recall": 0.6552886641382216,
+    "f1": 0.6911111111111111,
+    "roc_auc": 0.6511852129179547,
+    "pr_auc": 0.7991649616234657,
+    "tp": 1555,
+    "tn": 647,
+    "fp": 572,
+    "fn": 818,
+    "confusion_matrix": [
+      [
+        647,
+        572
+      ],
+      [
+        818,
+        1555
+      ]
+    ]
+  },
+  "selected_via_train_only_cv": true,
+  "test_set_used_once": true,
+  "no_external_api": true
+}

@@ -1,0 +1,50 @@
+[
+  {
+    "condition_directory": "Correct_ID/Random_CS_OFF/Gaussian_Off",
+    "accuracy": 0.72,
+    "precision": 0.7758206565252201,
+    "recall": 0.821882951653944,
+    "f1": 0.7981878088962109,
+    "roc_auc": 0.7888129837836393,
+    "pr_auc": 0.8917493287415879,
+    "tn": 291,
+    "fp": 280,
+    "fn": 210,
+    "tp": 969,
+    "fpr": 0.4903677758318739,
+    "confusion_matrix": [
+      [
+        291,
+        280
+      ],
+      [
+        210,
+        969
+      ]
+    ]
+  },
+  {
+    "condition_directory": "Wrong_ID/Random_CS_ON/Gaussian_Off",
+    "accuracy": 0.6731813246471227,
+    "precision": 0.7360446570972887,
+    "recall": 0.7730318257956449,
+    "f1": 0.7540849673202614,
+    "roc_auc": 0.7263115991480034,
+    "pr_auc": 0.8397742773377268,
+    "tn": 317,
+    "fp": 331,
+    "fn": 271,
+    "tp": 923,
+    "fpr": 0.5108024691358025,
+    "confusion_matrix": [
+      [
+        317,
+        331
+      ],
+      [
+        271,
+        923
+      ]
+    ]
+  }
+]

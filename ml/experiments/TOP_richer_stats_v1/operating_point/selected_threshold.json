@@ -1,0 +1,27 @@
+{
+  "selected_threshold": 0.55,
+  "constraint_satisfied": true,
+  "selection_rule": "maximize recall subject to FPR <= 0.30; then F1; then precision",
+  "selected_train_oof_metrics": {
+    "threshold": 0.55,
+    "precision": 0.8911222780569514,
+    "recall": 0.8819628647214854,
+    "f1": 0.8865189135144143,
+    "fpr": 0.2860915492957746,
+    "fnr": 0.11803713527851459,
+    "tp": 2660,
+    "tn": 811,
+    "fp": 325,
+    "fn": 356
+  },
+  "eligible_thresholds": [
+    0.55,
+    0.6,
+    0.65,
+    0.7,
+    0.75,
+    0.8,
+    0.85,
+    0.9
+  ]
+}

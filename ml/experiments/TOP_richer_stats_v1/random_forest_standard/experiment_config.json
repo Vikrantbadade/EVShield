@@ -1,0 +1,29 @@
+{
+  "random_seed": 42,
+  "cv_folds": 5,
+  "selection_metric": "pr_auc",
+  "tie_break_order": [
+    "roc_auc",
+    "f1"
+  ],
+  "threshold": 0.5,
+  "feature_columns": [
+    "count",
+    "mean",
+    "max",
+    "sum",
+    "std",
+    "min",
+    "median",
+    "q1",
+    "q3",
+    "iqr"
+  ],
+  "train_only_selection": true,
+  "test_loaded_after_selection": true,
+  "python_version": "3.13.9 (main, Oct 15 2025, 14:56:22) [GCC 15.2.0]",
+  "pandas_version": "3.0.5",
+  "numpy_version": "2.5.1",
+  "sklearn_version": "1.9.0",
+  "xgboost_version": "2.1.1"
+}

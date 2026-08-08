@@ -1,0 +1,33 @@
+{
+  "config_name": "xgboost_balanced",
+  "family": "xgboost",
+  "balance_mode": "balanced",
+  "class_weight": "scale_pos_weight",
+  "cv_selection_metric": "pr_auc",
+  "cv_mean_pr_auc": 0.9006955683349729,
+  "test_metrics": {
+    "accuracy": 0.6146993318485523,
+    "precision": 0.7595800524934383,
+    "recall": 0.6097766540244416,
+    "f1": 0.6764843384759234,
+    "roc_auc": 0.6641110842617953,
+    "pr_auc": 0.8047737386181892,
+    "tp": 1447,
+    "tn": 761,
+    "fp": 458,
+    "fn": 926,
+    "confusion_matrix": [
+      [
+        761,
+        458
+      ],
+      [
+        926,
+        1447
+      ]
+    ]
+  },
+  "selected_via_train_only_cv": true,
+  "test_set_used_once": true,
+  "no_external_api": true
+}

@@ -1,0 +1,42 @@
+[
+  {
+    "feature": "count",
+    "impurity_importance": 0.07460514920875011
+  },
+  {
+    "feature": "mean",
+    "impurity_importance": 0.1016207861256918
+  },
+  {
+    "feature": "max",
+    "impurity_importance": 0.08019664365510007
+  },
+  {
+    "feature": "sum",
+    "impurity_importance": 0.09146752737809177
+  },
+  {
+    "feature": "std",
+    "impurity_importance": 0.07608209146395094
+  },
+  {
+    "feature": "min",
+    "impurity_importance": 0.17290023066263682
+  },
+  {
+    "feature": "median",
+    "impurity_importance": 0.11336246172536281
+  },
+  {
+    "feature": "q1",
+    "impurity_importance": 0.12705456418454739
+  },
+  {
+    "feature": "q3",
+    "impurity_importance": 0.0838128217307186
+  },
+  {
+    "feature": "iqr",
+    "impurity_importance": 0.07889772386514972
+  }
+]

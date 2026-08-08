@@ -1,0 +1,18 @@
+{
+  "selected_config": "random_forest_standard",
+  "selection_reason": "highest TRAIN-only CV PR-AUC, then ROC-AUC, then F1",
+  "winner": {
+    "config_name": "random_forest_standard",
+    "family": "random_forest",
+    "balance_mode": "standard",
+    "class_weight": null,
+    "cv_folds": 5,
+    "mean_pr_auc": 0.9515977454341629,
+    "mean_roc_auc": 0.8906751313324073,
+    "mean_f1": 0.891750027636945,
+    "mean_recall": 0.9084884627634455,
+    "mean_precision": 0.875762943717986,
+    "mean_accuracy": 0.8398347179331044,
+    "mean_fpr": 0.34243759177679883
+  }
+}

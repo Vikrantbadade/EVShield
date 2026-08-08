@@ -1,0 +1,33 @@
+{
+  "config_name": "logistic_regression_balanced",
+  "family": "logistic_regression",
+  "balance_mode": "balanced",
+  "class_weight": "balanced",
+  "cv_selection_metric": "pr_auc",
+  "cv_mean_pr_auc": 0.8141213175714631,
+  "test_metrics": {
+    "accuracy": 0.6305679287305123,
+    "precision": 0.753883495145631,
+    "recall": 0.6544458491361146,
+    "f1": 0.7006541845251523,
+    "roc_auc": 0.6453938846477341,
+    "pr_auc": 0.7390878683317377,
+    "tp": 1553,
+    "tn": 712,
+    "fp": 507,
+    "fn": 820,
+    "confusion_matrix": [
+      [
+        712,
+        507
+      ],
+      [
+        820,
+        1553
+      ]
+    ]
+  },
+  "selected_via_train_only_cv": true,
+  "test_set_used_once": true,
+  "no_external_api": true
+}

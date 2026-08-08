@@ -1,0 +1,15 @@
+{
+  "selected_config": "xgboost_balanced",
+  "selection_reason": "highest mean PR-AUC from TRAIN-only stratified CV",
+  "winner": {
+    "config_name": "xgboost_balanced",
+    "family": "xgboost",
+    "balance_mode": "balanced",
+    "class_weight": "scale_pos_weight",
+    "mean_pr_auc": 0.9006955683349729,
+    "mean_roc_auc": 0.7717694285648731,
+    "mean_f1": 0.7859435397746859,
+    "mean_recall": 0.7337457305086048,
+    "mean_precision": 0.8464567977837554
+  }
+}

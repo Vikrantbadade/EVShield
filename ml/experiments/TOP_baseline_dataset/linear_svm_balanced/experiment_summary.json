@@ -1,0 +1,33 @@
+{
+  "config_name": "linear_svm_balanced",
+  "family": "linear_svm",
+  "balance_mode": "balanced",
+  "class_weight": "balanced",
+  "cv_selection_metric": "pr_auc",
+  "cv_mean_pr_auc": 0.7871352931881763,
+  "test_metrics": {
+    "accuracy": 0.33853006681514475,
+    "precision": 0.2857142857142857,
+    "recall": 0.0008428150021070375,
+    "f1": 0.0016806722689075631,
+    "roc_auc": 0.5847333292540811,
+    "pr_auc": 0.685783109809997,
+    "tp": 2,
+    "tn": 1214,
+    "fp": 5,
+    "fn": 2371,
+    "confusion_matrix": [
+      [
+        1214,
+        5
+      ],
+      [
+        2371,
+        2
+      ]
+    ]
+  },
+  "selected_via_train_only_cv": true,
+  "test_set_used_once": true,
+  "no_external_api": true
+}

@@ -1,0 +1,154 @@
+{
+  "dataset": {
+    "dataset_name": "TOP_baseline_dataset",
+    "dataset_path": "/home/v/mini-project/EVShield/ml/processed/TOP_baseline_dataset",
+    "train_rows": 4152,
+    "test_rows": 3592,
+    "feature_columns": [
+      "count",
+      "mean",
+      "max",
+      "sum"
+    ],
+    "train_conditions": [
+      "Correct_ID/Random_CS_ON/Gaussian_Off",
+      "Wrong_ID/Random_CS_OFF/Gaussian_Off"
+    ],
+    "test_conditions": [
+      "Correct_ID/Random_CS_OFF/Gaussian_Off",
+      "Wrong_ID/Random_CS_ON/Gaussian_Off"
+    ],
+    "label_encoding": {
+      "normal": 0,
+      "attack": 1
+    },
+    "train_class_distribution": {
+      "normal": 1136,
+      "attack": 3016
+    },
+    "test_class_distribution": {
+      "normal": 1219,
+      "attack": 2373
+    },
+    "missing_values": {
+      "train": 0,
+      "test": 0
+    },
+    "nan_values": {
+      "train": 0,
+      "test": 0
+    },
+    "inf_values": {
+      "train": 0,
+      "test": 0
+    },
+    "preprocessing_reference": "/home/v/mini-project/EVShield/ml/processed/preprocessing_config.json"
+  },
+  "random_seed": 42,
+  "selection_metric": "pr_auc",
+  "cv_folds": 5,
+  "results_by_config": [
+    {
+      "config_name": "xgboost_balanced",
+      "family": "xgboost",
+      "balance_mode": "balanced",
+      "class_weight": "scale_pos_weight",
+      "mean_pr_auc": 0.9006955683349729,
+      "mean_roc_auc": 0.7717694285648731,
+      "mean_f1": 0.7859435397746859,
+      "mean_recall": 0.7337457305086048,
+      "mean_precision": 0.8464567977837554
+    },
+    {
+      "config_name": "xgboost_standard",
+      "family": "xgboost",
+      "balance_mode": "standard",
+      "class_weight": "None",
+      "mean_pr_auc": 0.9004828017564901,
+      "mean_roc_auc": 0.7710986289058389,
+      "mean_f1": 0.832311565622212,
+      "mean_recall": 0.8723441292434077,
+      "mean_precision": 0.7958239925117583
+    },
+    {
+      "config_name": "random_forest_balanced",
+      "family": "random_forest",
+      "balance_mode": "balanced",
+      "class_weight": "balanced",
+      "mean_pr_auc": 0.9003809841211983,
+      "mean_roc_auc": 0.7738564476342289,
+      "mean_f1": 0.8039304017207775,
+      "mean_recall": 0.7788337561639924,
+      "mean_precision": 0.8312371710064301
+    },
+    {
+      "config_name": "random_forest_standard",
+      "family": "random_forest",
+      "balance_mode": "standard",
+      "class_weight": "None",
+      "mean_pr_auc": 0.8995641399933408,
+      "mean_roc_auc": 0.7747950358424488,
+      "mean_f1": 0.8360630625749683,
+      "mean_recall": 0.8759903572644504,
+      "mean_precision": 0.7996259157694006
+    },
+    {
+      "config_name": "logistic_regression_balanced",
+      "family": "logistic_regression",
+      "balance_mode": "balanced",
+      "class_weight": "balanced",
+      "mean_pr_auc": 0.8141213175714631,
+      "mean_roc_auc": 0.656392095400237,
+      "mean_f1": 0.764306052322375,
+      "mean_recall": 0.7277871130001209,
+      "mean_precision": 0.8049165755710916
+    },
+    {
+      "config_name": "linear_svm_balanced",
+      "family": "linear_svm",
+      "balance_mode": "balanced",
+      "class_weight": "balanced",
+      "mean_pr_auc": 0.7871352931881763,
+      "mean_roc_auc": 0.6155372358389963,
+      "mean_f1": 0.003962596085639805,
+      "mean_recall": 0.001988402359065599,
+      "mean_precision": 0.7
+    },
+    {
+      "config_name": "logistic_regression_standard",
+      "family": "logistic_regression",
+      "balance_mode": "standard",
+      "class_weight": "None",
+      "mean_pr_auc": 0.7844346754001211,
+      "mean_roc_auc": 0.6082288898066277,
+      "mean_f1": 0.8420600230514088,
+      "mean_recall": 0.9970154745038604,
+      "mean_precision": 0.72879358835496
+    },
+    {
+      "config_name": "linear_svm_standard",
+      "family": "linear_svm",
+      "balance_mode": "standard",
+      "class_weight": "None",
+      "mean_pr_auc": 0.7813375423702112,
+      "mean_roc_auc": 0.6009783517618575,
+      "mean_f1": 0.2256989940037224,
+      "mean_recall": 0.13228064973147508,
+      "mean_precision": 0.7906868905042955
+    }
+  ],
+  "winner": {
+    "config_name": "xgboost_balanced",
+    "family": "xgboost",
+    "balance_mode": "balanced",
+    "class_weight": "scale_pos_weight",
+    "mean_pr_auc": 0.9006955683349729,
+    "mean_roc_auc": 0.7717694285648731,
+    "mean_f1": 0.7859435397746859,
+    "mean_recall": 0.7337457305086048,
+    "mean_precision": 0.8464567977837554
+  },
+  "test_set_used_once": true,
+  "train_only_cv": true,
+  "no_external_api": true
+}
