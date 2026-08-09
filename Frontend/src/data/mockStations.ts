@@ -102,6 +102,7 @@ export const getStations = (
 
 export const getRegions = (isAttackMode: boolean, requestsPerSec: number): ChargingRegion[] => [
   {
+    // Mumbai — far left, lower-middle
     id: 'MUM', label: 'Mumbai',
     totalStations: 312,
     protected: isAttackMode ? 309 : 312,
@@ -110,31 +111,35 @@ export const getRegions = (isAttackMode: boolean, requestsPerSec: number): Charg
     requestsPerSec: isAttackMode ? requestsPerSec : 5240,
     healthPercent: isAttackMode ? 78 : 98.7,
     latencyMs: isAttackMode ? 142 : 42,
-    svgX: 180, svgY: 310,
+    svgX: 72, svgY: 345,
   },
   {
+    // Delhi — top centre
     id: 'DEL', label: 'Delhi',
     totalStations: 286, protected: 286, degraded: 0, underAttack: 0,
     requestsPerSec: 4920, healthPercent: 99.1, latencyMs: 38,
-    svgX: 320, svgY: 120,
+    svgX: 300, svgY: 58,
   },
   {
+    // Bengaluru — far right, lower-middle
     id: 'BLR', label: 'Bengaluru',
     totalStations: 264, protected: 264, degraded: 0, underAttack: 0,
     requestsPerSec: 4840, healthPercent: 99.4, latencyMs: 35,
-    svgX: 310, svgY: 380,
+    svgX: 528, svgY: 370,
   },
   {
+    // Pune — left, upper-middle
     id: 'PUN', label: 'Pune',
     totalStations: 218, protected: 218, degraded: 0, underAttack: 0,
     requestsPerSec: 4210, healthPercent: 97.8, latencyMs: 41,
-    svgX: 210, svgY: 340,
+    svgX: 90, svgY: 160,
   },
   {
+    // Hyderabad — far right, upper-middle
     id: 'HYD', label: 'Hyderabad',
     totalStations: 170, protected: 170, degraded: 0, underAttack: 0,
     requestsPerSec: 3940, healthPercent: 98.2, latencyMs: 39,
-    svgX: 290, svgY: 300,
+    svgX: 508, svgY: 155,
   },
 ];
 

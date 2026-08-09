@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { AppLayout } from '../components/layout/AppLayout';
 import { SecurityHero } from '../components/dashboard/SecurityHero';
 import { StatCard } from '../components/dashboard/StatCard';
@@ -10,28 +10,106 @@ import { LiveAttackFeed } from '../components/dashboard/LiveAttackFeed';
 import { ThreatTimeline } from '../components/dashboard/ThreatTimeline';
 import { initialKpiStatsData } from '../data/mockData';
 import { useSecurity } from '../context/SecurityContext';
+import { dashboardService, DashboardSummaryData } from '../services/dashboardService';
+import { healthService, HealthCheckStatus } from '../services/healthService';
+import { ApiConnectionBanner } from '../components/ui/ApiConnectionBanner';
+import { StatusChip } from '../components/ui/StatusChip';
+import { KpiStat } from '../types';
 import { RefreshCw, Radio } from 'lucide-react';
 
 export const DashboardPage: React.FC = () => {
   const [timeRange, setTimeRange] = useState<'24h' | '7d' | '30d'>('24h');
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [dashboardData, setDashboardData] = useState<DashboardSummaryData | null>(null);
+  const [healthStatus, setHealthStatus] = useState<HealthCheckStatus | null>(null);
+  const [apiError, setApiError] = useState<string | null>(null);
+
   const { isAttackMode, liveFeed, timelineEvents } = useSecurity();
 
-  const handleRefresh = () => {
+  const fetchBackendData = useCallback(async () => {
     setIsRefreshing(true);
-    setTimeout(() => {
+    setApiError(null);
+
+    try {
+      const [summary, health] = await Promise.all([
+        dashboardService.getSummary(),
+        healthService.getHealth(),
+      ]);
+      setDashboardData(summary);
+      setHealthStatus(health);
+    } catch (err) {
+      setApiError(err instanceof Error ? err.message : 'Backend connection error');
+    } finally {
       setIsRefreshing(false);
-    }, 500);
-  };
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchBackendData();
+  }, [fetchBackendData]);
+
+  // Construct dynamic KPI stat cards based on backend response or fallback
+  const kpiStatsData: KpiStat[] = dashboardData
+    ? [
+        {
+          id: 'total-reqs',
+          label: 'Total Requests',
+          value: dashboardData.totalRequests.toLocaleString(),
+          change: '+14.2%',
+          isPositive: true,
+          isDemo: dashboardData.isDemo,
+          description: 'Analyzed traffic packets across EVSE gateways',
+          iconName: 'Activity',
+        },
+        {
+          id: 'attacks-detected',
+          label: 'Attacks Detected',
+          value: dashboardData.attacksDetected.toString(),
+          change: dashboardData.activeThreats > 0 ? '+2' : '-4',
+          isPositive: dashboardData.activeThreats === 0,
+          isDemo: dashboardData.isDemo,
+          description: 'Identified DDoS & anomaly attempts',
+          iconName: 'ShieldAlert',
+        },
+        {
+          id: 'protected-chargers',
+          label: 'Protected Chargers',
+          value: `${dashboardData.protectedChargers} / ${dashboardData.totalChargers}`,
+          change: '98.0% Online',
+          isPositive: true,
+          isDemo: dashboardData.isDemo,
+          description: 'Active charging nodes protected by firewall',
+          iconName: 'Server',
+        },
+        {
+          id: 'ml-accuracy',
+          label: 'ML Engine Accuracy',
+          value: `${dashboardData.mlAccuracy}%`,
+          change: 'CICEV2023 RF',
+          isPositive: true,
+          isDemo: dashboardData.isDemo,
+          description: 'PROVISIONAL backend classification confidence',
+          iconName: 'Zap',
+        },
+      ]
+    : initialKpiStatsData;
 
   return (
     <AppLayout pageTitle="Security Overview">
       {/* Top Controls Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-4 border-b border-[#AD8B73]/18">
         <div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-[#3F3832] tracking-tight">
-            Security Overview
-          </h2>
+          <div className="flex flex-wrap items-center gap-3 mb-1">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#3F3832] tracking-tight">
+              Security Overview
+            </h2>
+            {healthStatus ? (
+              <StatusChip label="API ONLINE (V1)" variant="protected" dot />
+            ) : (
+              <StatusChip label="BACKEND CONNECTING" variant="demo" dot />
+            )}
+            <StatusChip label="DEMO BACKEND DATA" variant="demo" />
+          </div>
           <p className="text-sm text-[#514940] mt-1 font-normal">
             Real-time cybersecurity visibility for your EV charging authentication infrastructure.
           </p>
@@ -73,7 +151,8 @@ export const DashboardPage: React.FC = () => {
           </div>
 
           <button
-            onClick={handleRefresh}
+            onClick={fetchBackendData}
+            disabled={isRefreshing}
             className="p-3 rounded-2xl bg-white/70 hover:bg-white/90 border border-white/90 text-[#7A7067] hover:text-[#3F3832] transition-colors backdrop-blur-xl shadow-glass-sm"
             title="Refresh dashboard metrics"
           >
@@ -93,12 +172,17 @@ export const DashboardPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Backend API Connection Error Banner */}
+      {apiError && (
+        <ApiConnectionBanner message={apiError} onRetry={fetchBackendData} isRetrying={isRefreshing} />
+      )}
+
       {/* 1. Large Security Command Center Hero */}
       <SecurityHero />
 
       {/* 2. Primary KPI Cards Row (4 Key Stats with Distinct Colors) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {initialKpiStatsData.map((stat) => (
+        {kpiStatsData.map((stat) => (
           <StatCard key={stat.id} stat={stat} />
         ))}
       </div>

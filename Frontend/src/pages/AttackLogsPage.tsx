@@ -1,11 +1,12 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { AppLayout } from '../components/layout/AppLayout';
-import { attackService } from '../services/attackService';
+import { attackService, AttackQueryResult } from '../services/attackService';
 import { AttackTable } from '../components/attacks/AttackTable';
 import { useSecurity } from '../context/SecurityContext';
 import { AttackIncident } from '../types/attack';
 import { StatusChip } from '../components/ui/StatusChip';
 import { ScrollReveal } from '../components/ui/ScrollReveal';
+import { ApiConnectionBanner } from '../components/ui/ApiConnectionBanner';
 import { Search, Download, FilterX, RefreshCw, ShieldAlert, AlertTriangle, CheckCircle2, Clock } from 'lucide-react';
 
 export const AttackLogsPage: React.FC = () => {
@@ -18,6 +19,14 @@ export const AttackLogsPage: React.FC = () => {
   const [attackType, setAttackType] = useState('ALL');
   const [page, setPage] = useState(1);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [queryResult, setQueryResult] = useState<AttackQueryResult>({
+    items: [],
+    total: 0,
+    page: 1,
+    pageSize: 8,
+    totalPages: 1,
+  });
+  const [apiError, setApiError] = useState<string | null>(null);
 
   // Synchronize dynamic live incident state if simulation is active
   const activeLiveIncident: AttackIncident | null = useMemo(() => {
@@ -50,15 +59,34 @@ export const AttackLogsPage: React.FC = () => {
     };
   }, [isAttackMode, requestsPerSec, affectedNodes, mlConfidence]);
 
-  // Fetch filtered attacks
-  const attackQueryResult = useMemo(() => {
-    return attackService.getAttacks({ search, severity, status, attackType, page, pageSize: 8 }, activeLiveIncident);
+  // Fetch filtered attacks asynchronously from backend API
+  const fetchAttacks = useCallback(async () => {
+    setIsRefreshing(true);
+    setApiError(null);
+    try {
+      const res = await attackService.getAttacksAsync(
+        { search, severity, status, attackType, page, pageSize: 8 },
+        activeLiveIncident
+      );
+      setQueryResult(res);
+    } catch (err) {
+      setApiError(err instanceof Error ? err.message : 'Failed to query attack logs from backend.');
+      // Local fallback
+      const fallbackRes = attackService.getAttacks({ search, severity, status, attackType, page, pageSize: 8 }, activeLiveIncident);
+      setQueryResult(fallbackRes);
+    } finally {
+      setIsRefreshing(false);
+    }
   }, [search, severity, status, attackType, page, activeLiveIncident]);
+
+  useEffect(() => {
+    fetchAttacks();
+  }, [fetchAttacks]);
 
   // Calculate metrics
   const metrics = useMemo(() => {
-    return attackService.getSummaryMetrics(activeLiveIncident);
-  }, [activeLiveIncident]);
+    return attackService.getSummaryMetrics(activeLiveIncident, queryResult.items);
+  }, [activeLiveIncident, queryResult.items]);
 
   const handleClearFilters = () => {
     setSearch('');
@@ -68,44 +96,40 @@ export const AttackLogsPage: React.FC = () => {
     setPage(1);
   };
 
-  const handleRefresh = () => {
-    setIsRefreshing(true);
-    setTimeout(() => setIsRefreshing(false), 500);
-  };
-
   return (
     <AppLayout pageTitle="Attack Logs">
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-4 border-b border-[#AD8B73]/18">
         <div>
-          <div className="flex items-center gap-3 mb-1">
+          <div className="flex flex-wrap items-center gap-3 mb-1">
             <h2 className="text-3xl sm:text-4xl font-extrabold text-[#3F3832] tracking-tight">
               Attack Logs
             </h2>
-            <StatusChip label="LIVE" variant="live" dot pulse />
+            <StatusChip label="BACKEND CONNECTED" variant="live" dot pulse />
             <StatusChip label="DEMO DATA" variant="demo" />
           </div>
           <p className="text-sm text-[#514940] font-normal">
-            Investigate detected security incidents and anomaly logs across the EV charging ecosystem.
+            Investigate detected security incidents and anomaly logs consumed via backend API endpoints.
           </p>
         </div>
 
         {/* Action Controls */}
         <div className="flex flex-wrap items-center gap-3">
           <button
-            onClick={() => attackService.exportToCSV(attackQueryResult.items)}
+            onClick={() => attackService.exportToCSV(queryResult.items)}
             className="btn-secondary rounded-xl text-xs py-2.5 px-4"
           >
             <Download className="w-3.5 h-3.5 text-[#19BFA3]" /> CSV EXPORT
           </button>
           <button
-            onClick={() => attackService.exportToJSON(attackQueryResult.items)}
+            onClick={() => attackService.exportToJSON(queryResult.items)}
             className="btn-secondary rounded-xl text-xs py-2.5 px-4"
           >
             <Download className="w-3.5 h-3.5 text-[#CEAB93]" /> JSON EXPORT
           </button>
           <button
-            onClick={handleRefresh}
+            onClick={fetchAttacks}
+            disabled={isRefreshing}
             className="p-3 rounded-2xl bg-white/70 hover:bg-white/90 border border-white/90 text-[#7A7067] hover:text-[#3F3832] transition-colors shadow-glass-sm"
             title="Refresh attack logs"
           >
@@ -113,6 +137,11 @@ export const AttackLogsPage: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* Backend API Connection Error Banner */}
+      {apiError && (
+        <ApiConnectionBanner message={apiError} onRetry={fetchAttacks} isRetrying={isRefreshing} />
+      )}
 
       {/* Summary Metrics Row (Light Glass Cards with Color Rhythm) */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -204,10 +233,10 @@ export const AttackLogsPage: React.FC = () => {
 
       {/* Incident Logs Table */}
       <AttackTable
-        incidents={attackQueryResult.items}
-        total={attackQueryResult.total}
-        page={attackQueryResult.page}
-        totalPages={attackQueryResult.totalPages}
+        incidents={queryResult.items}
+        total={queryResult.total}
+        page={queryResult.page}
+        totalPages={queryResult.totalPages}
         onPageChange={setPage}
         onClearFilters={handleClearFilters}
       />

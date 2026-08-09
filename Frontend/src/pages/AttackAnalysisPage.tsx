@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { AppLayout } from '../components/layout/AppLayout';
 import { attackService } from '../services/attackService';
@@ -15,19 +15,18 @@ import { AttackTimeline } from '../components/attacks/AttackTimeline';
 import { IncidentActions } from '../components/attacks/IncidentActions';
 import { ScrollReveal } from '../components/ui/ScrollReveal';
 import { StatusChip } from '../components/ui/StatusChip';
+import { ApiConnectionBanner } from '../components/ui/ApiConnectionBanner';
 import { ArrowLeft, Radio } from 'lucide-react';
 
 export const AttackAnalysisPage: React.FC = () => {
   const { attackId } = useParams<{ attackId?: string }>();
+  const { isAttackMode, requestsPerSec, affectedNodes, mlConfidence } = useSecurity();
 
-  const {
-    isAttackMode,
-    requestsPerSec,
-    affectedNodes,
-    mlConfidence,
-  } = useSecurity();
+  const targetId = attackId || 'INC-2026-8801';
 
-  const targetId = attackId || 'EVS-DEMO-001';
+  const [incident, setIncident] = useState<AttackIncident>(mockFallback);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Keep the analysis page synchronized with the active DDoS simulation.
   const activeLiveIncident: AttackIncident | null = useMemo(() => {
@@ -35,12 +34,8 @@ export const AttackAnalysisPage: React.FC = () => {
 
     return {
       id: 'EVS-DEMO-001',
-      timestamp: new Date().toLocaleTimeString('en-US', {
-        hour12: false,
-      }),
-      startTime: new Date().toLocaleTimeString('en-US', {
-        hour12: false,
-      }),
+      timestamp: new Date().toLocaleTimeString('en-US', { hour12: false }),
+      startTime: new Date().toLocaleTimeString('en-US', { hour12: false }),
       duration: 'LIVE INCIDENT',
       status: 'DETECTED',
       severity: 'CRITICAL',
@@ -52,7 +47,6 @@ export const AttackAnalysisPage: React.FC = () => {
       baselineRequestsPerSecond: 1200,
       peakRequestsPerSecond: requestsPerSec,
       affectedNodes: affectedNodes || 24,
-
       affectedStations: [
         {
           id: 'CS-0421',
@@ -76,32 +70,38 @@ export const AttackAnalysisPage: React.FC = () => {
           requestsPerSec: 1220,
         },
       ],
-
       sourceCategory: 'Distributed EV Gateway Auth Flood',
       targetInfrastructure: 'Gateway Zone 1 (CS-0421 Mumbai Central)',
       mitigationStatus: 'ACTIVE IN PROGRESS',
       mitigationTime: 'ACTIVE',
-      description:
-        'ACTIVE DDoS Authentication Burst flood in progress across EV charging authentication gateways.',
-      detectionSummary:
-        'The ML detection engine classified the observed authentication traffic as abnormal DDoS-related activity with high confidence.',
+      description: 'ACTIVE DDoS Authentication Burst flood in progress across EV charging authentication gateways.',
+      detectionSummary: 'The ML detection engine classified the observed authentication traffic as abnormal DDoS-related activity with high confidence.',
       isDemo: true,
     };
-  }, [
-    isAttackMode,
-    requestsPerSec,
-    affectedNodes,
-    mlConfidence,
-  ]);
+  }, [isAttackMode, requestsPerSec, affectedNodes, mlConfidence]);
 
-  const incident = useMemo(() => {
-    return (
-      attackService.getAttackById(
-        targetId,
-        activeLiveIncident,
-      ) || mockFallback
-    );
+  const loadIncident = useCallback(async () => {
+    setIsRefreshing(true);
+    setApiError(null);
+    try {
+      const data = await attackService.getAttackByIdAsync(targetId, activeLiveIncident);
+      if (data) {
+        setIncident(data);
+      } else {
+        setIncident(mockFallback);
+      }
+    } catch (err) {
+      setApiError(err instanceof Error ? err.message : 'Failed to query attack analysis data.');
+      const localFallback = attackService.getAttackById(targetId, activeLiveIncident);
+      setIncident(localFallback || mockFallback);
+    } finally {
+      setIsRefreshing(false);
+    }
   }, [targetId, activeLiveIncident]);
+
+  useEffect(() => {
+    loadIncident();
+  }, [loadIncident]);
 
   return (
     <AppLayout pageTitle={`Attack Analysis — ${incident.id}`}>
@@ -126,25 +126,13 @@ export const AttackAnalysisPage: React.FC = () => {
                   {incident.id}
                 </h2>
 
-                <AttackBadge
-                  type="severity"
-                  value={incident.severity}
-                />
-
-                <AttackBadge
-                  type="status"
-                  value={incident.status}
-                />
-
-                <StatusChip
-                  label="DEMO DATA"
-                  variant="demo"
-                />
+                <AttackBadge type="severity" value={incident.severity} />
+                <AttackBadge type="status" value={incident.status} />
+                <StatusChip label="DEMO BACKEND DATA" variant="demo" />
               </div>
 
               <p className="text-sm text-[#514940] font-normal">
-                {incident.attackTypeLabel} &bull; Detailed forensic
-                analysis & incident breakdown
+                {incident.attackTypeLabel} &bull; Detailed forensic analysis & incident breakdown consumed via backend API
               </p>
             </div>
 
@@ -156,6 +144,11 @@ export const AttackAnalysisPage: React.FC = () => {
             )}
           </div>
         </ScrollReveal>
+
+        {/* Backend API Connection Error Banner */}
+        {apiError && (
+          <ApiConnectionBanner message={apiError} onRetry={loadIncident} isRetrying={isRefreshing} />
+        )}
 
         {/* 1. Incident Summary & Security Verdict */}
         <ScrollReveal delay={100}>
@@ -184,9 +177,7 @@ export const AttackAnalysisPage: React.FC = () => {
 
           <div className="lg:col-span-6">
             <ScrollReveal delay={300}>
-              <AffectedStations
-                stations={incident.affectedStations}
-              />
+              <AffectedStations stations={incident.affectedStations} />
             </ScrollReveal>
           </div>
         </div>
@@ -210,35 +201,21 @@ export const AttackAnalysisPage: React.FC = () => {
   );
 };
 
-/*
- * Fallback demo incident.
- *
- * Used when an incident cannot be found in the attack service.
- * This keeps the analysis page functional during the frontend-only
- * development stage.
- */
 const mockFallback: AttackIncident = {
-  id: 'EVS-DEMO-001',
+  id: 'INC-2026-8801',
   timestamp: '12:04:17',
   startTime: '12:04:17',
   duration: '03m 43s',
-
   status: 'MITIGATED',
   severity: 'CRITICAL',
-
   attackType: 'DDOS',
   attackTypeLabel: 'DDoS Authentication Burst',
-
   classification: 'ATTACK',
-
   mlConfidence: 97.4,
-
   requestsPerSecond: 18450,
   baselineRequestsPerSecond: 1200,
   peakRequestsPerSecond: 18450,
-
   affectedNodes: 24,
-
   affectedStations: [
     {
       id: 'CS-0421',
@@ -248,23 +225,12 @@ const mockFallback: AttackIncident = {
       requestsPerSec: 18450,
     },
   ],
-
   sourceCategory: 'Distributed EV Gateway Auth Flood',
-
-  targetInfrastructure:
-    'Gateway Zone 1 (CS-0421 Mumbai Central)',
-
-  mitigationStatus:
-    'Automated Rate Limiting Engaged',
-
+  targetInfrastructure: 'Gateway Zone 1 (CS-0421 Mumbai Central)',
+  mitigationStatus: 'Automated Rate Limiting Engaged',
   mitigationTime: '03m 43s',
-
-  description:
-    'DDoS authentication flood targeting charging station handshake tokens.',
-
-  detectionSummary:
-    'The ML detection engine classified the observed authentication traffic as abnormal DDoS-related activity.',
-
+  description: 'DDoS authentication flood targeting charging station handshake tokens.',
+  detectionSummary: 'The ML detection engine classified the observed authentication traffic as abnormal DDoS-related activity.',
   isDemo: true,
 };
 

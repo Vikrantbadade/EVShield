@@ -20,6 +20,10 @@
     --cyber-blue: #52A8FF;
     --cyber-danger: #E85C68;
     --cyber-success: #62C073;
+
+    /* Selection colours */
+    --selection-bg: rgba(25, 191, 163, 0.22);
+    --selection-color: #2b4a43;
   }
 
   body {
@@ -30,9 +34,20 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  ::selection {
-    background-color: rgba(206, 171, 147, 0.35);
-    color: #3F3832;
+  /* ── Global text selection fix ──────────────────────────
+     Applied at the * level so glassmorphic cards/badges
+     cannot accidentally override with conflicting bg colors.
+     The cyan-tinted selection on the warm background creates
+     a clearly visible, accessible highlight on every surface.
+  ──────────────────────────────────────────────────────── */
+  *::selection {
+    background-color: var(--selection-bg) !important;
+    color: var(--selection-color) !important;
+    -webkit-text-fill-color: var(--selection-color);
+  }
+  *::-moz-selection {
+    background-color: var(--selection-bg) !important;
+    color: var(--selection-color) !important;
   }
 }
 
@@ -127,19 +142,20 @@
 
   /* Glass Nav & Sidebar */
   .glass-nav {
-    background: rgba(255, 251, 233, 0.68);
-    backdrop-filter: blur(32px);
-    -webkit-backdrop-filter: blur(32px);
-    border: 1px solid rgba(255, 255, 255, 0.85);
-    box-shadow: 0 12px 36px rgba(100, 75, 50, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.90);
+    background: rgba(255, 251, 233, 0.82);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border: 1px solid rgba(255, 255, 255, 0.92);
+    box-shadow: 0 12px 36px rgba(100, 75, 50, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.95);
   }
 
+  /* Enhanced sidebar glass — stronger blur + inner highlight */
   .glass-sidebar {
-    background: rgba(255, 251, 233, 0.52);
-    backdrop-filter: blur(35px);
-    -webkit-backdrop-filter: blur(35px);
-    border-right: 1px solid rgba(255, 255, 255, 0.80);
-    box-shadow: 8px 0 32px rgba(100, 75, 50, 0.06);
+    background: rgba(255, 251, 233, 0.78);
+    backdrop-filter: blur(48px) saturate(1.6);
+    -webkit-backdrop-filter: blur(48px) saturate(1.6);
+    border-right: 1px solid rgba(255, 255, 255, 0.90);
+    box-shadow: 8px 0 40px rgba(100, 75, 50, 0.08), inset -1px 0 0 rgba(255,255,255,0.6);
   }
 
   .glass-surface {
@@ -147,6 +163,17 @@
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.70);
+  }
+
+  /* Settings section card */
+  .glass-settings-section {
+    background: rgba(255, 251, 233, 0.55);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    border: 1px solid rgba(255, 255, 255, 0.88);
+    box-shadow: 0 8px 32px rgba(100, 75, 50, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.90);
+    border-radius: 24px;
+    padding: 24px 28px;
   }
 }
 
@@ -188,7 +215,10 @@
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.04em;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
+/* Existing variants */
 .chip-protected {
   background: rgba(98, 192, 115, 0.15);
   border: 1px solid rgba(98, 192, 115, 0.30);
@@ -219,6 +249,46 @@
   background: rgba(227, 202, 165, 0.25);
   border: 1px solid rgba(173, 139, 115, 0.25);
   color: #514940;
+}
+/* New status variants */
+.chip-attack {
+  background: rgba(232, 92, 104, 0.20);
+  border: 1px solid rgba(232, 92, 104, 0.40);
+  color: #a82d38;
+  font-weight: 700;
+  animation: chipAttackPulse 1.6s ease-in-out infinite;
+}
+.chip-degraded {
+  background: rgba(217, 154, 50, 0.18);
+  border: 1px solid rgba(217, 154, 50, 0.35);
+  color: #7a4e10;
+  font-weight: 600;
+}
+.chip-warning {
+  background: rgba(217, 154, 50, 0.15);
+  border: 1px solid rgba(217, 154, 50, 0.30);
+  color: #7a4e10;
+}
+.chip-offline {
+  background: rgba(122, 112, 103, 0.15);
+  border: 1px solid rgba(122, 112, 103, 0.28);
+  color: #4a4440;
+}
+.chip-monitoring {
+  background: rgba(82, 168, 255, 0.14);
+  border: 1px solid rgba(82, 168, 255, 0.28);
+  color: #1a4f80;
+}
+.chip-replay {
+  background: rgba(206, 171, 147, 0.25);
+  border: 1px solid rgba(173, 139, 115, 0.38);
+  color: #5c4535;
+  font-weight: 600;
+}
+
+@keyframes chipAttackPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(232,92,104,0); }
+  50%       { box-shadow: 0 0 0 4px rgba(232,92,104,0.18); }
 }
 
 /* ─── Buttons ───────────────────────────────────────────── */
@@ -266,6 +336,50 @@
   background: rgba(255, 255, 255, 0.85);
 }
 
+/* ─── Settings toggle ───────────────────────────────────── */
+.settings-toggle {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.25s ease;
+  flex-shrink: 0;
+}
+.settings-toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 9999px;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+  transition: transform 0.25s ease;
+}
+.settings-toggle[data-on="true"] { background: #19BFA3; }
+.settings-toggle[data-on="false"] { background: #AD8B73; }
+.settings-toggle[data-on="true"] .settings-toggle-thumb { transform: translateX(20px); }
+
+/* ─── Skeleton loading animation ────────────────────────── */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(227, 202, 165, 0.25) 0%,
+    rgba(206, 171, 147, 0.40) 50%,
+    rgba(227, 202, 165, 0.25) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.6s ease-in-out infinite;
+  border-radius: 12px;
+}
+
+@keyframes skeletonShimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
 /* ─── Utility Animations ─────────────────────────────────── */
 .animate-slide-in-right {
   animation: slideInRight 0.4s ease-out forwards;
@@ -294,3 +408,17 @@
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(173, 139, 115, 0.25); border-radius: 9999px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(206, 171, 147, 0.50); }
+
+/* ─── Reduced motion accessibility ─────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .warm-bg-canvas::before {
+    animation: none;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

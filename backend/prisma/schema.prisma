@@ -1,0 +1,159 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model ChargingStation {
+  id            String           @id @default(cuid())
+  stationId     String           @unique @map("station_id")
+  name          String
+  location      String
+  status        StationStatus    @default(ONLINE)
+  ipAddress     String?          @map("ip_address")
+  latitude      Float?
+  longitude     Float?
+  totalSessions Int              @default(0) @map("total_sessions")
+  metadata      Json?
+  createdAt     DateTime         @default(now()) @map("created_at")
+  updatedAt     DateTime         @updatedAt @map("updated_at")
+  incidents     AttackIncident[]
+  mlPredictions MLPrediction[]
+  alerts        SecurityAlert[]
+
+  @@map("charging_stations")
+}
+
+model AttackIncident {
+  id             String           @id @default(cuid())
+  incidentId     String           @unique @map("incident_id")
+  stationId      String?          @map("station_id")
+  attackType     AttackType       @map("attack_type")
+  severity       SeverityLevel
+  status         IncidentStatus   @default(ACTIVE)
+  startTime      DateTime         @map("start_time")
+  endTime        DateTime?        @map("end_time")
+  requestsPerSec Float?           @map("requests_per_sec")
+  sourceIps      String[]         @map("source_ips")
+  packetsDropped Int?             @default(0) @map("packets_dropped")
+  description    String?
+  metadata       Json?
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+  station        ChargingStation? @relation(fields: [stationId], references: [stationId])
+  mlPredictions  MLPrediction[]
+  alerts         SecurityAlert[]
+
+  @@index([stationId])
+  @@index([severity])
+  @@index([status])
+  @@index([startTime])
+  @@map("attack_incidents")
+}
+
+model SecurityAlert {
+  id             String           @id @default(cuid())
+  alertId        String           @unique @map("alert_id")
+  stationId      String?          @map("station_id")
+  incidentId     String?          @map("incident_id")
+  severity       SeverityLevel
+  title          String
+  message        String
+  acknowledged   Boolean          @default(false)
+  acknowledgedAt DateTime?        @map("acknowledged_at")
+  acknowledgedBy String?          @map("acknowledged_by")
+  metadata       Json?
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+  incident       AttackIncident?  @relation(fields: [incidentId], references: [incidentId])
+  station        ChargingStation? @relation(fields: [stationId], references: [stationId])
+
+  @@index([stationId])
+  @@index([severity])
+  @@index([acknowledged])
+  @@map("security_alerts")
+}
+
+model MLPrediction {
+  id             String             @id @default(cuid())
+  predictionId   String             @unique @map("prediction_id")
+  stationId      String?            @map("station_id")
+  incidentId     String?            @map("incident_id")
+  classification ClassificationType
+  confidence     Float
+  modelVersion   String?            @map("model_version")
+  featureSummary Json?              @map("feature_summary")
+  rawFeatureRef  String?            @map("raw_feature_ref")
+  createdAt      DateTime           @default(now()) @map("created_at")
+  incident       AttackIncident?    @relation(fields: [incidentId], references: [incidentId])
+  station        ChargingStation?   @relation(fields: [stationId], references: [stationId])
+
+  @@index([stationId])
+  @@index([classification])
+  @@index([createdAt])
+  @@map("ml_predictions")
+}
+
+model SystemEvent {
+  id        String          @id @default(cuid())
+  eventType SystemEventType @map("event_type")
+  source    String
+  message   String
+  metadata  Json?
+  createdAt DateTime        @default(now()) @map("created_at")
+
+  @@index([eventType])
+  @@index([createdAt])
+  @@map("system_events")
+}
+
+enum StationStatus {
+  ONLINE
+  OFFLINE
+  UNDER_ATTACK
+  MAINTENANCE
+}
+
+enum SeverityLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum IncidentStatus {
+  ACTIVE
+  MITIGATED
+  RESOLVED
+  INVESTIGATING
+}
+
+enum ClassificationType {
+  NORMAL
+  ANOMALOUS
+  ATTACK
+}
+
+enum AttackType {
+  VOLUMETRIC
+  PROTOCOL
+  APPLICATION_LAYER
+  CREDENTIAL_STUFFING
+  REPLAY_ATTACK
+  UNKNOWN
+}
+
+enum SystemEventType {
+  SERVER_START
+  SERVER_STOP
+  DB_CONNECTED
+  DB_DISCONNECTED
+  ML_MODEL_LOADED
+  ML_MODEL_UNLOADED
+  CONFIG_CHANGE
+  SECURITY_POLICY_UPDATE
+  MANUAL_OVERRIDE
+}

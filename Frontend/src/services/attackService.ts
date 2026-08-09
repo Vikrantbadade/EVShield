@@ -1,5 +1,15 @@
+import { apiClient, ApiResponseWrapper } from './apiClient';
 import { AttackIncident, AttackFilterParams } from '../types/attack';
 import { mockAttacksData } from '../data/mockAttacks';
+
+export interface AttackQueryResult {
+  items: AttackIncident[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+  isDemo?: boolean;
+}
 
 export interface AttackSummaryMetrics {
   totalIncidents: number;
@@ -10,18 +20,61 @@ export interface AttackSummaryMetrics {
 
 export const attackService = {
   /**
-   * Get filtered list of attacks with pagination
+   * Asynchronously fetch filtered list of attack incidents from backend API
    */
-  getAttacks: (params: AttackFilterParams = {}, activeLiveIncident?: AttackIncident | null): {
-    items: AttackIncident[];
-    total: number;
-    page: number;
-    pageSize: number;
-    totalPages: number;
-  } => {
+  getAttacksAsync: async (
+    params: AttackFilterParams = {},
+    activeLiveIncident?: AttackIncident | null
+  ): Promise<AttackQueryResult> => {
+    try {
+      const response = await apiClient.get<ApiResponseWrapper<AttackQueryResult>>('/attacks', {
+        params: {
+          search: params.search,
+          severity: params.severity,
+          status: params.status,
+          attackType: params.attackType,
+          page: params.page,
+          pageSize: params.pageSize,
+        },
+      });
+
+      let result = response.data.data;
+      if (!result) {
+        throw new Error('Invalid backend attack response format.');
+      }
+
+      let items = [...result.items];
+
+      // Prepend active simulation incident if currently running
+      if (activeLiveIncident) {
+        const idx = items.findIndex((a) => a.id === activeLiveIncident.id);
+        if (idx >= 0) {
+          items[idx] = { ...items[idx], ...activeLiveIncident };
+        } else {
+          items.unshift(activeLiveIncident);
+        }
+      }
+
+      return {
+        ...result,
+        items,
+        total: activeLiveIncident ? result.total + 1 : result.total,
+      };
+    } catch {
+      // Fallback to local filtering if backend unreachable
+      return attackService.getAttacks(params, activeLiveIncident);
+    }
+  },
+
+  /**
+   * Synchronous fallback query method
+   */
+  getAttacks: (
+    params: AttackFilterParams = {},
+    activeLiveIncident?: AttackIncident | null
+  ): AttackQueryResult => {
     let list = [...mockAttacksData];
 
-    // If an active dynamic incident exists, update or prepend it
     if (activeLiveIncident) {
       const idx = list.findIndex((a) => a.id === activeLiveIncident.id);
       if (idx >= 0) {
@@ -33,7 +86,6 @@ export const attackService = {
 
     const { search, severity, status, attackType, page = 1, pageSize = 10 } = params;
 
-    // Search filter
     if (search && search.trim() !== '') {
       const q = search.toLowerCase().trim();
       list = list.filter(
@@ -45,17 +97,14 @@ export const attackService = {
       );
     }
 
-    // Severity filter
     if (severity && severity !== 'ALL') {
       list = list.filter((a) => a.severity.toUpperCase() === severity.toUpperCase());
     }
 
-    // Status filter
     if (status && status !== 'ALL') {
       list = list.filter((a) => a.status.toUpperCase() === status.toUpperCase());
     }
 
-    // Attack Type filter
     if (attackType && attackType !== 'ALL') {
       list = list.filter((a) => a.attackType.toUpperCase() === attackType.toUpperCase());
     }
@@ -71,11 +120,34 @@ export const attackService = {
       page,
       pageSize,
       totalPages,
+      isDemo: true,
     };
   },
 
   /**
-   * Get single incident by ID
+   * Asynchronously fetch single attack incident by ID
+   */
+  getAttackByIdAsync: async (
+    id: string,
+    activeLiveIncident?: AttackIncident | null
+  ): Promise<AttackIncident | null> => {
+    if (activeLiveIncident && activeLiveIncident.id === id) {
+      return activeLiveIncident;
+    }
+
+    try {
+      const response = await apiClient.get<ApiResponseWrapper<AttackIncident>>(`/attacks/${id}`);
+      if (response.data.success && response.data.data) {
+        return response.data.data;
+      }
+      return attackService.getAttackById(id, activeLiveIncident);
+    } catch {
+      return attackService.getAttackById(id, activeLiveIncident);
+    }
+  },
+
+  /**
+   * Synchronous fallback single attack fetch
    */
   getAttackById: (id: string, activeLiveIncident?: AttackIncident | null): AttackIncident | null => {
     if (activeLiveIncident && activeLiveIncident.id === id) {
@@ -83,16 +155,19 @@ export const attackService = {
     }
     const found = mockAttacksData.find((a) => a.id === id);
     if (found) return found;
-    // Default fallback to first incident if ID not matched
     return mockAttacksData[0] || null;
   },
 
   /**
-   * Calculate summary metrics from incident list
+   * Calculate summary metrics
    */
-  getSummaryMetrics: (activeLiveIncident?: AttackIncident | null): AttackSummaryMetrics => {
-    let list = [...mockAttacksData];
-    if (activeLiveIncident) {
+  getSummaryMetrics: (
+    activeLiveIncident?: AttackIncident | null,
+    incidentsList?: AttackIncident[]
+  ): AttackSummaryMetrics => {
+    let list = incidentsList ? [...incidentsList] : [...mockAttacksData];
+
+    if (activeLiveIncident && !incidentsList) {
       const idx = list.findIndex((a) => a.id === activeLiveIncident.id);
       if (idx >= 0) {
         list[idx] = { ...list[idx], ...activeLiveIncident };
@@ -110,7 +185,7 @@ export const attackService = {
   },
 
   /**
-   * Export incidents to CSV (client-side)
+   * Export incidents to CSV
    */
   exportToCSV: (incidents: AttackIncident[], filename = 'EVShield-Attack-Logs.csv') => {
     const headers = [
@@ -153,7 +228,7 @@ export const attackService = {
   },
 
   /**
-   * Export incidents to JSON (client-side)
+   * Export incidents to JSON
    */
   exportToJSON: (incidents: AttackIncident[], filename = 'EVShield-Attack-Logs.json') => {
     const dataStr = JSON.stringify(incidents, null, 2);

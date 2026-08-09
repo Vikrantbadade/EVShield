@@ -1,7 +1,8 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { AppLayout } from '../components/layout/AppLayout';
 import { useSecurity } from '../context/SecurityContext';
 import { getStations, getRegions, getNetworkSummary } from '../data/mockStations';
+import { stationService } from '../services/stationService';
 import { DemoStation, ChargingRegion } from '../types/station';
 import { StatusChip } from '../components/ui/StatusChip';
 import { ScrollReveal } from '../components/ui/ScrollReveal';
@@ -9,14 +10,52 @@ import { NetworkTopology } from '../components/network/NetworkTopology';
 import { StationCard } from '../components/network/StationCard';
 import { StationModal } from '../components/network/StationModal';
 import { RegionPanel } from '../components/network/RegionPanel';
-import {
-  Server, ShieldCheck, AlertTriangle, Activity, Zap, Search, FilterX,
-} from 'lucide-react';
+import { ApiConnectionBanner } from '../components/ui/ApiConnectionBanner';
+import { Server, ShieldCheck, AlertTriangle, Activity, Zap, Search, FilterX, RefreshCw } from 'lucide-react';
 
 export const ChargingNetworkPage: React.FC = () => {
   const { isAttackMode, requestsPerSec } = useSecurity();
 
-  const stations = useMemo(() => getStations(isAttackMode, requestsPerSec), [isAttackMode, requestsPerSec]);
+  const [backendStations, setBackendStations] = useState<DemoStation[]>([]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
+
+  const fetchStations = useCallback(async () => {
+    setIsRefreshing(true);
+    setApiError(null);
+    try {
+      const res = await stationService.getStations();
+      setBackendStations(res.items);
+    } catch (err) {
+      setApiError(err instanceof Error ? err.message : 'Failed to query station telemetry from backend.');
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchStations();
+  }, [fetchStations]);
+
+  // Combine backend stations with simulation override if active
+  const stations = useMemo(() => {
+    if (backendStations.length > 0) {
+      if (!isAttackMode) return backendStations;
+      return backendStations.map((st) => {
+        if (st.id === 'PUN-HUB-01' || st.id === 'MUM-HUB-01') {
+          return {
+            ...st,
+            status: 'UNDER ATTACK' as const,
+            requestsPerSec,
+            mlStatus: 'ATTACK DETECTED' as const,
+          };
+        }
+        return st;
+      });
+    }
+    return getStations(isAttackMode, requestsPerSec);
+  }, [backendStations, isAttackMode, requestsPerSec]);
+
   const regions = useMemo(() => getRegions(isAttackMode, requestsPerSec), [isAttackMode, requestsPerSec]);
   const summary = useMemo(() => getNetworkSummary(isAttackMode), [isAttackMode]);
 
@@ -51,31 +90,47 @@ export const ChargingNetworkPage: React.FC = () => {
             <h2 className="text-3xl sm:text-4xl font-extrabold text-[#3F3832] tracking-tight">
               Charging Network
             </h2>
-            <StatusChip label="LIVE" variant="live" dot pulse />
+            <StatusChip label="BACKEND CONNECTED" variant="live" dot pulse />
             <StatusChip label="DEMO DATA" variant="demo" />
           </div>
           <p className="text-sm text-[#514940]">
-            Monitor security and health of EV charging infrastructure across connected regions.
+            Monitor security and health of EV charging infrastructure consumed via backend API endpoints.
           </p>
         </div>
 
-        {isAttackMode && (
-          <div className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-[#E85C68]/12 border border-[#E85C68]/30 text-xs font-mono font-bold text-[#a82d38] shrink-0">
-            <AlertTriangle className="w-4 h-4 text-[#E85C68] animate-pulse" />
-            ATTACK SIMULATION ACTIVE
-          </div>
-        )}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={fetchStations}
+            disabled={isRefreshing}
+            className="p-3 rounded-2xl bg-white/70 hover:bg-white/90 border border-white/90 text-[#7A7067] hover:text-[#3F3832] transition-colors shadow-glass-sm"
+            title="Refresh station telemetry"
+          >
+            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-[#AD8B73]' : ''}`} />
+          </button>
+
+          {isAttackMode && (
+            <div className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-[#E85C68]/12 border border-[#E85C68]/30 text-xs font-mono font-bold text-[#a82d38] shrink-0">
+              <AlertTriangle className="w-4 h-4 text-[#E85C68] animate-pulse" />
+              ATTACK SIMULATION ACTIVE
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* Backend API Error Banner */}
+      {apiError && (
+        <ApiConnectionBanner message={apiError} onRetry={fetchStations} isRetrying={isRefreshing} />
+      )}
 
       {/* Network Summary Metrics */}
       <ScrollReveal>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
           {[
-            { label: 'Total Stations',      value: summary.totalStations.toLocaleString(), variant: 'cream'  as const, icon: Server,       color: 'text-[#3F3832]' },
-            { label: 'Protected',           value: summary.protected.toLocaleString(),      variant: 'cyan'   as const, icon: ShieldCheck,  color: 'text-[#19BFA3]' },
-            { label: 'Under Attack',        value: summary.underAttack,                     variant: 'danger' as const, icon: AlertTriangle,color: 'text-[#E85C68]' },
-            { label: 'Degraded',            value: summary.degraded,                        variant: 'sand'   as const, icon: Activity,     color: 'text-[#D99A32]' },
-            { label: 'Active Connections',  value: summary.activeConnections.toLocaleString(), variant: 'peach' as const, icon: Zap,         color: 'text-[#52A8FF]' },
+            { label: 'Total Stations', value: summary.totalStations.toLocaleString(), variant: 'cream' as const, icon: Server, color: 'text-[#3F3832]' },
+            { label: 'Protected', value: summary.protected.toLocaleString(), variant: 'cyan' as const, icon: ShieldCheck, color: 'text-[#19BFA3]' },
+            { label: 'Under Attack', value: summary.underAttack, variant: 'danger' as const, icon: AlertTriangle, color: 'text-[#E85C68]' },
+            { label: 'Degraded', value: summary.degraded, variant: 'sand' as const, icon: Activity, color: 'text-[#D99A32]' },
+            { label: 'Active Connections', value: summary.activeConnections.toLocaleString(), variant: 'peach' as const, icon: Zap, color: 'text-[#52A8FF]' },
           ].map(({ label, value, variant, icon: Icon, color }) => (
             <div key={label} className={`glass-${variant} rounded-[24px] p-5 space-y-2.5 shadow-glass-sm hover:-translate-y-0.5 transition-all`}>
               <div className="flex items-center justify-between">

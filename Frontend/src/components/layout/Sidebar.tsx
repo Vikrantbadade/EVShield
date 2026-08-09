@@ -34,14 +34,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, setMobileOpen }) =
       )}
 
       <aside
-        className={`fixed top-0 left-0 bottom-0 w-64 z-50 flex flex-col transition-transform duration-300 ease-in-out lg:translate-x-0 glass-sidebar ${
+        className={`fixed top-0 left-0 bottom-0 w-64 z-50 flex flex-col glass-sidebar ${
           mobileOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        } lg:translate-x-0`}
+        style={{ transition: 'transform 280ms cubic-bezier(0.4,0,0.2,1)' }}
       >
         {/* Logo */}
         <div className="px-5 py-5 border-b border-[#AD8B73]/15">
           <NavLink to="/dashboard" className="flex items-center gap-3" onClick={() => setMobileOpen(false)}>
-            <div className="relative w-9 h-9 rounded-xl bg-[#AD8B73]/15 border border-[#AD8B73]/30 flex items-center justify-center shrink-0 shadow-glass-sm">
+            <div className="relative w-9 h-9 rounded-xl bg-[#AD8B73]/15 border border-[#AD8B73]/30 flex items-center justify-center shrink-0"
+              style={{ boxShadow: '0 2px 12px rgba(25,191,163,0.12)' }}
+            >
               <ShieldCheck className="w-4.5 h-4.5 text-[#19BFA3]" />
               <Zap className="w-2.5 h-2.5 text-[#CEAB93] absolute bottom-0.5 right-0.5" />
             </div>
@@ -52,29 +55,45 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, setMobileOpen }) =
           </NavLink>
           <button
             onClick={() => setMobileOpen(false)}
-            className="absolute top-4 right-4 p-1.5 rounded-lg text-[#7A7067] hover:bg-[#AD8B73]/10 lg:hidden"
+            className="absolute top-4 right-4 p-1.5 rounded-lg text-[#7A7067] hover:bg-[#AD8B73]/10 lg:hidden transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 px-3 py-5 space-y-1 overflow-y-auto">
+        <nav className="flex-1 px-3 py-5 space-y-0.5 overflow-y-auto">
           {navItems.map(({ name, path, icon: Icon }) => (
             <NavLink
               key={path}
               to={path}
               onClick={() => setMobileOpen(false)}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+                `group flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 relative ${
                   isActive
-                    ? 'bg-[#CEAB93]/28 text-[#3F3832] border border-[#CEAB93]/45 shadow-glass-sm font-semibold'
-                    : 'text-[#514940] hover:text-[#3F3832] hover:bg-white/40'
+                    ? 'bg-[#CEAB93]/28 text-[#3F3832] border border-[#CEAB93]/45 font-semibold shadow-sm'
+                    : 'text-[#514940] hover:text-[#3F3832] hover:bg-white/50 border border-transparent'
                 }`
               }
             >
-              <Icon className="w-4 h-4 shrink-0 text-[#AD8B73]" />
-              <span>{name}</span>
+              {({ isActive }) => (
+                <>
+                  {/* Active left accent bar */}
+                  <span
+                    className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 rounded-r-full transition-all duration-200"
+                    style={{
+                      height: isActive ? '60%' : '0%',
+                      background: '#19BFA3',
+                      opacity: isActive ? 1 : 0,
+                    }}
+                  />
+                  <Icon
+                    className="w-4 h-4 shrink-0 transition-colors duration-200"
+                    style={{ color: isActive ? '#19BFA3' : '#AD8B73' }}
+                  />
+                  <span>{name}</span>
+                </>
+              )}
             </NavLink>
           ))}
         </nav>
