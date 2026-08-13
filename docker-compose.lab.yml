@@ -1,0 +1,17 @@
+services:
+  charging-server:
+    build:
+      context: ./services/charging-server
+    container_name: evshield-charging-server
+    environment:
+      PORT: "8080"
+    ports:
+      - "127.0.0.1:8081:8080"
+    networks:
+      - evshield-lab
+    restart: "no"
+
+networks:
+  evshield-lab:
+    name: evshield-lab
+    driver: bridge

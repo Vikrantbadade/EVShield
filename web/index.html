@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>EVShield Demo Dashboard</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; padding: 24px; max-width: 900px; margin: auto; }
+    h1 { margin-bottom: 6px }
+    .card { border: 1px solid #ddd; padding: 12px; border-radius: 6px; margin-bottom: 12px }
+    .label { font-weight: 600 }
+    .value { font-size: 1.2em }
+    .button { padding: 8px 12px; border-radius: 6px; border: none; background: #0070f3; color: white; cursor: pointer }
+    .button:disabled { opacity: 0.6 }
+    .status-safe { color: green; font-weight: 700 }
+    .status-attack { color: red; font-weight: 700 }
+    pre { background: #f7f7f7; padding: 8px }
+  </style>
+</head>
+<body>
+  <h1>EVShield</h1>
+  <div class="card">
+    <div class="label">Charging Server:</div>
+    <div id="server-status" class="value">Checking...</div>
+  </div>
+
+  <div class="card">
+    <div class="label">Station:</div>
+    <div id="station-status" class="value">—</div>
+    <div style="margin-top:8px"><button id="refresh-status" class="button">Refresh Status</button></div>
+  </div>
+
+  <div class="card">
+    <div class="label">Active charging sessions:</div>
+    <div id="active-sessions" class="value">—</div>
+  </div>
+
+  <div class="card">
+    <h2>ML Security</h2>
+    <div>Attack probability: <span id="probability">—</span></div>
+    <div>Prediction: <span id="prediction">—</span></div>
+    <div>Threshold: <span id="threshold">—</span></div>
+    <div>Status: <span id="ml-status">—</span></div>
+    <div style="margin-top:10px">
+      <button id="run-ml" class="button">Run ML Analysis</button>
+    </div>
+    <div id="ml-loading" style="display:none;margin-top:8px">Running...</div>
+    <div id="ml-error" style="color:red;margin-top:8px;display:none"></div>
+  </div>
+
+  <script>
+    const $ = sel => document.querySelector(sel);
+
+    async function checkServer() {
+      try {
+        const r = await fetch('/health');
+        if (!r.ok) throw new Error('health failed');
+        $('#server-status').textContent = 'ONLINE';
+      } catch (err) {
+        $('#server-status').textContent = 'OFFLINE';
+      }
+    }
+
+    async function refreshStatus() {
+      try {
+        const r = await fetch('/api/status');
+        if (!r.ok) throw new Error('status error');
+        const j = await r.json();
+        $('#station-status').textContent = j.station_status || 'OPERATIONAL';
+        $('#active-sessions').textContent = j.active_sessions != null ? j.active_sessions : '0';
+      } catch (err) {
+        $('#station-status').textContent = 'unavailable';
+        $('#active-sessions').textContent = '0';
+      }
+    }
+
+    async function runMlAnalysis() {
+      $('#ml-error').style.display = 'none';
+      $('#ml-loading').style.display = 'block';
+      $('#run-ml').disabled = true;
+      try {
+        // Get demo telemetry from server
+        const tResp = await fetch('/api/ml/telemetry');
+        if (!tResp.ok) throw new Error('Failed to fetch telemetry');
+        const telemetry = await tResp.json();
+
+        const predictResp = await fetch('/api/ml/predict', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(telemetry)
+        });
+        if (!predictResp.ok) {
+          const errBody = await predictResp.json().catch(()=>({}));
+          throw new Error(errBody && errBody.error ? errBody.error : 'ML prediction failed');
+        }
+        const out = await predictResp.json();
+        displayMlResult(out);
+      } catch (err) {
+        $('#ml-error').textContent = err.message || String(err);
+        $('#ml-error').style.display = 'block';
+      } finally {
+        $('#ml-loading').style.display = 'none';
+        $('#run-ml').disabled = false;
+      }
+    }
+
+    function displayMlResult(out) {
+      const prob = (Number(out.probability_attack) * 100).toFixed(2) + '%';
+      $('#probability').textContent = prob.replace('.00','');
+      $('#prediction').textContent = out.label || (out.predicted_label === 1 ? 'ATTACK' : 'NORMAL');
+      $('#threshold').textContent = (Number(out.threshold) * 100).toFixed(0) + '%';
+      const probNum = Number(out.probability_attack);
+      const threshold = Number(out.threshold);
+      if (!Number.isFinite(probNum) || !Number.isFinite(threshold)) {
+        $('#ml-status').textContent = 'UNKNOWN';
+        $('#ml-status').className = '';
+        return;
+      }
+      if (probNum >= threshold) {
+        $('#ml-status').textContent = 'ATTACK DETECTED';
+        $('#ml-status').className = 'status-attack';
+      } else {
+        $('#ml-status').textContent = 'SAFE';
+        $('#ml-status').className = 'status-safe';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      checkServer();
+      refreshStatus();
+      $('#refresh-status').addEventListener('click', refreshStatus);
+      $('#run-ml').addEventListener('click', runMlAnalysis);
+    });
+  </script>
+</body>
+</html>

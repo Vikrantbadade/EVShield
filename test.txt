@@ -1,0 +1,254 @@
+{
+  "train_conditions": [
+    "Correct_ID/Random_CS_ON/Gaussian_Off",
+    "Wrong_ID/Random_CS_OFF/Gaussian_Off"
+  ],
+  "test_conditions": [
+    "Correct_ID/Random_CS_OFF/Gaussian_Off",
+    "Wrong_ID/Random_CS_ON/Gaussian_Off"
+  ],
+  "dataset_split_counts": {
+    "TIME_DELTA_dataset": {
+      "train": 12,
+      "test": 8
+    },
+    "STAT_CS_branch": {
+      "train": 12,
+      "test": 8
+    },
+    "STAT_CS_cycles": {
+      "train": 12,
+      "test": 8
+    },
+    "STAT_CS_instructions": {
+      "train": 12,
+      "test": 8
+    },
+    "STAT_GS_branch": {
+      "train": 4,
+      "test": 4
+    },
+    "STAT_GS_cycles": {
+      "train": 4,
+      "test": 4
+    },
+    "STAT_GS_instructions": {
+      "train": 4,
+      "test": 4
+    },
+    "TOP_baseline_dataset": {
+      "train": 4152,
+      "test": 3592
+    }
+  },
+  "class_distribution": {
+    "TIME_DELTA_dataset": {
+      "train": {
+        "normal": 6,
+        "attack": 6
+      },
+      "test": {
+        "normal": 4,
+        "attack": 4
+      }
+    },
+    "STAT_CS_branch": {
+      "train": {
+        "normal": 6,
+        "attack": 6
+      },
+      "test": {
+        "normal": 4,
+        "attack": 4
+      }
+    },
+    "STAT_CS_cycles": {
+      "train": {
+        "normal": 6,
+        "attack": 6
+      },
+      "test": {
+        "normal": 4,
+        "attack": 4
+      }
+    },
+    "STAT_CS_instructions": {
+      "train": {
+        "normal": 6,
+        "attack": 6
+      },
+      "test": {
+        "normal": 4,
+        "attack": 4
+      }
+    },
+    "STAT_GS_branch": {
+      "train": {
+        "normal": 2,
+        "attack": 2
+      },
+      "test": {
+        "normal": 2,
+        "attack": 2
+      }
+    },
+    "STAT_GS_cycles": {
+      "train": {
+        "normal": 2,
+        "attack": 2
+      },
+      "test": {
+        "normal": 2,
+        "attack": 2
+      }
+    },
+    "STAT_GS_instructions": {
+      "train": {
+        "normal": 2,
+        "attack": 2
+      },
+      "test": {
+        "normal": 2,
+        "attack": 2
+      }
+    },
+    "TOP_baseline_dataset": {
+      "train": {
+        "normal": 1136,
+        "attack": 3016
+      },
+      "test": {
+        "normal": 1219,
+        "attack": 2373
+      }
+    }
+  },
+  "missing_invalid_values": {
+    "TIME_DELTA_dataset": {
+      "train": {
+        "missing_values": 0,
+        "nan_values": 0,
+        "inf_values": 0
+      },
+      "test": {
+        "missing_values": 0,
+        "nan_values": 0,
+        "inf_values": 0
+      }
+    },
+    "STAT_CS_branch": {
+      "train": {
+        "missing_values": 0,
+        "nan_values": 0,
+        "inf_values": 0
+      },
+      "test": {
+        "missing_values": 0,
+        "nan_values": 0,
+        "inf_values": 0
+      }
+    },
+    "STAT_CS_cycles": {
+      "train": {
+        "missing_values": 0,
+        "nan_values": 0,
+        "inf_values": 0
+      },
+      "test": {
+        "missing_values": 0,
+        "nan_values": 0,
+        "inf_values": 0
+      }
+    },
+    "STAT_CS_instructions": {
+      "train": {
+        "missing_values": 0,
+        "nan_values": 0,
+        "inf_values": 0
+      },
+      "test": {
+        "missing_values": 0,
+        "nan_values": 0,
+        "inf_values": 0
+      }
+    },
+    "STAT_GS_branch": {
+      "train": {
+        "missing_values": 0,
+        "nan_values": 0,
+        "inf_values": 0
+      },
+      "test": {
+        "missing_values": 0,
+        "nan_values": 0,
+        "inf_values": 0
+      }
+    },
+    "STAT_GS_cycles": {
+      "train": {
+        "missing_values": 0,
+        "nan_values": 0,
+        "inf_values": 0
+      },
+      "test": {
+        "missing_values": 0,
+        "nan_values": 0,
+        "inf_values": 0
+      }
+    },
+    "STAT_GS_instructions": {
+      "train": {
+        "missing_values": 0,
+        "nan_values": 0,
+        "inf_values": 0
+      },
+      "test": {
+        "missing_values": 0,
+        "nan_values": 0,
+        "inf_values": 0
+      }
+    },
+    "TOP_baseline_dataset": {
+      "train": {
+        "missing_values": 0,
+        "nan_values": 0,
+        "inf_values": 0
+      },
+      "test": {
+        "missing_values": 0,
+        "nan_values": 0,
+        "inf_values": 0
+      }
+    }
+  },
+  "generated_files": [
+    "processed/STAT_CS_branch/schema.json",
+    "processed/STAT_CS_branch/test.csv",
+    "processed/STAT_CS_branch/train.csv",
+    "processed/STAT_CS_cycles/schema.json",
+    "processed/STAT_CS_cycles/test.csv",
+    "processed/STAT_CS_cycles/train.csv",
+    "processed/STAT_CS_instructions/schema.json",
+    "processed/STAT_CS_instructions/test.csv",
+    "processed/STAT_CS_instructions/train.csv",
+    "processed/STAT_GS_branch/schema.json",
+    "processed/STAT_GS_branch/test.csv",
+    "processed/STAT_GS_branch/train.csv",
+    "processed/STAT_GS_cycles/schema.json",
+    "processed/STAT_GS_cycles/test.csv",
+    "processed/STAT_GS_cycles/train.csv",
+    "processed/STAT_GS_instructions/schema.json",
+    "processed/STAT_GS_instructions/test.csv",
+    "processed/STAT_GS_instructions/train.csv",
+    "processed/TIME_DELTA_dataset/schema.json",
+    "processed/TIME_DELTA_dataset/test.csv",
+    "processed/TIME_DELTA_dataset/train.csv",
+    "processed/TOP_baseline_dataset/schema.json",
+    "processed/TOP_baseline_dataset/test.csv",
+    "processed/TOP_baseline_dataset/train.csv",
+    "processed/preprocessing_config.json",
+    "processed/preprocessing_validation.json"
+  ],
+  "dataset_not_modified": true,
+  "warnings": []
+}
