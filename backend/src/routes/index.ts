@@ -6,6 +6,7 @@ import stationRoutes from './station.routes.js';
 import alertRoutes from './alert.routes.js';
 import analyticsRoutes from './analytics.routes.js';
 import mlRoutes from './ml.routes.js';
+import telemetryRoutes from './telemetry.routes.js';
 
 const router = Router();
 
@@ -17,5 +18,7 @@ router.use('/stations', stationRoutes);
 router.use('/alerts', alertRoutes);
 router.use('/analytics', analyticsRoutes);
 router.use('/ml', mlRoutes);
+router.use('/telemetry', telemetryRoutes);
+router.use('/demo', telemetryRoutes);
 
 export default router;

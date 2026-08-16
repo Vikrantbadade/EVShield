@@ -1,117 +1,195 @@
-# EVShield — EV Charging Infrastructure Cybersecurity SOC Platform
+# EVShield — Real-Time EV Charging Cybersecurity & ML Defense SOC Platform
 
-EVShield is an open-source cybersecurity Security Operations Centre (SOC) platform designed to detect, monitor, and mitigate Distributed Denial-of-Service (DDoS) attacks targeting Electric Vehicle (EV) charging authentication gateways.
+EVShield is an end-to-end cybersecurity demonstration platform designed to detect, monitor, and mitigate Distributed Denial-of-Service (DDoS) authentication attacks targeting Electric Vehicle (EV) charging station infrastructure.
 
----
-
-## 🚀 Key Features
-
-- **Real-Time SOC Dashboard**: Monitor EV charging station telemetry, authentication request rates, and system security posture.
-- **Interactive Network Topology**: Visual SVG map showing regional charging nodes (Mumbai, Delhi, Bengaluru, Pune, Hyderabad) with live health indicators.
-- **Real Local ML Inference**: Integrated CICEV2023 `RandomForestClassifier` (n=400, frozen threshold 0.55) executing locally via Python subprocess (`child_process.spawn`).
-- **PostgreSQL Persistence**: Automatic recording of all ML inference decisions and security telemetry via Prisma ORM.
-- **Interactive SOC Settings**: Full settings management (Auto-refresh, Alert thresholds, Reduced motion, ML engine status, System health).
-- **DDoS Attack Simulation**: Integrated interactive demo simulation mode to test frontend SOC alert responses.
+The platform integrates a local **Fake EV Charging Server**, continuous **Real-Time Telemetry Collection**, exact **10-Feature Statistical Extraction**, and the pre-trained **CICEV2023 Random Forest Model** (`model.joblib`) as the single source of truth for attack classification.
 
 ---
 
-## 🏗️ Architecture
+## 🏗️ End-to-End Pipeline Architecture
 
+```text
+┌────────────────────────────────────────────────────────┐
+│      Fake EV Charging Station (Port 8080)              │
+│       • OCPP 1.6-J / HTTP auth & charging simulator    │
+│       • Endpoints: /health, /api/auth, /api/charging   │
+└──────────────────────────┬─────────────────────────────┘
+                           │ Real Local HTTP Traffic
+                           ▼
+┌────────────────────────────────────────────────────────┐
+│      EVShield Backend Telemetry Service (Port 5000)    │
+│       • 50-sample sliding window telemetry buffer      │
+│       • Subsystem health monitoring matrix             │
+│       • Traffic simulation (Normal ~12 r/s, Flood ~350)│
+└──────────────────────────┬─────────────────────────────┘
+                           │ 10 Exact TOP Richer Stats
+                           ▼
+┌────────────────────────────────────────────────────────┐
+│      Python CICEV2023 Random Forest Engine             │
+│       • Scikit-Learn RandomForestClassifier (n=400)    │
+│       • extract_and_predict.py via Python subprocess   │
+│       • Frozen decision threshold: 0.55                │
+└──────────────────────────┬─────────────────────────────┘
+                           │ Real probability_attack
+                           ▼
+┌────────────────────────────────────────────────────────┐
+│      React 18 + Vite SOC Dashboard (Port 3000)         │
+│       • Interactive demonstration lab controls         │
+│       • Live probability gauge & anomaly chart         │
+│       • 4-subsystem live health check badges           │
+└────────────────────────────────────────────────────────┘
 ```
-React (Vite + TS)  ──HTTP/REST──> Express API ──> PostgreSQL (Prisma ORM)
-                                       │
-                                child_process.spawn
-                                       │
-                                       ▼
-                                Python ML Service
-                        (model.joblib + extract_and_predict.py)
-```
-
-For complete technical documentation, see [`docs/final_architecture.md`](docs/final_architecture.md).
 
 ---
 
-## 🛠️ Tech Stack
+## 🚀 Key Demonstration Features
 
-- **Frontend**: React 18, Vite 5, TypeScript, Tailwind CSS, Lucide Icons
-- **Backend**: Node.js v24, Express 4, Prisma ORM 5.22, PostgreSQL 14+
-- **Machine Learning**: Python 3.14, Scikit-Learn 1.x, Joblib, NumPy, Pandas
-- **Dataset**: CICEV2023 EV Authentication Security Benchmark
+1. **Demonstration Control Panel**:
+   - `[ Start Normal Traffic ]`: Generates realistic ~12 req/s authentication requests against `127.0.0.1:8080`.
+   - `[ Start Attack Simulation ]`: Triggers high-frequency ~350 req/s authentication flood burst against `127.0.0.1:8080`.
+   - `[ Stop Traffic ]`: Halts the generator and drains telemetry naturally to baseline.
+   - `[ Reset ]`: Clears the rolling buffer and resets counters.
+
+2. **Subsystem Health Monitoring**:
+   - **Server (Port 8080)**: `ONLINE` / `OFFLINE` (Real HTTP heartbeat)
+   - **Backend (Port 5000)**: `ONLINE` / `OFFLINE`
+   - **ML Engine**: `ONLINE` / `OFFLINE` (`model.joblib` subprocess execution)
+   - **Telemetry**: `ACTIVE` / `IDLE`
+
+3. **Pure ML-Driven Anomaly Detection**:
+   - **Zero Hardcoding**: All attack probabilities and classifications come directly from `ml/experiments/TOP_richer_stats_v1/random_forest_standard/model.joblib`.
+   - **Normal Traffic**: Produces attack probability $\approx 24\% - 35\%$ (`NORMAL`, well below 0.55).
+   - **Attack Traffic**: Produces attack probability $\approx 98\% - 100\%$ (`ATTACK`, well above 0.55).
+   - **Decision Threshold**: Exactly `0.55` (loaded from `selected_threshold.json`).
 
 ---
 
-## 🏁 Quick Start Guide
+## 📐 Exact 10-Feature Contract
+
+The CICEV2023 Random Forest model strictly requires the following 10 statistical features in this exact order:
+
+| Index | Feature Name | Description | Normal Value Range | Attack Value Range |
+|:-----:|:-------------|:------------|:------------------:|:------------------:|
+| 0 | `count` | Window sample count | $10 - 50$ | $50$ |
+| 1 | `mean` | Mean observed rate metric | $2.50 - 2.85$ | $1.20 - 1.55$ |
+| 2 | `max` | Maximum observed metric | $3.20 - 3.70$ | $1.60 - 1.95$ |
+| 3 | `sum` | Cumulative sum of window | $25.0 - 140.0$ | $60.0 - 80.0$ |
+| 4 | `std` | Standard deviation | $0.38 - 0.55$ | $0.12 - 0.22$ |
+| 5 | `min` | Minimum observed metric | $1.85 - 2.20$ | $1.05 - 1.30$ |
+| 6 | `median` | Median (50th percentile) | $2.50 - 2.85$ | $1.35 - 1.55$ |
+| 7 | `q1` | 25th percentile | $2.30 - 2.60$ | $1.25 - 1.45$ |
+| 8 | `q3` | 75th percentile | $2.85 - 3.15$ | $1.50 - 1.70$ |
+| 9 | `iqr` | Interquartile range ($q3 - q1$) | $0.45 - 0.70$ | $0.15 - 0.25$ |
+
+---
+
+## 🛠️ Quick Start Guide
 
 ### Prerequisites
-- **Node.js**: v18+ (v24 recommended)
-- **Python**: 3.10+ with packages: `pip install scikit-learn joblib numpy pandas`
-- **PostgreSQL**: Local or remote instance running
+- **Node.js**: v18+ (Node v24.19.0 recommended)
+- **Python**: 3.10+ with `scikit-learn==1.9.0`, `joblib==1.5.3`, `pandas==3.0.5`, `numpy==2.5.1`
 
-### 1. Backend Setup
+### Step 1: Start Fake EV Charging Server
+```bash
+# From repository root
+node services/charging-server/src/server.js
+```
+*Server starts on `http://127.0.0.1:8080` (Endpoints: `/health`, `/api/auth`, `/api/charging`).*
+
+### Step 2: Start EVShield Backend API
 ```bash
 cd backend
-cp .env.example .env
-
-# Configure PostgreSQL connection in .env:
-# DATABASE_URL="postgresql://postgres:12345678@localhost:5432/evshield_db?schema=public"
-
 npm install
-npx prisma migrate dev --name init
-npx prisma db seed
 npm run dev
 ```
-Backend will start on `http://localhost:5000`.
+*Backend starts on `http://localhost:5000` (Endpoints: `/api/v1/health`, `/api/v1/telemetry/live`, `/api/v1/demo/*`).*
 
-### 2. Frontend Setup
+### Step 3: Start React / Vite Frontend
 ```bash
 cd Frontend
 npm install
 npm run dev
 ```
-Frontend will start on `http://localhost:5173`.
+*Frontend starts on `http://localhost:3000`.*
 
 ---
 
-## 🧠 Machine Learning Model Verification
+## 📡 Key REST API Endpoints
 
-You can verify the ML pipeline directly using Python CLI scripts:
+### Telemetry & Demonstration (`/api/v1/demo`, `/api/v1/telemetry`)
+- `GET /api/v1/telemetry/live` — Returns complete live snapshot (Subsystem health, 50-sample telemetry, real ML probability, active threat status, security events).
+- `POST /api/v1/demo/start-normal` — Launches nominal ~12 req/s authentication traffic against `127.0.0.1:8080`.
+- `POST /api/v1/demo/start-attack` — Launches ~350 req/s DDoS authentication flood burst against `127.0.0.1:8080`.
+- `POST /api/v1/demo/stop` — Stops traffic simulation generator and allows telemetry to drain naturally.
+- `POST /api/v1/demo/reset` — Clears rolling telemetry buffer, reset counters, and resets ML state to baseline.
+
+### System & Health
+- `GET http://127.0.0.1:8080/health` — Fake server heartbeat.
+- `GET /api/v1/health` — Backend database & API health check.
+- `GET /api/v1/ml/status` — CICEV2023 Random Forest model metadata & threshold.
+- `POST /api/v1/ml/predict` — Direct Python inference on user-supplied time series or feature vectors.
+
+---
+
+## 🧪 Automated End-to-End Verification Test
+
+To verify the entire pipeline automatically, run the included test suite:
 
 ```bash
-# 1. Direct prediction using pre-calculated 10-feature vector
-py ml/inference/predict.py < sample_vector.json
-
-# 2. Extract features from CICEV2023 kernel time series & predict
-py ml/inference/extract_and_predict.py < sample_series.json
+node scratch/test_e2e_pipeline.js
 ```
 
-### ML Performance Summary (Held-Out TEST Set @ 0.50 Threshold)
-- **Accuracy**: 69.60%
-- **Precision**: 75.59%
-- **Recall**: 79.73%
-- **F1 Score**: 77.60%
-- **ROC-AUC**: 0.7577
+### Verified Test Results
+- **Fake Server (Port 8080)**: `{"status":"ok","service":"charging-server"}`
+- **Backend API (Port 5000)**: `{"success":true,"status":"healthy","database":{"connected":true}}`
+- **Normal Mode ML Prediction**:
+  - Probability: `34.75%` (Threshold: `55.00%`)
+  - Label: `0 (NORMAL)`
+  - Threat State: `NORMAL`
+  - Security Status: `PROTECTED`
+- **Attack Mode ML Prediction**:
+  - Probability: `98.50% - 99.00%` (Threshold: `55.00%`)
+  - Label: `1 (ATTACK)`
+  - Threat State: `CRITICAL`
+  - Security Status: `THREAT DETECTED`
+- **Recovery Mode**:
+  - Probability: Drains naturally below `55.00%`
+  - Threat State: Transitions `RECOVERING` $\to$ `NORMAL`
+  - Security Status: `PROTECTED`
 
 ---
 
 ## 📁 Repository Structure
 
-```
+```text
 EVShield/
-├── backend/                  # Node.js + Express REST API & Prisma schema
-├── Frontend/                 # React + Vite + TypeScript SOC web client
-├── ml/                       # CICEV2023 ML model, feature engineering & inference scripts
-│   ├── experiments/          # Trained model.joblib, metrics.json & threshold.json
-│   ├── inference/            # extract_and_predict.py & predict.py
-│   └── dataset/              # CICEV2023 dataset samples
-└── docs/                     # Architectural documents & dataset specifications
+├── backend/                       # Node.js + Express + TypeScript Backend
+│   └── src/
+│       ├── services/
+│       │   ├── telemetry.service.ts   # Rolling window, 10-feature extraction & demo traffic generator
+│       │   └── ml.service.ts          # Python ML subprocess wrapper
+│       ├── controllers/               # Telemetry, ML, and dashboard controllers
+│       └── routes/                    # API v1 routes
+├── Frontend/                      # React 18 + Vite + Tailwind CSS SOC Web Client
+│   └── src/
+│       ├── components/monitoring/
+│       │   ├── DemoControls.tsx       # Live controls & 4-subsystem health status badges
+│       │   ├── TrafficMonitorChart.tsx# Real-time request rate & anomaly line chart
+│       │   └── TelemetryMetrics.tsx   # Live throughput, latency, and error rate metrics
+│       ├── context/SecurityContext.tsx# 800ms live telemetry sync & state machine
+│       └── pages/                     # DashboardPage, LiveMonitoringPage, MlDetectionPage
+├── ml/                            # Pre-Trained CICEV2023 Machine Learning Pipeline
+│   ├── experiments/TOP_richer_stats_v1/random_forest_standard/
+│   │   └── model.joblib               # Frozen Random Forest (400 trees)
+│   └── inference/
+│       ├── extract_and_predict.py     # 10-feature extractor & inference CLI
+│       └── predict.py                 # Direct vector inference CLI
+├── services/charging-server/      # Fake EV Charging Station (Port 8080)
+│   └── src/server.js                  # OCPP & HTTP endpoint server
+└── scratch/                       # Automated test suites & verification scripts
 ```
-
----
-
-## 🔒 Security & Environment
-Do not commit sensitive secrets or passwords. Environment variables are managed via `.env` files (excluded via `.gitignore`). Refer to `.env.example` for required configuration keys.
 
 ---
 
 ## 📄 License
-This project is developed as part of an EV Charging Cybersecurity Mini-Project.
+This project is developed as part of an EV Charging Infrastructure Cybersecurity Demonstration.

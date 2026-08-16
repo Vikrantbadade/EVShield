@@ -9,10 +9,17 @@ import {
   MLPredictionRequest,
 } from '../types/ml.types.js';
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Path Resolution
-// ─────────────────────────────────────────────────────────────────────────────
-const ROOT_DIR = path.resolve(process.cwd(), '..');
+function resolveProjectRoot(): string {
+  if (fs.existsSync(path.resolve(process.cwd(), 'ml'))) {
+    return process.cwd();
+  }
+  if (fs.existsSync(path.resolve(process.cwd(), '..', 'ml'))) {
+    return path.resolve(process.cwd(), '..');
+  }
+  return path.resolve(process.cwd(), '..');
+}
+
+const ROOT_DIR = resolveProjectRoot();
 const SCRIPT_PATH = path.resolve(ROOT_DIR, 'ml', 'inference', 'extract_and_predict.py');
 const MODEL_PATH = path.resolve(ROOT_DIR, 'ml', 'experiments', 'TOP_richer_stats_v1', 'random_forest_standard', 'model.joblib');
 const METRICS_PATH = path.resolve(ROOT_DIR, 'ml', 'experiments', 'TOP_richer_stats_v1', 'random_forest_standard', 'metrics.json');

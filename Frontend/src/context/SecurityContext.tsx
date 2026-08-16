@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import {
   SecurityContextType,
   TrafficDataPoint,
@@ -14,16 +14,44 @@ import {
   initialTimelineEvents,
   initialAttackFeed,
 } from '../data/mockData';
+import { telemetryService, LiveTelemetrySnapshot } from '../services/telemetryService';
 
 const SecurityContext = createContext<SecurityContextType | undefined>(undefined);
 
 export const SecurityProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Live connectivity state
+  const [isLiveConnected, setIsLiveConnected] = useState<boolean>(false);
+  const [liveError, setLiveError] = useState<string | null>(null);
+
+  // Subsystem health
+  const [serverStatus, setServerStatus] = useState<'ONLINE' | 'OFFLINE'>('OFFLINE');
+  const [mlEngineStatus, setMlEngineStatus] = useState<'ONLINE' | 'OFFLINE'>('ONLINE');
+  const [backendStatus, setBackendStatus] = useState<'ONLINE' | 'OFFLINE'>('ONLINE');
+  const [telemetryStatus, setTelemetryStatus] = useState<'ACTIVE' | 'IDLE'>('IDLE');
+
+  // Simulation & Threat states
+  const [simulationMode, setSimulationMode] = useState<'NORMAL' | 'ATTACK' | 'IDLE'>('IDLE');
+  const [threatLevelState, setThreatLevelState] = useState<'NORMAL' | 'ANALYZING' | 'CRITICAL' | 'RECOVERING'>('NORMAL');
   const [isAttackMode, setIsAttackMode] = useState<boolean>(false);
   const [securityStatus, setSecurityStatus] = useState<'PROTECTED' | 'THREAT DETECTED'>('PROTECTED');
   const [activeThreats, setActiveThreats] = useState<number>(0);
-  const [requestsPerSec, setRequestsPerSec] = useState<number>(1200);
+  const [requestsPerSec, setRequestsPerSec] = useState<number>(0);
   const [affectedNodes, setAffectedNodes] = useState<number>(0);
-  const [mlConfidence, setMlConfidence] = useState<number>(98.2);
+
+  // ML real output
+  const [mlConfidence, setMlConfidence] = useState<number>(24.0);
+  const [mlThreshold, setMlThreshold] = useState<number>(0.55);
+  const [mlLabel, setMlLabel] = useState<'NORMAL' | 'ATTACK'>('NORMAL');
+  const [mlFeatures, setMlFeatures] = useState<Record<string, number>>({});
+
+  // Telemetry stats
+  const [avgLatencyMs, setAvgLatencyMs] = useState<number>(0);
+  const [minLatencyMs, setMinLatencyMs] = useState<number>(0);
+  const [maxLatencyMs, setMaxLatencyMs] = useState<number>(0);
+  const [totalRequests, setTotalRequests] = useState<number>(0);
+  const [errorRatePercent, setErrorRatePercent] = useState<number>(0);
+
+  // Feeds & Lists
   const [trafficData, setTrafficData] = useState<TrafficDataPoint[]>(initialTrafficData);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [chargingStations, setChargingStations] = useState<ChargingStationNode[]>(initialChargingStations);
@@ -31,118 +59,194 @@ export const SecurityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [timelineEvents, setTimelineEvents] = useState<TimelineEvent[]>(initialTimelineEvents);
   const [liveFeed, setLiveFeed] = useState<AttackFeedItem[]>(initialAttackFeed);
 
+  const prevThreatLevelRef = useRef<string>('NORMAL');
+
   const dismissNotification = (id: string) => {
     setNotifications((prev) => prev.filter((n) => n.id !== id));
   };
 
-  const toggleDDoSAttack = () => {
-    if (!isAttackMode) {
-      // ENTER ATTACK MODE
-      setIsAttackMode(true);
-      setSecurityStatus('THREAT DETECTED');
-      setActiveThreats(1);
-      setAffectedNodes(24);
-      setMlConfidence(97.4);
+  // Sync snapshot from backend into React state
+  const applySnapshot = useCallback((snap: LiveTelemetrySnapshot) => {
+    setIsLiveConnected(true);
+    setLiveError(null);
 
-      // Create Toast Notification
+    setServerStatus(snap.server.status);
+    setBackendStatus(snap.health.backend);
+    setMlEngineStatus(snap.health.mlEngine);
+    setTelemetryStatus(snap.health.telemetry);
+
+    setSimulationMode(snap.simulation.mode);
+    setThreatLevelState(snap.threatLevel);
+
+    const isAtk = snap.ml.label === 'ATTACK' || snap.threatLevel === 'CRITICAL';
+    setIsAttackMode(isAtk);
+    setSecurityStatus(snap.securityStatus);
+    setActiveThreats(isAtk ? 1 : 0);
+    setAffectedNodes(isAtk ? 24 : 0);
+
+    setRequestsPerSec(snap.telemetry.requestsPerSecond);
+    setAvgLatencyMs(snap.telemetry.averageLatencyMs);
+    setMinLatencyMs(snap.telemetry.minLatencyMs);
+    setMaxLatencyMs(snap.telemetry.maxLatencyMs);
+    setTotalRequests(snap.telemetry.totalRequests);
+    setErrorRatePercent(snap.telemetry.errorRatePercent);
+
+    // Real ML values
+    const confidencePct = Math.round(snap.ml.probability_attack * 1000) / 10;
+    setMlConfidence(confidencePct);
+    setMlThreshold(snap.ml.threshold);
+    setMlLabel(snap.ml.label);
+    setMlFeatures(snap.ml.features || {});
+
+    // Graph points mapping
+    if (snap.telemetry.graphPoints && snap.telemetry.graphPoints.length > 0) {
+      setTrafficData(
+        snap.telemetry.graphPoints.map((gp) => ({
+          timestamp: gp.timestamp,
+          requests: gp.requestsPerSec,
+          isAnomaly: gp.isAnomaly,
+        }))
+      );
+    }
+
+    // Events mapping
+    if (snap.events && snap.events.length > 0) {
+      setTimelineEvents(
+        snap.events.map((ev) => ({
+          id: ev.id,
+          time: ev.timeStr,
+          title: ev.title,
+          description: ev.message,
+          type: ev.type === 'CRITICAL' ? 'escalated' : ev.type === 'WARNING' ? 'suspicious' : 'normal',
+          severity: ev.type === 'CRITICAL' ? 'critical' : ev.type === 'WARNING' ? 'high' : 'low',
+          isHistoricalDemo: false,
+        }))
+      );
+
+      setLiveFeed(
+        snap.events.map((ev) => ({
+          id: ev.id,
+          time: ev.timeStr,
+          title: ev.title,
+          nodeId: 'Gateway 127.0.0.1:8080',
+          severity: ev.type === 'CRITICAL' ? 'critical' : ev.type === 'WARNING' ? 'high' : 'info',
+          type: ev.type === 'CRITICAL' ? 'DDoS Authentication Burst' : 'Telemetry Event',
+        }))
+      );
+    }
+
+    // Update charging station cards
+    setChargingStations((prev) =>
+      prev.map((station) =>
+        station.id === 'CS-0421'
+          ? {
+              ...station,
+              status: isAtk ? 'UNDER ATTACK' : 'PROTECTED',
+              requestsPerSec: snap.telemetry.requestsPerSecond,
+              threatLevel: isAtk ? 'CRITICAL' : 'NOMINAL',
+            }
+          : station
+      )
+    );
+
+    // Toast notification on state transition to CRITICAL
+    if (snap.threatLevel === 'CRITICAL' && prevThreatLevelRef.current !== 'CRITICAL') {
       const newToast: NotificationItem = {
         id: `notif-${Date.now()}`,
         title: '⚠ DDoS ATTACK DETECTED',
-        message: 'EV charging authentication traffic has exceeded expected patterns. ML engine activated.',
+        message: `Random Forest model flagged anomaly (${confidencePct}% probability >= ${Math.round(snap.ml.threshold * 100)}% threshold).`,
         type: 'critical',
         timestamp: new Date().toLocaleTimeString('en-US', { hour12: false }),
       };
       setNotifications((prev) => [newToast, ...prev]);
 
-      // Create Attack Log Entry
-      const newAttackLog: AttackLogRecord = {
-        attackId: 'EVS-DEMO-001',
+      setAttackLog({
+        attackId: `EVS-LIVE-${Date.now().toString().slice(-4)}`,
         attackType: 'DDoS Authentication Burst',
         severity: 'CRITICAL',
         status: 'ACTIVE',
-        mlConfidence: '97.4% DEMO',
-        requestsPerSec: 18450,
+        mlConfidence: `${confidencePct}% (Random Forest)`,
+        requestsPerSec: snap.telemetry.requestsPerSecond,
         affectedNodes: 24,
         timestamp: new Date().toLocaleTimeString('en-US', { hour12: false }),
-        targetScope: 'Gateway Zone 1 (CS-0421 Mumbai Central)',
-      };
-      setAttackLog(newAttackLog);
-
-      // Update Charging Station Status
-      setChargingStations((prev) =>
-        prev.map((station) =>
-          station.id === 'CS-0421'
-            ? { ...station, status: 'UNDER ATTACK', requestsPerSec: 18450, threatLevel: 'CRITICAL' }
-            : station
-        )
-      );
-
-      // Dynamic Timeline Addition
-      const newTimelineEvent: TimelineEvent = {
-        id: `t-attack-${Date.now()}`,
-        time: new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' }),
-        title: 'DDoS Authentication Spike Triggered',
-        description: 'ML model flagged rate anomaly exceeding 18,000 req/s across Gateway Zone 1.',
-        type: 'escalated',
-        severity: 'critical',
-        isHistoricalDemo: false,
-      };
-      setTimelineEvents((prev) => [newTimelineEvent, ...prev]);
-
-      // Dynamic Live Feed Addition
-      const newFeedItem: AttackFeedItem = {
-        id: `f-attack-${Date.now()}`,
-        time: new Date().toLocaleTimeString('en-US', { hour12: false }),
-        title: 'DDoS Attack Signature Identified',
-        nodeId: 'CS-0421 (Mumbai Central)',
-        severity: 'critical',
-        type: 'DDoS Attack',
-      };
-      setLiveFeed((prev) => [newFeedItem, ...prev]);
-
-      // Step-by-step traffic request rate ramp up (1,200 -> 2,400 -> 4,800 -> 8,900 -> 13,700 -> 18,450)
-      const steps = [2400, 4800, 8900, 13700, 18450];
-      steps.forEach((targetReqs, index) => {
-        setTimeout(() => {
-          setRequestsPerSec(targetReqs);
-          setTrafficData((prevData) => {
-            const lastTime = prevData[prevData.length - 1]?.timestamp || '15:00';
-            const [h, m] = lastTime.split(':').map(Number);
-            const nextM = (m + 5) % 60;
-            const nextH = m + 5 >= 60 ? (h + 1) % 24 : h;
-            const nextTimeString = `${nextH.toString().padStart(2, '0')}:${nextM.toString().padStart(2, '0')}`;
-
-            return [
-              ...prevData,
-              {
-                timestamp: nextTimeString,
-                requests: targetReqs,
-                isAnomaly: true,
-              },
-            ];
-          });
-        }, (index + 1) * 350);
+        targetScope: 'Gateway Zone 1 (CS-0421)',
       });
-    } else {
-      // END SIMULATION - RETURN TO NORMAL MODE
-      setIsAttackMode(false);
-      setSecurityStatus('PROTECTED');
-      setActiveThreats(0);
-      setAffectedNodes(0);
-      setRequestsPerSec(1200);
-      setMlConfidence(98.2);
-      setAttackLog(null);
-      setTrafficData(initialTrafficData);
-      setChargingStations(initialChargingStations);
-
+    } else if (snap.threatLevel === 'NORMAL' && prevThreatLevelRef.current === 'CRITICAL') {
       const resolvedToast: NotificationItem = {
         id: `notif-resolved-${Date.now()}`,
         title: '✓ THREAT MITIGATED',
-        message: 'Traffic returned to expected nominal range (~1,200 req/s).',
+        message: 'Telemetry has returned to baseline. ML classification is NORMAL.',
         type: 'success',
         timestamp: new Date().toLocaleTimeString('en-US', { hour12: false }),
       };
       setNotifications((prev) => [resolvedToast, ...prev]);
+      setAttackLog(null);
+    }
+
+    prevThreatLevelRef.current = snap.threatLevel;
+  }, []);
+
+  // Poll live telemetry from backend
+  const fetchLiveTelemetry = useCallback(async () => {
+    try {
+      const snap = await telemetryService.getLiveSnapshot();
+      applySnapshot(snap);
+    } catch (err: any) {
+      setIsLiveConnected(false);
+      setLiveError(err?.message || 'Backend connection error');
+      setBackendStatus('OFFLINE');
+    }
+  }, [applySnapshot]);
+
+  // Polling loop (every 800ms)
+  useEffect(() => {
+    fetchLiveTelemetry();
+    const interval = setInterval(fetchLiveTelemetry, 800);
+    return () => clearInterval(interval);
+  }, [fetchLiveTelemetry]);
+
+  // Demo Control Handlers
+  const startNormalTraffic = async () => {
+    try {
+      const snap = await telemetryService.startNormalTraffic();
+      applySnapshot(snap);
+    } catch (err: any) {
+      setLiveError(err?.message || 'Failed to start normal traffic');
+    }
+  };
+
+  const startAttackSimulation = async () => {
+    try {
+      const snap = await telemetryService.startAttackSimulation();
+      applySnapshot(snap);
+    } catch (err: any) {
+      setLiveError(err?.message || 'Failed to start attack simulation');
+    }
+  };
+
+  const stopTraffic = async () => {
+    try {
+      const snap = await telemetryService.stopTraffic();
+      applySnapshot(snap);
+    } catch (err: any) {
+      setLiveError(err?.message || 'Failed to stop traffic');
+    }
+  };
+
+  const resetDemo = async () => {
+    try {
+      const snap = await telemetryService.resetDemo();
+      applySnapshot(snap);
+    } catch (err: any) {
+      setLiveError(err?.message || 'Failed to reset demo');
+    }
+  };
+
+  const toggleDDoSAttack = () => {
+    if (isAttackMode || simulationMode === 'ATTACK') {
+      stopTraffic();
+    } else {
+      startAttackSimulation();
     }
   };
 
@@ -151,6 +255,10 @@ export const SecurityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       value={{
         isAttackMode,
         toggleDDoSAttack,
+        startNormalTraffic,
+        startAttackSimulation,
+        stopTraffic,
+        resetDemo,
         securityStatus,
         activeThreats,
         requestsPerSec,
@@ -163,6 +271,23 @@ export const SecurityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         attackLog,
         timelineEvents,
         liveFeed,
+        // Live Telemetry Integration
+        isLiveConnected,
+        liveError,
+        serverStatus,
+        mlEngineStatus,
+        backendStatus,
+        telemetryStatus,
+        simulationMode,
+        threatLevelState,
+        mlThreshold,
+        mlLabel,
+        mlFeatures,
+        avgLatencyMs,
+        minLatencyMs,
+        maxLatencyMs,
+        totalRequests,
+        errorRatePercent,
       }}
     >
       {children}

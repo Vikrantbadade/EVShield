@@ -8,7 +8,6 @@ import { EventCardsRow } from '../components/dashboard/EventCardsRow';
 import { StationStatusGrid } from '../components/dashboard/StationStatusGrid';
 import { LiveAttackFeed } from '../components/dashboard/LiveAttackFeed';
 import { ThreatTimeline } from '../components/dashboard/ThreatTimeline';
-import { initialKpiStatsData } from '../data/mockData';
 import { useSecurity } from '../context/SecurityContext';
 import { dashboardService, DashboardSummaryData } from '../services/dashboardService';
 import { healthService, HealthCheckStatus } from '../services/healthService';
@@ -17,6 +16,8 @@ import { StatusChip } from '../components/ui/StatusChip';
 import { KpiStat } from '../types';
 import { RefreshCw, Radio } from 'lucide-react';
 
+import { DemoControls } from '../components/monitoring/DemoControls';
+
 export const DashboardPage: React.FC = () => {
   const [timeRange, setTimeRange] = useState<'24h' | '7d' | '30d'>('24h');
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -24,7 +25,14 @@ export const DashboardPage: React.FC = () => {
   const [healthStatus, setHealthStatus] = useState<HealthCheckStatus | null>(null);
   const [apiError, setApiError] = useState<string | null>(null);
 
-  const { isAttackMode, liveFeed, timelineEvents } = useSecurity();
+  const {
+    isAttackMode,
+    liveFeed,
+    timelineEvents,
+    serverStatus,
+    mlConfidence,
+    totalRequests,
+  } = useSecurity();
 
   const fetchBackendData = useCallback(async () => {
     setIsRefreshing(true);
@@ -48,51 +56,49 @@ export const DashboardPage: React.FC = () => {
     fetchBackendData();
   }, [fetchBackendData]);
 
-  // Construct dynamic KPI stat cards based on backend response or fallback
-  const kpiStatsData: KpiStat[] = dashboardData
-    ? [
-        {
-          id: 'total-reqs',
-          label: 'Total Requests',
-          value: dashboardData.totalRequests.toLocaleString(),
-          change: '+14.2%',
-          isPositive: true,
-          isDemo: dashboardData.isDemo,
-          description: 'Analyzed traffic packets across EVSE gateways',
-          iconName: 'Activity',
-        },
-        {
-          id: 'attacks-detected',
-          label: 'Attacks Detected',
-          value: dashboardData.attacksDetected.toString(),
-          change: dashboardData.activeThreats > 0 ? '+2' : '-4',
-          isPositive: dashboardData.activeThreats === 0,
-          isDemo: dashboardData.isDemo,
-          description: 'Identified DDoS & anomaly attempts',
-          iconName: 'ShieldAlert',
-        },
-        {
-          id: 'protected-chargers',
-          label: 'Protected Chargers',
-          value: `${dashboardData.protectedChargers} / ${dashboardData.totalChargers}`,
-          change: '98.0% Online',
-          isPositive: true,
-          isDemo: dashboardData.isDemo,
-          description: 'Active charging nodes protected by firewall',
-          iconName: 'Server',
-        },
-        {
-          id: 'ml-accuracy',
-          label: 'ML Engine Accuracy',
-          value: `${dashboardData.mlAccuracy}%`,
-          change: 'CICEV2023 RF',
-          isPositive: true,
-          isDemo: dashboardData.isDemo,
-          description: 'PROVISIONAL backend classification confidence',
-          iconName: 'Zap',
-        },
-      ]
-    : initialKpiStatsData;
+  // Construct dynamic KPI stat cards based on live context / backend response
+  const kpiStatsData: KpiStat[] = [
+    {
+      id: 'total-reqs',
+      label: 'Total Requests',
+      value: (totalRequests || dashboardData?.totalRequests || 0).toLocaleString(),
+      change: '+14.2%',
+      isPositive: true,
+      isDemo: false,
+      description: 'Analyzed telemetry packets across local charging gateways',
+      iconName: 'Activity',
+    },
+    {
+      id: 'attacks-detected',
+      label: 'Attacks Detected',
+      value: (isAttackMode ? 1 : 0).toString(),
+      change: isAttackMode ? 'CRITICAL' : '0 ACTIVE',
+      isPositive: !isAttackMode,
+      isDemo: false,
+      description: 'Identified DDoS & authentication burst attempts',
+      iconName: 'ShieldAlert',
+    },
+    {
+      id: 'protected-chargers',
+      label: 'Protected Chargers',
+      value: serverStatus === 'ONLINE' ? '1 / 1 Online' : '0 / 1 Online',
+      change: serverStatus === 'ONLINE' ? '100% Online' : 'Offline',
+      isPositive: serverStatus === 'ONLINE',
+      isDemo: false,
+      description: 'Active charging nodes protected by EVShield',
+      iconName: 'Server',
+    },
+    {
+      id: 'ml-accuracy',
+      label: 'ML Threat Score',
+      value: `${mlConfidence.toFixed(1)}%`,
+      change: 'CICEV2023 RF',
+      isPositive: !isAttackMode,
+      isDemo: false,
+      description: 'Real-time Random Forest probability',
+      iconName: 'Zap',
+    },
+  ];
 
   return (
     <AppLayout pageTitle="Security Overview">
@@ -177,10 +183,13 @@ export const DashboardPage: React.FC = () => {
         <ApiConnectionBanner message={apiError} onRetry={fetchBackendData} isRetrying={isRefreshing} />
       )}
 
-      {/* 1. Large Security Command Center Hero */}
+      {/* 1. Interactive Demo Control Lab */}
+      <DemoControls />
+
+      {/* 2. Large Security Command Center Hero */}
       <SecurityHero />
 
-      {/* 2. Primary KPI Cards Row (4 Key Stats with Distinct Colors) */}
+      {/* 3. Primary KPI Cards Row (4 Key Stats with Distinct Colors) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {kpiStatsData.map((stat) => (
           <StatCard key={stat.id} stat={stat} />

@@ -66,6 +66,10 @@ export interface AttackLogRecord {
 export interface SecurityContextType {
   isAttackMode: boolean;
   toggleDDoSAttack: () => void;
+  startNormalTraffic: () => Promise<void>;
+  startAttackSimulation: () => Promise<void>;
+  stopTraffic: () => Promise<void>;
+  resetDemo: () => Promise<void>;
   securityStatus: 'PROTECTED' | 'THREAT DETECTED';
   activeThreats: number;
   requestsPerSec: number;
@@ -78,4 +82,21 @@ export interface SecurityContextType {
   attackLog: AttackLogRecord | null;
   timelineEvents: TimelineEvent[];
   liveFeed: AttackFeedItem[];
+  // Live Telemetry Integration
+  isLiveConnected: boolean;
+  liveError: string | null;
+  serverStatus: 'ONLINE' | 'OFFLINE';
+  mlEngineStatus: 'ONLINE' | 'OFFLINE';
+  backendStatus: 'ONLINE' | 'OFFLINE';
+  telemetryStatus: 'ACTIVE' | 'IDLE';
+  simulationMode: 'NORMAL' | 'ATTACK' | 'IDLE';
+  threatLevelState: 'NORMAL' | 'ANALYZING' | 'CRITICAL' | 'RECOVERING';
+  mlThreshold: number;
+  mlLabel: 'NORMAL' | 'ATTACK';
+  mlFeatures: Record<string, number>;
+  avgLatencyMs: number;
+  minLatencyMs: number;
+  maxLatencyMs: number;
+  totalRequests: number;
+  errorRatePercent: number;
 }

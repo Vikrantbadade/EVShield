@@ -4,8 +4,8 @@ const { spawn } = require("child_process");
 const path = require("path");
 
 const PROJECT_ROOT = path.resolve(__dirname, "../../../..");
-const PYTHON = path.join(PROJECT_ROOT, ".venv", "bin", "python");
-const PREDICT = path.join(PROJECT_ROOT, "ml", "inference", "predict.py");
+const PYTHON = process.env.PYTHON_EXECUTABLE || (process.platform === "win32" ? "py" : "python3");
+const PREDICT = path.join(PROJECT_ROOT, "ml", "inference", "extract_and_predict.py");
 
 function predict(features, opts = {}) {
   const timeoutMs = typeof opts.timeoutMs === 'number' ? opts.timeoutMs : 5000; // default 5s

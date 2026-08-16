@@ -1,15 +1,26 @@
 import React from 'react';
 import { Activity, Zap, Clock, AlertTriangle, ShieldCheck } from 'lucide-react';
+import { useSecurity } from '../../context/SecurityContext';
 
 interface TelemetryMetricsProps {
-  isAttackMode: boolean;
-  requestsPerSec: number;
+  isAttackMode?: boolean;
+  requestsPerSec?: number;
 }
 
-export const TelemetryMetrics: React.FC<TelemetryMetricsProps> = ({ isAttackMode, requestsPerSec }) => {
+export const TelemetryMetrics: React.FC<TelemetryMetricsProps> = () => {
+  const {
+    isAttackMode,
+    requestsPerSec,
+    avgLatencyMs,
+    totalRequests,
+    errorRatePercent,
+  } = useSecurity();
+
+  const successRate = totalRequests > 0 ? (100 - errorRatePercent).toFixed(1) : '100.0';
+
   const metrics = [
     {
-      label: 'Auth Requests / sec',
+      label: 'Live Auth Traffic',
       value: requestsPerSec.toLocaleString(),
       unit: 'req/s',
       icon: Activity,
@@ -17,16 +28,16 @@ export const TelemetryMetrics: React.FC<TelemetryMetricsProps> = ({ isAttackMode
       highlight: isAttackMode,
     },
     {
-      label: 'Active Connections',
-      value: isAttackMode ? '18,450' : '18,420',
-      unit: 'live',
+      label: 'Total Processed',
+      value: totalRequests.toLocaleString(),
+      unit: 'requests',
       icon: Zap,
       variant: 'blue' as const,
       highlight: false,
     },
     {
-      label: 'Avg Auth Latency',
-      value: isAttackMode ? '142' : '42',
+      label: 'Avg Response Latency',
+      value: avgLatencyMs > 0 ? avgLatencyMs.toString() : isAttackMode ? '142' : '14',
       unit: 'ms',
       icon: Clock,
       variant: 'sand' as const,
@@ -34,15 +45,15 @@ export const TelemetryMetrics: React.FC<TelemetryMetricsProps> = ({ isAttackMode
     },
     {
       label: 'Error Rate',
-      value: isAttackMode ? '28.4' : '0.3',
+      value: errorRatePercent.toString(),
       unit: '%',
       icon: AlertTriangle,
       variant: 'peach' as const,
-      highlight: isAttackMode,
+      highlight: isAttackMode || errorRatePercent > 5,
     },
     {
       label: 'Auth Success Rate',
-      value: isAttackMode ? '71.6' : '99.7',
+      value: successRate,
       unit: '%',
       icon: ShieldCheck,
       variant: 'taupe' as const,

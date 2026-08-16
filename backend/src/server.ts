@@ -12,6 +12,15 @@ const server = app.listen(PORT, () => {
   console.log('====================================================');
 });
 
+// Global error safety handlers
+process.on('uncaughtException', (err) => {
+  console.error('Unhandled Exception in backend server:', err);
+});
+
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled Promise Rejection in backend server:', reason);
+});
+
 // Graceful Shutdown handling
 const handleShutdown = (signal: string) => {
   console.log(`\nReceived ${signal}. Gracefully shutting down HTTP server...`);
