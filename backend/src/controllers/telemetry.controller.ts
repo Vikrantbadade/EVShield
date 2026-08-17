@@ -11,6 +11,20 @@ export const getLiveTelemetry = async (_req: Request, res: Response, next: NextF
   }
 };
 
+export const ingestTelemetry = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { sample, samples } = req.body;
+    if (Array.isArray(samples) && samples.length > 0) {
+      telemetryService.recordSamples(samples);
+    } else if (sample) {
+      telemetryService.recordSample(sample);
+    }
+    res.status(200).json(createSuccessResponse({ ingested: true }));
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const startNormalTraffic = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     telemetryService.startNormalTraffic();

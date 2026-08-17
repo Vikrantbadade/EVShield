@@ -2,9 +2,38 @@
 
 const { spawn } = require("child_process");
 const path = require("path");
+const fs = require("fs");
 
 const PROJECT_ROOT = path.resolve(__dirname, "../../../..");
-const PYTHON = process.env.PYTHON_EXECUTABLE || (process.platform === "win32" ? "py" : "python3");
+
+function resolvePython() {
+  if (process.env.PYTHON_EXECUTABLE && fs.existsSync(process.env.PYTHON_EXECUTABLE)) {
+    return process.env.PYTHON_EXECUTABLE;
+  }
+  const isWin = process.platform === "win32";
+  const candidates = isWin
+    ? [
+        path.join(PROJECT_ROOT, ".venv", "Scripts", "python.exe"),
+        path.join(PROJECT_ROOT, "venv", "Scripts", "python.exe"),
+      ]
+    : [
+        path.join(PROJECT_ROOT, ".venv", "bin", "python3"),
+        path.join(PROJECT_ROOT, ".venv", "bin", "python"),
+        path.join(PROJECT_ROOT, "venv", "bin", "python3"),
+        path.join(PROJECT_ROOT, "venv", "bin", "python"),
+      ];
+  for (const candidate of candidates) {
+    if (fs.existsSync(candidate)) {
+      return candidate;
+    }
+  }
+  if (process.env.PYTHON_EXECUTABLE) {
+    return process.env.PYTHON_EXECUTABLE;
+  }
+  return isWin ? "python" : "python3";
+}
+
+const PYTHON = resolvePython();
 const PREDICT = path.join(PROJECT_ROOT, "ml", "inference", "extract_and_predict.py");
 
 function predict(features, opts = {}) {

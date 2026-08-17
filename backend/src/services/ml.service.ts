@@ -1,6 +1,7 @@
 import { spawn } from 'child_process';
 import path from 'path';
 import fs from 'fs';
+import { resolvePythonExecutable } from '../utils/python.util.js';
 import { db } from '../config/database.js';
 import {
   MLModelStatus,
@@ -28,62 +29,83 @@ const THRESHOLD_PATH = path.resolve(ROOT_DIR, 'ml', 'experiments', 'TOP_richer_s
 // ─────────────────────────────────────────────────────────────────────────────
 // Subprocess Helper for Python Inference
 // ─────────────────────────────────────────────────────────────────────────────
+let inferenceQueue: Promise<any> = Promise.resolve();
+
 async function runPythonInference(inputJson: Record<string, unknown>): Promise<any> {
-  const pythonCmd = process.env.PYTHON_EXECUTABLE || (process.platform === 'win32' ? 'py' : 'python3');
+  const timeoutMs = parseInt(process.env.ML_INFERENCE_TIMEOUT_MS || '15000', 10);
+  const pythonCmd = resolvePythonExecutable(ROOT_DIR);
 
-  return new Promise((resolve, reject) => {
-    const processEnv = { ...process.env, PYTHONPATH: ROOT_DIR };
-    const child = spawn(pythonCmd, [SCRIPT_PATH], {
-      cwd: ROOT_DIR,
-      env: processEnv,
-    });
+  const execute = () =>
+    new Promise<any>((resolve, reject) => {
+      const processEnv = { ...process.env, PYTHONPATH: ROOT_DIR };
+      const child = spawn(pythonCmd, ['-u', SCRIPT_PATH], {
+        cwd: ROOT_DIR,
+        env: processEnv,
+      });
 
-    let stdoutData = '';
-    let stderrData = '';
+      let stdoutData = '';
+      let stderrData = '';
+      let isSettled = false;
 
-    const timer = setTimeout(() => {
-      child.kill();
-      reject(new Error('Python ML inference subprocess timed out after 10000ms'));
-    }, 10000);
-
-    child.stdout.on('data', (data) => {
-      stdoutData += data.toString();
-    });
-
-    child.stderr.on('data', (data) => {
-      stderrData += data.toString();
-    });
-
-    child.on('error', (err) => {
-      clearTimeout(timer);
-      reject(new Error(`Failed to spawn Python process (${pythonCmd}): ${err.message}`));
-    });
-
-    child.on('close', (code) => {
-      clearTimeout(timer);
-      if (code !== 0) {
-        let errMessage = `Python process exited with code ${code}`;
-        try {
-          const parsedErr = JSON.parse(stderrData);
-          if (parsedErr.error) errMessage = parsedErr.error;
-        } catch {
-          if (stderrData.trim()) errMessage = stderrData.trim();
+      const timer = setTimeout(() => {
+        if (isSettled) return;
+        isSettled = true;
+        if (child.pid) {
+          if (process.platform === 'win32') {
+            try { spawn('taskkill', ['/F', '/T', '/PID', child.pid.toString()]); } catch {}
+          } else {
+            try { child.kill('SIGKILL'); } catch {}
+          }
         }
-        return reject(new Error(errMessage));
-      }
+        reject(new Error(`Python ML inference subprocess timed out after ${timeoutMs}ms`));
+      }, timeoutMs);
 
-      try {
-        const result = JSON.parse(stdoutData);
-        resolve(result);
-      } catch (err) {
-        reject(new Error(`Failed to parse Python JSON output: ${stdoutData}`));
-      }
+      child.stdout.on('data', (data) => {
+        stdoutData += data.toString();
+      });
+
+      child.stderr.on('data', (data) => {
+        stderrData += data.toString();
+      });
+
+      child.on('error', (err) => {
+        if (isSettled) return;
+        isSettled = true;
+        clearTimeout(timer);
+        reject(new Error(`Failed to spawn Python process (${pythonCmd}): ${err.message}`));
+      });
+
+      child.on('close', (code) => {
+        if (isSettled) return;
+        isSettled = true;
+        clearTimeout(timer);
+        if (code !== 0) {
+          let errMessage = `Python process exited with code ${code}`;
+          try {
+            const parsedErr = JSON.parse(stderrData);
+            if (parsedErr.error) errMessage = parsedErr.error;
+          } catch {
+            if (stderrData.trim()) errMessage = stderrData.trim();
+          }
+          return reject(new Error(errMessage));
+        }
+
+        try {
+          const result = JSON.parse(stdoutData);
+          resolve(result);
+        } catch (err) {
+          reject(new Error(`Failed to parse Python JSON output: ${stdoutData}`));
+        }
+      });
+
+      // Write input payload to stdin
+      child.stdin.write(JSON.stringify(inputJson));
+      child.stdin.end();
     });
 
-    // Write input payload to stdin
-    child.stdin.write(JSON.stringify(inputJson));
-    child.stdin.end();
-  });
+  const nextTask = inferenceQueue.then(execute, execute);
+  inferenceQueue = nextTask.catch(() => {});
+  return nextTask;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

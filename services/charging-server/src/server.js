@@ -9,6 +9,7 @@ const { createChargingRouter } = require("./routes/charging");
 const { SessionStore } = require("./services/session-store");
 const eventLogger = require("./services/event-logger");
 const mlRoutes = require("./routes/ml");
+const telemetryMiddleware = require("./middleware/telemetry");
 const port = Number.parseInt(process.env.PORT || "8080", 10);
 if (!Number.isInteger(port) || port < 1 || port > 65535) {
   throw new Error("PORT must be an integer between 1 and 65535.");
@@ -16,6 +17,9 @@ if (!Number.isInteger(port) || port < 1 || port > 65535) {
 
 const app = express();
 const sessionStore = new SessionStore();
+
+// Capture real HTTP request metrics and stream to EVShield Telemetry Collector
+app.use(telemetryMiddleware);
 
 // Serve the simple frontend from the repository's web/ directory.
 // This avoids CORS and makes the demo easy to run (open http://localhost:8080/).

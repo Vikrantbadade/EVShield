@@ -1,6 +1,7 @@
 import { spawn } from 'child_process';
 import path from 'path';
 import fs from 'fs';
+import { resolvePythonExecutable } from '../utils/python.util.js';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Project & ML Paths
@@ -158,6 +159,11 @@ export class TelemetryService {
   private mlEngineError: string | null = null;
   private lastHealthCheckTime = 0;
 
+  // ML Inference single-flight concurrency lock & state
+  private isInferring = false;
+  private pendingInference = false;
+  private inferenceTimeoutMs = parseInt(process.env.ML_INFERENCE_TIMEOUT_MS || '15000', 10);
+
   constructor() {
     this.initDefaultThreshold();
     this.addSecurityEvent('INFO', 'EVShield Initialized', 'Real-time telemetry and ML defense platform ready.');
@@ -221,40 +227,57 @@ export class TelemetryService {
   }
 
   // ───────────────────────────────────────────────────────────────────────────
-  // Subprocess Python Inference
+  // Subprocess Python Inference (Single-Flight Execution)
   // ───────────────────────────────────────────────────────────────────────────
   private async executeMLInference(inputPayload: Record<string, unknown>): Promise<any> {
-    const pythonCmd = process.env.PYTHON_EXECUTABLE || (process.platform === 'win32' ? 'py' : 'python3');
+    const pythonCmd = resolvePythonExecutable(ROOT_DIR);
 
     return new Promise((resolve, reject) => {
       const processEnv = { ...process.env, PYTHONPATH: ROOT_DIR };
-      const child = spawn(pythonCmd, [SCRIPT_PATH], {
+      const child = spawn(pythonCmd, ['-u', SCRIPT_PATH], {
         cwd: ROOT_DIR,
         env: processEnv,
       });
 
       let stdoutData = '';
       let stderrData = '';
+      let isSettled = false;
 
       const timer = setTimeout(() => {
-        child.kill();
-        reject(new Error('Python ML inference subprocess timed out after 8000ms'));
-      }, 8000);
+        if (isSettled) return;
+        isSettled = true;
+        if (child.pid) {
+          if (process.platform === 'win32') {
+            try { spawn('taskkill', ['/F', '/T', '/PID', child.pid.toString()]); } catch {}
+          } else {
+            try { child.kill('SIGKILL'); } catch {}
+          }
+        }
+        reject(new Error(`Python ML inference subprocess timed out after ${this.inferenceTimeoutMs}ms`));
+      }, this.inferenceTimeoutMs);
 
       child.stdout.on('data', (data) => {
         stdoutData += data.toString();
+        if (process.env.DEBUG_ML === 'true') {
+          console.log('[executeMLInference STDOUT]:', data.toString());
+        }
       });
 
       child.stderr.on('data', (data) => {
         stderrData += data.toString();
+        console.error('[executeMLInference STDERR]:', data.toString());
       });
 
       child.on('error', (err) => {
+        if (isSettled) return;
+        isSettled = true;
         clearTimeout(timer);
         reject(new Error(`Failed to spawn Python process (${pythonCmd}): ${err.message}`));
       });
 
       child.on('close', (code) => {
+        if (isSettled) return;
+        isSettled = true;
         clearTimeout(timer);
         if (code !== 0) {
           let errMessage = `Python process exited with code ${code}`;
@@ -275,9 +298,58 @@ export class TelemetryService {
         }
       });
 
-      child.stdin.write(JSON.stringify(inputPayload));
+      child.stdin.write(JSON.stringify(inputPayload) + '\n');
       child.stdin.end();
     });
+  }
+
+  /**
+   * Single-flight ML inference on the latest telemetry window.
+   * If an inference is currently executing, skip this tick so Python processes never dogpile.
+   */
+  private triggerMLInference(): void {
+    if (this.isInferring) {
+      return;
+    }
+
+    this.runSingleFlightInference();
+  }
+
+  private async runSingleFlightInference(): Promise<void> {
+    if (this.isInferring) return;
+    this.isInferring = true;
+
+    const { rawSeries, features } = this.calculateFeaturesFromBuffer();
+    const mlStartTime = Date.now();
+
+    try {
+      const mlResult = await this.executeMLInference({ data_point: rawSeries, symbol: 'telemetry_stream' });
+      const durationMs = Date.now() - mlStartTime;
+
+      this.mlEngineOnline = true;
+      this.mlEngineError = null;
+
+      const prob = typeof mlResult.probability_attack === 'number' ? mlResult.probability_attack : 0.24;
+      const threshold = typeof mlResult.threshold === 'number' ? mlResult.threshold : 0.55;
+      const isAttack = prob >= threshold;
+
+      this.latestMLResult = {
+        probability_attack: prob,
+        predicted_label: isAttack ? 1 : 0,
+        label: isAttack ? 'ATTACK' : 'NORMAL',
+        threshold,
+        mode: mlResult.mode || 'REPLAY_SERIES',
+        features: (mlResult.extracted_features as Record<string, number>) || features,
+        inferenceTimeMs: durationMs,
+        modelName: 'CICEV2023_RandomForest_v1',
+      };
+    } catch (err: any) {
+      this.mlEngineOnline = false;
+      this.mlEngineError = err?.message || 'ML Inference execution error';
+      console.warn(`[TelemetryService] ML inference error: ${this.mlEngineError}`);
+    } finally {
+      this.isInferring = false;
+    }
   }
 
   // ───────────────────────────────────────────────────────────────────────────
@@ -295,6 +367,13 @@ export class TelemetryService {
     }
   }
 
+  public recordSamples(samples: RawTelemetrySample[]): void {
+    if (!Array.isArray(samples)) return;
+    for (const sample of samples) {
+      this.recordSample(sample);
+    }
+  }
+
   private calculateFeaturesFromBuffer(): {
     rawSeries: number[];
     features: Record<string, number>;
@@ -302,8 +381,14 @@ export class TelemetryService {
     // Collect the telemetry observations
     let values: number[];
 
-    if (this.telemetryBuffer.length >= 5) {
+    if (this.telemetryBuffer.length > 0) {
       values = this.telemetryBuffer.map((s) => s.metricValue);
+      // If buffer has fewer than 3 samples, pad to at least 3 for quantile calculation
+      if (values.length < 3) {
+        while (values.length < 3) {
+          values.push(values[values.length - 1]);
+        }
+      }
     } else {
       // If idle/no recent traffic, use baseline nominal values
       values = [2.0, 2.5, 3.1, 2.4, 2.8, 3.5, 2.2, 2.7, 3.2, 2.6];
@@ -364,6 +449,7 @@ export class TelemetryService {
       this.lastHealthCheckTime = now;
       try {
         const res = await fetch(`${this.fakeServerUrl}/health`, {
+          headers: { 'X-EVShield-Internal': 'true' },
           signal: AbortSignal.timeout(1500),
         });
         this.fakeServerOnline = res.ok;
@@ -388,33 +474,8 @@ export class TelemetryService {
         ? Math.round((latencies.reduce((a, b) => a + b, 0) / latencies.length) * 10) / 10
         : 0;
 
-    // 3. Extract exact 10 TOP statistical features & run real ML inference
-    const { rawSeries, features } = this.calculateFeaturesFromBuffer();
-    const mlStartTime = Date.now();
-
-    try {
-      const mlResult = await this.executeMLInference({ data_point: rawSeries, symbol: 'telemetry_stream' });
-      this.mlEngineOnline = true;
-      this.mlEngineError = null;
-
-      const prob = typeof mlResult.probability_attack === 'number' ? mlResult.probability_attack : 0.24;
-      const threshold = typeof mlResult.threshold === 'number' ? mlResult.threshold : 0.55;
-      const isAttack = prob >= threshold;
-
-      this.latestMLResult = {
-        probability_attack: prob,
-        predicted_label: isAttack ? 1 : 0,
-        label: isAttack ? 'ATTACK' : 'NORMAL',
-        threshold,
-        mode: mlResult.mode || 'REPLAY_SERIES',
-        features: (mlResult.extracted_features as Record<string, number>) || features,
-        inferenceTimeMs: Date.now() - mlStartTime,
-        modelName: 'CICEV2023_RandomForest_v1',
-      };
-    } catch (err: any) {
-      this.mlEngineOnline = false;
-      this.mlEngineError = err?.message || 'ML Inference execution error';
-    }
+    // 3. Trigger single-flight ML inference on current window
+    this.triggerMLInference();
 
     // 4. Update Security State Machine
     const prob = this.latestMLResult.probability_attack;
@@ -447,18 +508,39 @@ export class TelemetryService {
         this.securityStatus = 'PROTECTED';
       }
     } else {
-      // IDLE / Stopped
-      if (prob < threshold && this.threatLevel === 'CRITICAL') {
-        this.threatLevel = 'RECOVERING';
-        this.addSecurityEvent(
-          'INFO',
-          'Traffic Returning to Baseline',
-          `Attack simulation ceased. Telemetry draining (ML probability: ${Math.round(prob * 100)}%).`
-        );
-      } else if (prob < threshold && this.threatLevel === 'RECOVERING') {
-        this.threatLevel = 'NORMAL';
-        this.securityStatus = 'PROTECTED';
-        this.addSecurityEvent('SUCCESS', '✓ Threat Mitigated', 'All systems returned to normal operational baseline.');
+      // External traffic burst or idle baseline
+      if (prob >= threshold) {
+        if (this.threatLevel !== 'CRITICAL') {
+          this.threatLevel = 'CRITICAL';
+          this.securityStatus = 'THREAT DETECTED';
+          this.addSecurityEvent(
+            'CRITICAL',
+            '⚠ DDoS / HIGH TRAFFIC ANOMALY DETECTED',
+            `ML model detected rate anomaly (${Math.round(prob * 100)}% attack probability >= ${Math.round(threshold * 100)}% threshold). Real ingress rate: ${rps} req/s.`
+          );
+        }
+      } else if (rps > 15) {
+        if (this.threatLevel === 'NORMAL') {
+          this.threatLevel = 'ANALYZING';
+          this.addSecurityEvent(
+            'WARNING',
+            'High Ingress Traffic Detected',
+            `Real traffic burst detected (${rps} req/s). ML analyzing live telemetry stream.`
+          );
+        }
+      } else {
+        if (prob < threshold && this.threatLevel === 'CRITICAL') {
+          this.threatLevel = 'RECOVERING';
+          this.addSecurityEvent(
+            'INFO',
+            'Traffic Returning to Baseline',
+            `Traffic surge ceased. Telemetry draining (ML probability: ${Math.round(prob * 100)}%).`
+          );
+        } else if (prob < threshold && (this.threatLevel === 'RECOVERING' || this.threatLevel === 'ANALYZING')) {
+          this.threatLevel = 'NORMAL';
+          this.securityStatus = 'PROTECTED';
+          this.addSecurityEvent('SUCCESS', '✓ Threat Mitigated', 'All systems returned to normal operational baseline.');
+        }
       }
     }
 
@@ -669,7 +751,7 @@ export class TelemetryService {
         fakeServer: this.fakeServerOnline ? 'ONLINE' : 'OFFLINE',
         backend: 'ONLINE',
         mlEngine: this.mlEngineOnline ? 'ONLINE' : 'OFFLINE',
-        telemetry: this.simulationMode !== 'IDLE' ? 'ACTIVE' : 'IDLE',
+        telemetry: this.simulationMode !== 'IDLE' || rps > 0 || this.telemetryBuffer.length > 0 ? 'ACTIVE' : 'IDLE',
         ...(this.mlEngineError ? { mlError: this.mlEngineError } : {}),
       },
       telemetry: {

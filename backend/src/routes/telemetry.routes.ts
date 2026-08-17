@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import {
   getLiveTelemetry,
+  ingestTelemetry,
   startNormalTraffic,
   startAttackSimulation,
   stopTraffic,
@@ -11,6 +12,10 @@ const router = Router();
 
 // Live Telemetry Endpoint
 router.get('/live', getLiveTelemetry);
+
+// Ingestion Endpoint for real charging server telemetry stream
+router.post('/ingest', ingestTelemetry);
+router.post('/sample', ingestTelemetry);
 
 // Demo Action Endpoints
 router.post('/start-normal', startNormalTraffic);

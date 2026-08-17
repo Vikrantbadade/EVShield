@@ -31,7 +31,7 @@ class PredictionError(ValueError):
 
 
 def write_error(message: str) -> int:
-    print(json.dumps({"error": message}), file=sys.stderr)
+    print(json.dumps({"error": message}), file=sys.stderr, flush=True)
     return 1
 
 
@@ -81,7 +81,10 @@ def selected_threshold() -> float:
 
 def read_feature_payload() -> dict[str, Any]:
     try:
-        payload = json.load(sys.stdin)
+        raw_text = sys.stdin.read()
+        if not raw_text.strip():
+            raise PredictionError("stdin was empty; must contain one valid JSON object of engineered feature values")
+        payload = json.loads(raw_text)
     except json.JSONDecodeError as exc:
         raise PredictionError("stdin must contain one valid JSON object of engineered feature values") from exc
     if not isinstance(payload, dict):
@@ -139,12 +142,15 @@ def main() -> int:
             raise PredictionError("Saved model returned a non-finite attack probability")
         threshold = selected_threshold()
         predicted_label = int(probability_attack >= threshold)
-        print(json.dumps({
-            "probability_attack": round(probability_attack, 4),
-            "predicted_label": predicted_label,
-            "label": "ATTACK" if predicted_label == 1 else "NORMAL",
-            "threshold": threshold,
-        }))
+        print(
+            json.dumps({
+                "probability_attack": round(probability_attack, 4),
+                "predicted_label": predicted_label,
+                "label": "ATTACK" if predicted_label == 1 else "NORMAL",
+                "threshold": threshold,
+            }),
+            flush=True,
+        )
         return 0
     except PredictionError as exc:
         return write_error(str(exc))

@@ -80,7 +80,10 @@ def main() -> int:
         # Read stdin
         # ---------------------------------------------------------
         try:
-            raw_input = json.load(sys.stdin)
+            raw_text = sys.stdin.read()
+            if not raw_text.strip():
+                raise PredictionError("stdin was empty; must contain a valid JSON object")
+            raw_input = json.loads(raw_text)
         except json.JSONDecodeError as exc:
             raise PredictionError(
                 "stdin must contain a valid JSON object"
@@ -160,7 +163,7 @@ def main() -> int:
             "extracted_features": features_dict,
         }
 
-        print(json.dumps(response))
+        print(json.dumps(response), flush=True)
 
         return 0
 
