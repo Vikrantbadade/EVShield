@@ -8,6 +8,7 @@ import { StatusChip } from '../components/ui/StatusChip';
 import { ScrollReveal } from '../components/ui/ScrollReveal';
 import { CountUp } from '../components/ui/CountUp';
 import { EVShieldLogo } from '../components/ui/EVShieldLogo';
+import { ShaderBackground } from '../components/layout/ShaderBackground';
 
 /* ── Types ── */
 interface NavLink { label: string; href: string; }
@@ -117,73 +118,121 @@ const LandingNav: React.FC<{ onEnter: () => void }> = ({ onEnter }) => {
   );
 };
 
-/* ── EV Ecosystem Visualization ── */
+/* ── EV Ecosystem Visualization (Symmetrical, uncluttered, no overlapping labels) ── */
 const EVNetworkViz: React.FC = () => (
-  <div className="relative w-full aspect-[4/3] sm:aspect-[16/9] max-w-2xl mx-auto select-none">
-    {/* Multi-colored background glow blobs */}
-    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-      <div className="w-64 h-64 rounded-full bg-[#8055F6]/15 blur-[80px] animate-pulse-slow" />
-      <div className="absolute w-52 h-52 rounded-full bg-[#9B7BFF]/15 blur-[60px] animate-float-blob-1" />
-      <div className="absolute w-48 h-48 rounded-full bg-[#4DD9F0]/10 blur-[70px] animate-float-blob-2" />
-    </div>
-
-    {/* Connection lines */}
-    <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 500 375">
-      {[
-        { x1:90,  y1:95,  x2:210, y2:185 },
-        { x1:410, y1:95,  x2:290, y2:185 },
-        { x1:90,  y1:280, x2:210, y2:195 },
-        { x1:410, y1:280, x2:290, y2:195 },
-        { x1:250, y1:50,  x2:250, y2:170 },
-      ].map((l, i) => (
-        <line
-          key={i}
-          x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2}
-          stroke="url(#warmLineGrad)"
-          strokeWidth="1.5"
-          strokeDasharray="6 4"
-          opacity="0.65"
-          style={{ animation: `drawLine 1.5s ${i * 0.2}s ease-out forwards`, strokeDashoffset: 300 }}
-        />
-      ))}
+  <div className="relative w-full min-h-[440px] max-w-xl mx-auto select-none flex items-center justify-center p-2 sm:p-4">
+    {/* SVG Connector Lines (behind all nodes) */}
+    <svg className="absolute inset-0 w-full h-full pointer-events-none z-0" viewBox="0 0 500 420" preserveAspectRatio="none">
       <defs>
-        <linearGradient id="warmLineGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <linearGradient id="cyberLineGrad" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#8055F6" stopOpacity="0.8" />
           <stop offset="50%" stopColor="#9B7BFF" stopOpacity="0.8" />
           <stop offset="100%" stopColor="#4DD9F0" stopOpacity="0.8" />
         </linearGradient>
       </defs>
+      {/* Top Node (ML Detection) to Center */}
+      <line
+        x1="250" y1="58" x2="250" y2="150"
+        stroke="url(#cyberLineGrad)" strokeWidth="1.5" strokeDasharray="5 4" opacity="0.8"
+      />
+      {/* Top-Left (CS Gateway) to Center */}
+      <line
+        x1="150" y1="90" x2="190" y2="180"
+        stroke="url(#cyberLineGrad)" strokeWidth="1.5" strokeDasharray="5 4" opacity="0.8"
+      />
+      {/* Top-Right (Auth Layer) to Center */}
+      <line
+        x1="350" y1="90" x2="310" y2="180"
+        stroke="url(#cyberLineGrad)" strokeWidth="1.5" strokeDasharray="5 4" opacity="0.8"
+      />
+      {/* Bottom-Left (EV Fleet) to Center */}
+      <line
+        x1="150" y1="370" x2="195" y2="240"
+        stroke="url(#cyberLineGrad)" strokeWidth="1.5" strokeDasharray="5 4" opacity="0.8"
+      />
+      {/* Bottom-Right (Secure Network) to Center */}
+      <line
+        x1="350" y1="370" x2="305" y2="240"
+        stroke="url(#cyberLineGrad)" strokeWidth="1.5" strokeDasharray="5 4" opacity="0.8"
+      />
     </svg>
 
-    {/* Central EV Charging Centerpiece */}
-    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-      <div className="glass-cream rounded-3xl px-6 py-5 flex flex-col items-center gap-2 shadow-glow-violet border border-[#C4B5FD]/20">
-        <div className="p-3.5 rounded-2xl bg-[#8055F6]/15 border border-[#8055F6]/30">
-          <BatteryCharging className="w-8 h-8 text-[#9B7BFF]" />
+    {/* Central EVShield Core Card */}
+    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
+      <div className="rounded-2xl px-5 py-4 flex flex-col items-center gap-2 bg-[#17172B]/90 backdrop-blur-xl border border-[#C4B5FD]/25 shadow-2xl shadow-black/70 min-w-[170px]">
+        <div className="p-2.5 rounded-xl bg-[#8055F6]/20 border border-[#8055F6]/35 shadow-inner">
+          <BatteryCharging className="w-7 h-7 text-[#9B7BFF]" />
         </div>
-        <span className="font-mono text-[11px] font-bold text-[#F5F3FF] tracking-wider">EVSHIELD CORE</span>
+        <span className="font-mono text-xs font-bold text-[#F5F3FF] tracking-wider">EVSHIELD CORE</span>
         <StatusChip label="PROTECTED" variant="protected" dot pulse />
       </div>
     </div>
 
-    {/* Outer Translucent Nodes */}
-    {[
-      { label: 'CS Gateway',     icon: Server,          x: 'left-4',   y: 'top-6',    variant: 'glass-sand',  color: 'text-[#9B7BFF]' },
-      { label: 'Auth Layer',     icon: ShieldAlert,     x: 'right-4', y: 'top-6',   variant: 'glass-peach', color: 'text-[#C4B5FD]' },
-      { label: 'EV Fleet',       icon: Car,              x: 'left-4',  y: 'bottom-6', variant: 'glass-cream', color: 'text-[#4DD9F0]' },
-      { label: 'Secure Network', icon: Globe,            x: 'right-4', y: 'bottom-6', variant: 'glass-blue',  color: 'text-[#38BDF8]' },
-      { label: 'ML Detection',   icon: Cpu,              x: 'left-1/2 -translate-x-1/2', y: 'top-1', variant: 'glass-taupe', color: 'text-[#9B7BFF]' },
-    ].map(({ label, icon: Icon, x, y, variant, color }) => (
-      <div
-        key={label}
-        className={`absolute ${x} ${y} ${variant} rounded-2xl px-3.5 py-2.5 flex flex-col items-center gap-1 shadow-glass-sm animate-node-pulse border border-[#C4B5FD]/16`}
-      >
-        <div className="p-1.5 rounded-lg bg-[#252542] border border-[#C4B5FD]/16">
-          <Icon className={`w-4 h-4 ${color}`} />
+    {/* Surrounding 5 Nodes (All preserved, zero overlap, crisp visibility) */}
+    {/* 1. Top Node: ML Detection (positioned high with clearance from center) */}
+    <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10">
+      <div className="rounded-xl px-4 py-2 flex items-center gap-2.5 bg-[#17172B]/85 backdrop-blur-md border border-[#8055F6]/35 shadow-lg shadow-black/40">
+        <div className="p-1.5 rounded-lg bg-[#8055F6]/20 border border-[#8055F6]/30">
+          <Cpu className="w-4 h-4 text-[#9B7BFF]" />
         </div>
-        <span className="font-mono text-[9px] font-bold text-[#C4C2D6] whitespace-nowrap">{label}</span>
+        <div className="flex flex-col text-left">
+          <span className="font-mono text-xs font-bold text-[#F5F3FF] whitespace-nowrap">ML Detection</span>
+          <span className="text-[10px] text-[#4DD9F0] font-mono">CICEV2023 RF</span>
+        </div>
       </div>
-    ))}
+    </div>
+
+    {/* 2. Top-Left Node: CS Gateway */}
+    <div className="absolute top-16 left-2 sm:left-4 z-10">
+      <div className="rounded-xl px-3.5 py-2 flex items-center gap-2.5 bg-[#17172B]/85 backdrop-blur-md border border-[#4DD9F0]/30 shadow-lg shadow-black/40">
+        <div className="p-1.5 rounded-lg bg-[#4DD9F0]/15 border border-[#4DD9F0]/30">
+          <Server className="w-4 h-4 text-[#4DD9F0]" />
+        </div>
+        <div className="flex flex-col text-left">
+          <span className="font-mono text-xs font-bold text-[#F5F3FF] whitespace-nowrap">CS Gateway</span>
+          <span className="text-[10px] text-[#C4C2D6] font-mono">Telemetry Hub</span>
+        </div>
+      </div>
+    </div>
+
+    {/* 3. Top-Right Node: Auth Layer */}
+    <div className="absolute top-16 right-2 sm:right-4 z-10">
+      <div className="rounded-xl px-3.5 py-2 flex items-center gap-2.5 bg-[#17172B]/85 backdrop-blur-md border border-[#FB7185]/30 shadow-lg shadow-black/40">
+        <div className="p-1.5 rounded-lg bg-[#FB7185]/15 border border-[#FB7185]/30">
+          <ShieldAlert className="w-4 h-4 text-[#FB7185]" />
+        </div>
+        <div className="flex flex-col text-left">
+          <span className="font-mono text-xs font-bold text-[#F5F3FF] whitespace-nowrap">Auth Layer</span>
+          <span className="text-[10px] text-[#C4C2D6] font-mono">JWT / PKI</span>
+        </div>
+      </div>
+    </div>
+
+    {/* 4. Bottom-Left Node: EV Fleet */}
+    <div className="absolute bottom-5 left-2 sm:left-4 z-10">
+      <div className="rounded-xl px-3.5 py-2 flex items-center gap-2.5 bg-[#17172B]/85 backdrop-blur-md border border-[#38BDF8]/30 shadow-lg shadow-black/40">
+        <div className="p-1.5 rounded-lg bg-[#38BDF8]/15 border border-[#38BDF8]/30">
+          <Car className="w-4 h-4 text-[#38BDF8]" />
+        </div>
+        <div className="flex flex-col text-left">
+          <span className="font-mono text-xs font-bold text-[#F5F3FF] whitespace-nowrap">EV Fleet</span>
+          <span className="text-[10px] text-[#C4C2D6] font-mono">Charging Nodes</span>
+        </div>
+      </div>
+    </div>
+
+    {/* 5. Bottom-Right Node: Secure Network */}
+    <div className="absolute bottom-5 right-2 sm:right-4 z-10">
+      <div className="rounded-xl px-3.5 py-2 flex items-center gap-2.5 bg-[#17172B]/85 backdrop-blur-md border border-[#34D399]/30 shadow-lg shadow-black/40">
+        <div className="p-1.5 rounded-lg bg-[#34D399]/15 border border-[#34D399]/30">
+          <Globe className="w-4 h-4 text-[#34D399]" />
+        </div>
+        <div className="flex flex-col text-left">
+          <span className="font-mono text-xs font-bold text-[#F5F3FF] whitespace-nowrap">Secure Network</span>
+          <span className="text-[10px] text-[#C4C2D6] font-mono">Mesh VPN</span>
+        </div>
+      </div>
+    </div>
   </div>
 );
 
@@ -255,11 +304,16 @@ export const LandingPage: React.FC = () => {
   const enter = () => navigate('/login');
 
   return (
-    <div className="min-h-screen warm-bg-canvas font-sans text-[#F5F3FF]">
-      <LandingNav onEnter={enter} />
+    <div className="relative min-h-screen font-sans text-[#F5F3FF] overflow-x-hidden selection:bg-[#9B7BFF]/30 selection:text-[#F5F3FF]">
+      {/* ── Continuous Animated WebGL Shader Background ── */}
+      <ShaderBackground />
 
-      {/* ── HERO ────────────────────────────────────────────── */}
-      <section className="relative pt-32 sm:pt-40 pb-20 px-4 sm:px-6 overflow-hidden">
+      {/* ── Landing Page Content Layer ── */}
+      <div className="relative z-10 w-full">
+        <LandingNav onEnter={enter} />
+
+        {/* ── HERO ────────────────────────────────────────────── */}
+        <section className="relative pt-32 sm:pt-40 pb-20 px-4 sm:px-6 overflow-hidden">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 
@@ -514,6 +568,7 @@ export const LandingPage: React.FC = () => {
           </div>
         </div>
       </footer>
+      </div>
     </div>
   );
 };

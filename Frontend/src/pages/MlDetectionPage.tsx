@@ -87,12 +87,12 @@ export const MlDetectionPage: React.FC = () => {
 
   return (
     <AppLayout pageTitle="ML Detection Engine">
-      <div className="space-y-8">
+      <div className="space-y-5">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#C4B5FD]/16">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#C4B5FD]/16">
           <div>
-            <div className="flex flex-wrap items-center gap-3 mb-1">
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-[#F5F3FF] tracking-tight">
+            <div className="flex flex-wrap items-center gap-2.5 mb-1">
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-[#F5F3FF] tracking-tight">
                 ML Detection Engine
               </h2>
               <StatusChip
@@ -101,9 +101,8 @@ export const MlDetectionPage: React.FC = () => {
                 dot
                 pulse={status?.status !== 'READY'}
               />
-              <StatusChip label="BACKEND API V1" variant="live" />
             </div>
-            <p className="text-sm text-[#C4C2D6]">
+            <p className="text-xs sm:text-sm text-[#C4C2D6]">
               CICEV2023 Random Forest DDoS classification pipeline — status, evaluation metrics &amp; live inference.
             </p>
           </div>

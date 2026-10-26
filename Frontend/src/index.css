@@ -138,45 +138,45 @@ input::placeholder {
 @layer components {
   /* Default Primary Card */
   .glass-card {
-    background: rgba(29, 29, 53, 0.85);
-    backdrop-filter: blur(28px);
-    -webkit-backdrop-filter: blur(28px);
+    background: rgba(23, 23, 43, 0.48);
+    backdrop-filter: blur(20px) saturate(135%);
+    -webkit-backdrop-filter: blur(20px) saturate(135%);
     border: 1px solid rgba(196, 181, 253, 0.16);
-    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.40), inset 0 1px 0 rgba(196, 181, 253, 0.14);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.12);
     transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease, border-color 0.3s ease;
   }
   .glass-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(196, 181, 253, 0.25);
-    border-color: rgba(155, 123, 255, 0.45);
-    background: rgba(37, 37, 66, 0.90);
+    transform: translateY(-2px);
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.20);
+    border-color: rgba(155, 123, 255, 0.40);
+    background: rgba(30, 30, 56, 0.58);
   }
 
   /* Glass Cream -> Primary Card Panel */
   .glass-cream {
-    background: rgba(29, 29, 53, 0.88);
-    backdrop-filter: blur(28px);
-    -webkit-backdrop-filter: blur(28px);
+    background: rgba(23, 23, 43, 0.50);
+    backdrop-filter: blur(20px) saturate(135%);
+    -webkit-backdrop-filter: blur(20px) saturate(135%);
     border: 1px solid rgba(196, 181, 253, 0.18);
-    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.40), inset 0 1px 0 rgba(196, 181, 253, 0.14);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.12);
   }
 
   /* Glass Peach -> Elevated Surface */
   .glass-peach {
-    background: rgba(37, 37, 66, 0.85);
-    backdrop-filter: blur(32px);
-    -webkit-backdrop-filter: blur(32px);
-    border: 1px solid rgba(196, 181, 253, 0.22);
-    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.40), inset 0 1px 0 rgba(196, 181, 253, 0.16);
+    background: rgba(29, 29, 53, 0.52);
+    backdrop-filter: blur(20px) saturate(135%);
+    -webkit-backdrop-filter: blur(20px) saturate(135%);
+    border: 1px solid rgba(196, 181, 253, 0.20);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.14);
   }
 
   /* Glass Sand -> Sub-panel */
   .glass-sand {
-    background: rgba(37, 37, 66, 0.72);
-    backdrop-filter: blur(28px);
-    -webkit-backdrop-filter: blur(28px);
+    background: rgba(29, 29, 53, 0.42);
+    backdrop-filter: blur(20px) saturate(135%);
+    -webkit-backdrop-filter: blur(20px) saturate(135%);
     border: 1px solid rgba(196, 181, 253, 0.16);
-    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(196, 181, 253, 0.12);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.10);
   }
 
   /* Glass Taupe -> Violet Accent Surface */

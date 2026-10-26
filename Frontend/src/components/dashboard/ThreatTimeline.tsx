@@ -48,8 +48,8 @@ export const ThreatTimeline: React.FC<ThreatTimelineProps> = ({ events }) => {
         <StatusChip label="DEMO LOG" variant="demo" />
       </div>
 
-      {/* Timeline List */}
-      <div className="relative pl-6 space-y-5 before:absolute before:left-2.5 before:top-3 before:bottom-3 before:w-[2px] before:bg-[#C4B5FD]/20">
+      {/* Timeline List (Bounded with internal scroll) */}
+      <div className="relative pl-6 space-y-4 max-h-[340px] overflow-y-auto pr-2 scrollbar-thin before:absolute before:left-2.5 before:top-3 before:bottom-3 before:w-[2px] before:bg-[#C4B5FD]/20">
         {events.map((event) => (
           <div key={event.id} className="relative group">
             {/* Timeline Node Icon Dot */}

@@ -3,8 +3,6 @@ import { AppLayout } from '../components/layout/AppLayout';
 import { useSecurity } from '../context/SecurityContext';
 import { StatusChip } from '../components/ui/StatusChip';
 import { ScrollReveal } from '../components/ui/ScrollReveal';
-import { DemoControls } from '../components/monitoring/DemoControls';
-import { MonitoringHero } from '../components/monitoring/MonitoringHero';
 import { TrafficMonitorChart } from '../components/monitoring/TrafficMonitorChart';
 import { TelemetryMetrics } from '../components/monitoring/TelemetryMetrics';
 import { RegionalTrafficPanel } from '../components/monitoring/RegionalTraffic';
@@ -57,11 +55,11 @@ export const LiveMonitoringPage: React.FC = () => {
 
   return (
     <AppLayout pageTitle="Live Monitoring">
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#AD8B73]/18">
+      {/* 1. Page Header & Live Status Summary */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3.5 border-b border-[#C4B5FD]/16">
         <div>
           <div className="flex flex-wrap items-center gap-3 mb-1">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#3F3832] tracking-tight">Live Monitoring</h2>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#F5F3FF] tracking-tight">Live Monitoring</h2>
             <StatusChip
               label={isLiveConnected ? 'LIVE PIPELINE' : 'DISCONNECTED'}
               variant={isLiveConnected ? 'live' : 'demo'}
@@ -74,8 +72,8 @@ export const LiveMonitoringPage: React.FC = () => {
               dot
             />
           </div>
-          <p className="text-sm text-[#514940]">
-            Real-time cybersecurity telemetry and CICEV2023 Random Forest ML defense across local EV charging infrastructure.
+          <p className="text-xs sm:text-sm text-[#C4C2D6]">
+            Real-time cybersecurity telemetry, regional traffic distributions, and live security signals across local EV charging nodes.
           </p>
         </div>
         <StatusChip
@@ -86,42 +84,32 @@ export const LiveMonitoringPage: React.FC = () => {
         />
       </div>
 
-      {/* 1. Interactive Demo Control Lab */}
-      <ScrollReveal>
-        <DemoControls />
-      </ScrollReveal>
-
-      {/* 2. Hero Monitoring Status Panel */}
-      <ScrollReveal delay={60}>
-        <MonitoringHero isAttackMode={isAttackMode} requestsPerSec={requestsPerSec} mlConfidence={mlConfidence} />
-      </ScrollReveal>
-
-      {/* 3. Live Telemetry Metrics Row */}
-      <ScrollReveal delay={100}>
+      {/* 2. Live Telemetry Metrics Row */}
+      <ScrollReveal delay={30}>
         <TelemetryMetrics isAttackMode={isAttackMode} requestsPerSec={requestsPerSec} />
       </ScrollReveal>
 
-      {/* 4. Real-time Traffic & Anomaly Chart */}
-      <ScrollReveal delay={140}>
-        <TrafficMonitorChart trafficData={trafficData} isAttackMode={isAttackMode} />
-      </ScrollReveal>
-
-      {/* 5. Two-column: Regional Traffic + Security Signals */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      {/* 3. Primary Section: Regional Network & Signals (Dedicated Monitoring View) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         <div className="lg:col-span-7">
-          <ScrollReveal delay={180}>
+          <ScrollReveal delay={60}>
             <RegionalTrafficPanel entries={regionalTraffic} isAttackMode={isAttackMode} />
           </ScrollReveal>
         </div>
         <div className="lg:col-span-5">
-          <ScrollReveal delay={220}>
+          <ScrollReveal delay={90}>
             <SecuritySignalsPanel signals={signals} isAttackMode={isAttackMode} />
           </ScrollReveal>
         </div>
       </div>
 
-      {/* 6. Live Event Stream */}
-      <ScrollReveal delay={260}>
+      {/* 4. Real-time Traffic Telemetry Chart */}
+      <ScrollReveal delay={120}>
+        <TrafficMonitorChart trafficData={trafficData} isAttackMode={isAttackMode} />
+      </ScrollReveal>
+
+      {/* 5. Live Event Stream */}
+      <ScrollReveal delay={150}>
         <LiveEventStream events={events} isAttackMode={isAttackMode} />
       </ScrollReveal>
     </AppLayout>

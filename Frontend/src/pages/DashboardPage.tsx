@@ -14,12 +14,12 @@ import { healthService, HealthCheckStatus } from '../services/healthService';
 import { ApiConnectionBanner } from '../components/ui/ApiConnectionBanner';
 import { StatusChip } from '../components/ui/StatusChip';
 import { KpiStat } from '../types';
-import { RefreshCw, Radio } from 'lucide-react';
+import { RefreshCw, Shield, Activity, Radio } from 'lucide-react';
 
 import { DemoControls } from '../components/monitoring/DemoControls';
 
 export const DashboardPage: React.FC = () => {
-  const [timeRange, setTimeRange] = useState<'24h' | '7d' | '30d'>('24h');
+  const [activeTab, setActiveTab] = useState<'command' | 'traffic' | 'threats'>('command');
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [dashboardData, setDashboardData] = useState<DashboardSummaryData | null>(null);
   const [healthStatus, setHealthStatus] = useState<HealthCheckStatus | null>(null);
@@ -103,10 +103,10 @@ export const DashboardPage: React.FC = () => {
   return (
     <AppLayout pageTitle="Security Overview">
       {/* Top Controls Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-4 border-b border-[#C4B5FD]/16">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3.5 border-b border-[#C4B5FD]/16">
         <div>
           <div className="flex flex-wrap items-center gap-3 mb-1">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#F5F3FF] tracking-tight">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#F5F3FF] tracking-tight">
               Security Overview
             </h2>
             {healthStatus ? (
@@ -116,65 +116,21 @@ export const DashboardPage: React.FC = () => {
             )}
             <StatusChip label="DEMO BACKEND DATA" variant="demo" />
           </div>
-          <p className="text-sm text-[#C4C2D6] mt-1 font-normal">
+          <p className="text-xs sm:text-sm text-[#C4C2D6] font-normal">
             Real-time cybersecurity visibility for your EV charging authentication infrastructure.
           </p>
         </div>
 
-        {/* Time Range Pills & Refresh */}
-        <div className="flex items-center gap-3">
-          <div className="flex items-center bg-[#252542] border border-[#C4B5FD]/18 rounded-2xl p-1 font-mono text-xs text-[#9896B0] shadow-sm">
-            <button
-              onClick={() => setTimeRange('24h')}
-              className={`px-4 py-1.5 rounded-xl transition-all ${
-                timeRange === '24h'
-                  ? 'bg-[#9B7BFF]/25 text-[#F5F3FF] border border-[#9B7BFF]/45 font-bold shadow-sm'
-                  : 'hover:text-[#F5F3FF]'
-              }`}
-            >
-              Last 24h
-            </button>
-            <button
-              onClick={() => setTimeRange('7d')}
-              className={`px-4 py-1.5 rounded-xl transition-all ${
-                timeRange === '7d'
-                  ? 'bg-[#9B7BFF]/25 text-[#F5F3FF] border border-[#9B7BFF]/45 font-bold shadow-sm'
-                  : 'hover:text-[#F5F3FF]'
-              }`}
-            >
-              Last 7d
-            </button>
-            <button
-              onClick={() => setTimeRange('30d')}
-              className={`px-4 py-1.5 rounded-xl transition-all ${
-                timeRange === '30d'
-                  ? 'bg-[#9B7BFF]/25 text-[#F5F3FF] border border-[#9B7BFF]/45 font-bold shadow-sm'
-                  : 'hover:text-[#F5F3FF]'
-              }`}
-            >
-              Last 30d
-            </button>
-          </div>
-
+        {/* Clean Refresh Action (Redundant Date Range Control removed as instructed) */}
+        <div className="flex items-center gap-2">
           <button
             onClick={fetchBackendData}
             disabled={isRefreshing}
-            className="p-3 rounded-2xl bg-[#252542] hover:bg-[#303052] border border-[#C4B5FD]/18 text-[#C4C2D6] hover:text-[#F5F3FF] transition-colors shadow-sm"
+            className="p-2.5 rounded-xl bg-[#252542] hover:bg-[#303052] border border-[#C4B5FD]/18 text-[#C4C2D6] hover:text-[#F5F3FF] transition-colors shadow-sm"
             title="Refresh dashboard metrics"
           >
             <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-[#9B7BFF]' : ''}`} />
           </button>
-
-          <div
-            className={`hidden md:flex items-center gap-2 px-4 py-2 rounded-2xl border text-xs font-mono font-bold transition-all shadow-sm ${
-              isAttackMode
-                ? 'bg-[#FB7185]/15 border-[#FB7185]/35 text-[#FB7185]'
-                : 'bg-[#252542] border-[#C4B5FD]/18 text-[#34D399]'
-            }`}
-          >
-            <Radio className={`w-4 h-4 ${isAttackMode ? 'text-[#FB7185] animate-ping' : 'text-[#34D399] animate-pulse'}`} />
-            <span>{isAttackMode ? 'ATTACK ACTIVE' : 'LIVE SOC'}</span>
-          </div>
         </div>
       </div>
 
@@ -183,40 +139,100 @@ export const DashboardPage: React.FC = () => {
         <ApiConnectionBanner message={apiError} onRetry={fetchBackendData} isRetrying={isRefreshing} />
       )}
 
-      {/* 1. Interactive Demo Control Lab */}
-      <DemoControls />
+      {/* ── Viewport Operational Subview Tabs ── */}
+      <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-[#17172B]/90 border border-[#C4B5FD]/16 backdrop-blur-xl w-fit">
+        <button
+          type="button"
+          onClick={() => setActiveTab('command')}
+          className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+            activeTab === 'command'
+              ? 'bg-[#8055F6] text-white shadow-md shadow-[#8055F6]/30 font-bold'
+              : 'text-[#C4C2D6] hover:text-[#F5F3FF] hover:bg-[#252542]'
+          }`}
+        >
+          <Shield className="w-3.5 h-3.5" />
+          <span>Command Center</span>
+        </button>
 
-      {/* 2. Large Security Command Center Hero */}
-      <SecurityHero />
+        <button
+          type="button"
+          onClick={() => setActiveTab('traffic')}
+          className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+            activeTab === 'traffic'
+              ? 'bg-[#8055F6] text-white shadow-md shadow-[#8055F6]/30 font-bold'
+              : 'text-[#C4C2D6] hover:text-[#F5F3FF] hover:bg-[#252542]'
+          }`}
+        >
+          <Activity className="w-3.5 h-3.5" />
+          <span>Traffic &amp; Telemetry</span>
+        </button>
 
-      {/* 3. Primary KPI Cards Row (4 Key Stats with Distinct Colors) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {kpiStatsData.map((stat) => (
-          <StatCard key={stat.id} stat={stat} />
-        ))}
+        <button
+          type="button"
+          onClick={() => setActiveTab('threats')}
+          className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+            activeTab === 'threats'
+              ? 'bg-[#8055F6] text-white shadow-md shadow-[#8055F6]/30 font-bold'
+              : 'text-[#C4C2D6] hover:text-[#F5F3FF] hover:bg-[#252542]'
+          }`}
+        >
+          <Radio className="w-3.5 h-3.5" />
+          <span>Threat Feeds &amp; Stations</span>
+          {isAttackMode && (
+            <span className="w-2 h-2 rounded-full bg-[#FB7185] animate-ping" />
+          )}
+        </button>
       </div>
 
-      {/* 3. ML Threat Alert Panel */}
-      <MLThreatAlert />
+      {/* Tab 1: Command Center View */}
+      {activeTab === 'command' && (
+        <div className="space-y-4 animate-fade-in">
+          {/* 1. Interactive Demo Control Lab */}
+          <DemoControls />
 
-      {/* 4. Cinematic Authentication Traffic Chart */}
-      <TrafficChart />
+          {/* 2. Large Security Command Center Hero */}
+          <SecurityHero />
 
-      {/* 5. Horizontal Security Event Scenario Cards */}
-      <EventCardsRow />
+          {/* 3. Primary KPI Cards Row */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {kpiStatsData.map((stat) => (
+              <StatCard key={stat.id} stat={stat} />
+            ))}
+          </div>
 
-      {/* 6. Two-Column Section: Infrastructure Node Status & Live Feed */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        <div className="lg:col-span-7">
-          <StationStatusGrid />
+          {/* 4. ML Threat Alert Panel */}
+          <MLThreatAlert />
         </div>
-        <div className="lg:col-span-5">
-          <LiveAttackFeed feed={liveFeed} />
-        </div>
-      </div>
+      )}
 
-      {/* 7. Threat Timeline */}
-      <ThreatTimeline events={timelineEvents} />
+      {/* Tab 2: Traffic & Telemetry Stream */}
+      {activeTab === 'traffic' && (
+        <div className="space-y-4 animate-fade-in">
+          {/* Cinematic Authentication Traffic Chart */}
+          <TrafficChart />
+
+          {/* Horizontal Security Event Scenario Cards */}
+          <EventCardsRow />
+        </div>
+      )}
+
+      {/* Tab 3: Threat Feeds & Charging Stations */}
+      {activeTab === 'threats' && (
+        <div className="space-y-4 animate-fade-in">
+          {/* Two-Column Section: Infrastructure Node Status & Live Feed */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+            <div className="lg:col-span-7">
+              <StationStatusGrid />
+            </div>
+            <div className="lg:col-span-5">
+              <LiveAttackFeed feed={liveFeed} />
+            </div>
+          </div>
+
+          {/* Threat Timeline */}
+          <ThreatTimeline events={timelineEvents} />
+        </div>
+      )}
     </AppLayout>
   );
 };

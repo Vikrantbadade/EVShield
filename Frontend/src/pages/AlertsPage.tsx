@@ -44,17 +44,17 @@ export const AlertsPage: React.FC = () => {
 
   return (
     <AppLayout pageTitle="Alerts & Rules">
-      <div className="space-y-8">
+      <div className="space-y-5">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#C4B5FD]/16">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3.5 border-b border-[#C4B5FD]/16">
           <div>
             <div className="flex flex-wrap items-center gap-3 mb-1">
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-[#F5F3FF] tracking-tight">
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-[#F5F3FF] tracking-tight">
                 Alerts & Security Rules
               </h2>
               <StatusChip label="BACKEND API CONNECTED" variant="live" dot pulse />
             </div>
-            <p className="text-sm text-[#C4C2D6]">
+            <p className="text-xs sm:text-sm text-[#C4C2D6]">
               SOC alert notifications and automated mitigation triggers consumed via backend REST API.
             </p>
           </div>
@@ -62,7 +62,7 @@ export const AlertsPage: React.FC = () => {
           <button
             onClick={fetchAlerts}
             disabled={isRefreshing}
-            className="p-3 rounded-2xl bg-[#252542] hover:bg-[#303052] border border-[#C4B5FD]/18 text-[#C4C2D6] hover:text-[#F5F3FF] transition-colors shadow-sm self-start sm:self-auto"
+            className="p-2.5 rounded-2xl bg-[#252542] hover:bg-[#303052] border border-[#C4B5FD]/18 text-[#C4C2D6] hover:text-[#F5F3FF] transition-colors shadow-sm self-start sm:self-auto"
             title="Refresh alerts"
           >
             <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-[#9B7BFF]' : ''}`} />
@@ -73,9 +73,9 @@ export const AlertsPage: React.FC = () => {
           <ApiConnectionBanner message={apiError} onRetry={fetchAlerts} isRetrying={isRefreshing} />
         )}
 
-        {/* Alerts List */}
+        {/* Alerts List (Internal scroll bounded) */}
         <ScrollReveal>
-          <div className="space-y-4">
+          <div className="space-y-3.5 max-h-[calc(100vh-230px)] overflow-y-auto pr-2 scrollbar-thin">
             {alerts.length === 0 ? (
               <div className="glass-card rounded-[28px] p-12 text-center space-y-3">
                 <ShieldAlert className="w-8 h-8 text-[#9B7BFF] mx-auto" />

@@ -1,6 +1,7 @@
 import { apiClient } from './apiClient';
 
 export type UserRole = 'admin' | 'security_analyst' | 'soc_operator' | 'viewer';
+export const DEMO_PASSWORD = 'EVShieldDemo@2026';
 
 export interface AuthUser {
   id: string;

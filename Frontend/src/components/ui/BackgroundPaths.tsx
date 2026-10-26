@@ -44,9 +44,9 @@ interface Layer {
 }
 
 const LAYERS: Layer[] = [
-  { width: 1.0, opacity: 0.18, phase: 0.6, pace: 0.7, part: 0.45 },
-  { width: 1.35, opacity: 0.32, phase: 0.3, pace: 0.85, part: 0.75 },
-  { width: 1.75, opacity: 0.52, phase: 0, pace: 1, part: 1.0 },
+  { width: 1.3, opacity: 0.38, phase: 0.6, pace: 0.7, part: 0.45 },
+  { width: 1.8, opacity: 0.62, phase: 0.3, pace: 0.85, part: 0.75 },
+  { width: 2.5, opacity: 0.92, phase: 0, pace: 1, part: 1.0 },
 ];
 
 interface Pointer {
@@ -321,9 +321,7 @@ export function BackgroundPaths({
         className="pointer-events-none absolute inset-0 z-0"
         style={{
           maskImage:
-            'linear-gradient(to bottom, transparent, #000 8%, #000 92%, transparent), radial-gradient(ellipse 60% 50% at 50% 50%, rgb(0 0 0 / 0.55), #000)',
-          maskComposite: 'intersect',
-          WebkitMaskComposite: 'source-in',
+            'linear-gradient(to bottom, transparent, #000 6%, #000 94%, transparent)',
         }}
       >
         <canvas

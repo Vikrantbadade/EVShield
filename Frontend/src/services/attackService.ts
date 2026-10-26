@@ -1,5 +1,6 @@
 import { apiClient, ApiResponseWrapper } from './apiClient';
 import { AttackIncident, AttackFilterParams } from '../types/attack';
+export type { AttackIncident, AttackFilterParams };
 import { mockAttacksData } from '../data/mockAttacks';
 
 export interface AttackQueryResult {

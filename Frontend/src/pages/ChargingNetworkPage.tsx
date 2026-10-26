@@ -84,16 +84,16 @@ export const ChargingNetworkPage: React.FC = () => {
   return (
     <AppLayout pageTitle="Charging Network">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#C4B5FD]/16">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3.5 border-b border-[#C4B5FD]/16">
         <div>
           <div className="flex flex-wrap items-center gap-3 mb-1">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#F5F3FF] tracking-tight">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#F5F3FF] tracking-tight">
               Charging Network
             </h2>
             <StatusChip label="BACKEND CONNECTED" variant="live" dot pulse />
             <StatusChip label={isAttackMode ? "ATTACK OBSERVED" : "NETWORK SECURE"} variant={isAttackMode ? "critical" : "live"} />
           </div>
-          <p className="text-sm text-[#C4C2D6]">
+          <p className="text-xs sm:text-sm text-[#C4C2D6]">
             Monitor security and health of EV charging infrastructure consumed via backend API endpoints.
           </p>
         </div>
@@ -215,7 +215,7 @@ export const ChargingNetworkPage: React.FC = () => {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 max-h-[520px] overflow-y-auto pr-1 scrollbar-thin">
               {filteredStations.map((station) => (
                 <StationCard
                   key={station.id}

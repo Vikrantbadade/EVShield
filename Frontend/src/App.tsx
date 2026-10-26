@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { LandingPage } from './pages/LandingPage';
 import { LoginPage } from './pages/LoginPage';
 import { DashboardPage } from './pages/DashboardPage';
@@ -12,106 +12,55 @@ import { AnalyticsPage } from './pages/AnalyticsPage';
 import { AlertsPage } from './pages/AlertsPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
-import { PageTransition } from './components/ui/PageTransition';
+import { ShaderBackground } from './components/layout/ShaderBackground';
+
+/**
+ * Shared Authenticated Shell
+ * Houses the live WebGL ShaderBackground mounted ONCE for all authenticated pages.
+ * Survives route changes without restarting or unmounting.
+ */
+const AuthenticatedShell: React.FC = () => {
+  return (
+    <div className="relative min-h-screen">
+      <ShaderBackground />
+      <Outlet />
+    </div>
+  );
+};
 
 const App: React.FC = () => {
-  const location = useLocation();
-
   return (
-    <PageTransition key={location.pathname}>
-      <Routes location={location}>
-        {/* Public Landing Page — completely separate, scrollable marketing experience */}
-        <Route path="/" element={<LandingPage />} />
+    <Routes>
+      {/* Public Landing Page — completely separate, naturally scrollable marketing experience */}
+      <Route path="/" element={<LandingPage />} />
 
-        {/* Dedicated Login/Signup page — independent authentication portal with Kokonut Background Paths */}
-        <Route path="/login" element={<LoginPage />} />
+      {/* Dedicated Login/Register portal — independent authentication with Kokonut Background Paths */}
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<LoginPage />} />
 
-        {/* Protected Authenticated Sections */}
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <DashboardPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/logs"
-          element={
-            <ProtectedRoute>
-              <AttackLogsPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/analysis"
-          element={
-            <ProtectedRoute>
-              <AttackAnalysisPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/analysis/:attackId"
-          element={
-            <ProtectedRoute>
-              <AttackAnalysisPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/monitoring"
-          element={
-            <ProtectedRoute>
-              <LiveMonitoringPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/charging-network"
-          element={
-            <ProtectedRoute>
-              <ChargingNetworkPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/ml-detection"
-          element={
-            <ProtectedRoute>
-              <MlDetectionPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/analytics"
-          element={
-            <ProtectedRoute>
-              <AnalyticsPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/alerts"
-          element={
-            <ProtectedRoute>
-              <AlertsPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/settings"
-          element={
-            <ProtectedRoute>
-              <SettingsPage />
-            </ProtectedRoute>
-          }
-        />
+      {/* Protected Authenticated Routes with persistent live WebGL ShaderBackground */}
+      <Route
+        element={
+          <ProtectedRoute>
+            <AuthenticatedShell />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/logs" element={<AttackLogsPage />} />
+        <Route path="/analysis" element={<AttackAnalysisPage />} />
+        <Route path="/analysis/:attackId" element={<AttackAnalysisPage />} />
+        <Route path="/monitoring" element={<LiveMonitoringPage />} />
+        <Route path="/charging-network" element={<ChargingNetworkPage />} />
+        <Route path="/ml-detection" element={<MlDetectionPage />} />
+        <Route path="/analytics" element={<AnalyticsPage />} />
+        <Route path="/alerts" element={<AlertsPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
+      </Route>
 
-        {/* Fallback */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </PageTransition>
+      {/* Fallback */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 };
 

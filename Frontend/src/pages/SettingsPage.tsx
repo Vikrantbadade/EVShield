@@ -99,6 +99,7 @@ const StatusDot: React.FC<{ ok: boolean; label: string }> = ({ ok, label }) => (
 /* ─── Settings Page ──────────────────────────────────────── */
 export const SettingsPage: React.FC = () => {
   const { isAttackMode, toggleDDoSAttack } = useSecurity();
+  const [activeTab, setActiveTab] = useState<'preferences' | 'system'>('preferences');
 
   /* Live system status */
   const [mlStatus, setMlStatus] = useState<MLModelStatus | null>(null);
@@ -172,17 +173,17 @@ export const SettingsPage: React.FC = () => {
 
   return (
     <AppLayout pageTitle="SOC Settings">
-      <div className="space-y-8 max-w-3xl mx-auto">
+      <div className="space-y-5 max-w-3xl mx-auto">
         {/* Page Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#C4B5FD]/16">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#C4B5FD]/16">
           <div>
-            <div className="flex flex-wrap items-center gap-3 mb-1">
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-[#F5F3FF] tracking-tight">
+            <div className="flex flex-wrap items-center gap-2.5 mb-1">
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-[#F5F3FF] tracking-tight">
                 SOC Settings
               </h2>
-              <StatusChip label="FRONTEND CONFIG" variant="demo" />
+              <StatusChip label="CONFIG" variant="demo" />
             </div>
-            <p className="text-sm text-[#C4C2D6]">
+            <p className="text-xs sm:text-sm text-[#C4C2D6]">
               Platform preferences, ML engine status, and environment information.
             </p>
           </div>
@@ -204,199 +205,228 @@ export const SettingsPage: React.FC = () => {
           />
         )}
 
-        {/* 1. GENERAL */}
-        <Section icon={<Monitor className="w-4 h-4" />} title="General">
-          <InfoRow
-            label="Theme"
-            value={
-              <span className="px-2.5 py-1 rounded-lg bg-[#9B7BFF]/15 border border-[#9B7BFF]/30 text-[#C4B5FD] text-xs font-mono font-semibold">
-                Dark Violet (default)
-              </span>
-            }
-          />
-          <Toggle
-            id="reduced-motion"
-            on={reducedMotion}
-            onChange={handleReducedMotion}
-            label="Reduced Motion"
-            description="Minimise background animations and page transitions for accessibility."
-          />
-          <SelectRow
-            label="Auto-refresh Interval"
-            description="How often the dashboard fetches new data from the backend."
-            value={refreshInterval}
-            onChange={handleRefreshInterval}
-            options={[
-              { value: '10',  label: 'Every 10 seconds' },
-              { value: '30',  label: 'Every 30 seconds' },
-              { value: '60',  label: 'Every 60 seconds' },
-              { value: '300', label: 'Every 5 minutes' },
-              { value: '0',   label: 'Manual only' },
-            ]}
-          />
-        </Section>
+        {/* ── Subview Tabs ── */}
+        <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-[#17172B]/90 border border-[#C4B5FD]/16 backdrop-blur-xl w-fit">
+          <button
+            type="button"
+            onClick={() => setActiveTab('preferences')}
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+              activeTab === 'preferences'
+                ? 'bg-[#8055F6] text-white shadow-md shadow-[#8055F6]/30 font-bold'
+                : 'text-[#C4C2D6] hover:text-[#F5F3FF] hover:bg-[#252542]'
+            }`}
+          >
+            <Shield className="w-3.5 h-3.5" />
+            <span>Preferences &amp; Security</span>
+          </button>
 
-        {/* 2. SECURITY */}
-        <Section icon={<Shield className="w-4 h-4" />} title="Security Preferences">
-          <SelectRow
-            label="Alert Severity Threshold"
-            description="Minimum severity level to surface in the alerts panel."
-            value={alertThreshold}
-            onChange={handleAlertThreshold}
-            options={[
-              { value: 'LOW',      label: 'Low and above' },
-              { value: 'MEDIUM',   label: 'Medium and above' },
-              { value: 'HIGH',     label: 'High and above' },
-              { value: 'CRITICAL', label: 'Critical only' },
-            ]}
-          />
-          <Toggle
-            id="auto-block"
-            on={autoBlock}
-            onChange={handleAutoBlock}
-            label="Auto-Block (Future / Linux)"
-            description="Automatically apply firewall rules when a DDoS ATTACK classification is returned. Requires live Linux perf integration — not active in replay mode."
-          />
-          <Toggle
-            id="notifications"
-            on={notifications}
-            onChange={handleNotifications}
-            label="Security Notifications"
-            description="Show toast notifications for attack events and alerts."
-          />
-        </Section>
+          <button
+            type="button"
+            onClick={() => setActiveTab('system')}
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+              activeTab === 'system'
+                ? 'bg-[#8055F6] text-white shadow-md shadow-[#8055F6]/30 font-bold'
+                : 'text-[#C4C2D6] hover:text-[#F5F3FF] hover:bg-[#252542]'
+            }`}
+          >
+            <Server className="w-3.5 h-3.5" />
+            <span>Engine &amp; System Status</span>
+          </button>
+        </div>
 
-        {/* 3. ML ENGINE */}
-        <Section icon={<Brain className="w-4 h-4" />} title="ML Engine">
-          {isLoadingSystem ? (
-            <div className="space-y-3 py-3">
-              {[120, 90, 110, 80, 100].map((w, i) => (
-                <div key={i} className="skeleton h-5 rounded-lg" style={{ width: `${w}px` }} />
-              ))}
-            </div>
-          ) : (
-            <>
-              <InfoRow label="Model Name"   value={mlStatus?.modelName ?? 'CICEV2023_RandomForest_v1'} />
-              <InfoRow label="Version"      value={mlStatus?.version ?? '1.0.0'} />
-              <InfoRow label="Pipeline"     value={mlStatus?.pipelineVersion ?? 'CICEV2023-TOP-RicherStats-v1'} />
-              <InfoRow label="Status"       value={
-                <StatusChip
-                  label={mlStatus?.status ?? 'READY'}
-                  variant={mlStatus?.status === 'READY' ? 'live' : 'warning'}
-                  dot
-                />
-              } />
-              <InfoRow label="Threshold"    value="0.55 (frozen)" />
-              <InfoRow label="Algorithm"    value="RandomForestClassifier (n=400)" />
-              <InfoRow label="Features"     value="10 TOP statistical features" />
-              <InfoRow label="Inference"    value="Local Python subprocess" />
-              <InfoRow label="Dataset"      value="CICEV2023 EV Auth Benchmark" />
-              <InfoRow label="Demo/Fake?"   value={
-                <StatusChip label={mlStatus?.isDemo === false ? 'REAL — isDemo: false' : 'DEMO'} variant={mlStatus?.isDemo === false ? 'protected' : 'demo'} />
-              } />
-            </>
-          )}
-        </Section>
+        {/* Tab 1: Preferences & Security */}
+        {activeTab === 'preferences' && (
+          <div className="space-y-4 animate-fade-in">
+            {/* 1. GENERAL */}
+            <Section icon={<Monitor className="w-4 h-4" />} title="General">
+              <InfoRow
+                label="Theme"
+                value={
+                  <span className="px-2.5 py-1 rounded-lg bg-[#9B7BFF]/15 border border-[#9B7BFF]/30 text-[#C4B5FD] text-xs font-mono font-semibold">
+                    Dark Violet (default)
+                  </span>
+                }
+              />
+              <Toggle
+                id="reduced-motion"
+                on={reducedMotion}
+                onChange={handleReducedMotion}
+                label="Reduced Motion"
+                description="Minimise background animations and page transitions for accessibility."
+              />
+              <SelectRow
+                label="Auto-refresh Interval"
+                description="How often the dashboard fetches new data from the backend."
+                value={refreshInterval}
+                onChange={handleRefreshInterval}
+                options={[
+                  { value: '10',  label: 'Every 10 seconds' },
+                  { value: '30',  label: 'Every 30 seconds' },
+                  { value: '60',  label: 'Every 60 seconds' },
+                  { value: '300', label: 'Every 5 minutes' },
+                  { value: '0',   label: 'Manual only' },
+                ]}
+              />
+            </Section>
 
-        {/* 4. SYSTEM */}
-        <Section icon={<Server className="w-4 h-4" />} title="System Status">
-          {isLoadingSystem ? (
-            <div className="py-4 flex items-center gap-2 text-xs font-mono text-[#9896B0]">
-              <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#9B7BFF]" />
-              Querying system services…
-            </div>
-          ) : (
-            <>
-              <div className="flex items-center justify-between py-3">
-                <span className="text-xs font-mono font-semibold text-[#9896B0] uppercase tracking-wide">Backend API</span>
-                <StatusDot ok={!!health} label={health ? 'ONLINE' : 'OFFLINE'} />
-              </div>
-              {health && (
-                <div className="flex items-center justify-between py-3">
-                  <span className="text-xs font-mono font-semibold text-[#9896B0] uppercase tracking-wide">API Latency</span>
-                  <span className="text-sm font-semibold font-mono text-[#F5F3FF]">{health.database?.latencyMs ?? '—'} ms</span>
+            {/* 2. SECURITY */}
+            <Section icon={<Shield className="w-4 h-4" />} title="Security Preferences">
+              <SelectRow
+                label="Alert Severity Threshold"
+                description="Minimum severity level to surface in the alerts panel."
+                value={alertThreshold}
+                onChange={handleAlertThreshold}
+                options={[
+                  { value: 'LOW',      label: 'Low and above' },
+                  { value: 'MEDIUM',   label: 'Medium and above' },
+                  { value: 'HIGH',     label: 'High and above' },
+                  { value: 'CRITICAL', label: 'Critical only' },
+                ]}
+              />
+              <Toggle
+                id="auto-block"
+                on={autoBlock}
+                onChange={handleAutoBlock}
+                label="Auto-Block (Future / Linux)"
+                description="Automatically apply firewall rules when a DDoS ATTACK classification is returned. Requires live Linux perf integration — not active in replay mode."
+              />
+              <Toggle
+                id="notifications"
+                on={notifications}
+                onChange={handleNotifications}
+                label="Security Notifications"
+                description="Show toast notifications for attack events and alerts."
+              />
+            </Section>
+
+            {/* 5. DEMO / DEVELOPMENT */}
+            <Section icon={<FlaskConical className="w-4 h-4" />} title="Demo / Development">
+              <div className="flex items-center justify-between gap-4 py-3">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-semibold text-[#F5F3FF]">DDoS Attack Simulation</p>
+                    <StatusChip label="DEMO" variant="demo" />
+                  </div>
+                  <p className="text-xs text-[#9896B0] mt-0.5">
+                    Simulates DDoS attack state across the UI. Toggle also accessible via the topbar button.
+                  </p>
                 </div>
+                <button
+                  onClick={toggleDDoSAttack}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-bold transition-all duration-300 border shadow-sm shrink-0 ${
+                    isAttackMode
+                      ? 'bg-[#FB7185]/15 border-[#FB7185]/35 text-[#FB7185]'
+                      : 'bg-[#4DD9F0]/15 border-[#4DD9F0]/35 text-[#4DD9F0] hover:bg-[#4DD9F0]/25'
+                  }`}
+                >
+                  {isAttackMode
+                    ? <><Square className="w-3 h-3 fill-current" /> END DEMO</>
+                    : <><Play className="w-3 h-3 fill-current" /> START DEMO</>
+                  }
+                </button>
+              </div>
+            </Section>
+          </div>
+        )}
+
+        {/* Tab 2: Engine & System Status */}
+        {activeTab === 'system' && (
+          <div className="space-y-4 animate-fade-in">
+            {/* 3. ML ENGINE */}
+            <Section icon={<Brain className="w-4 h-4" />} title="ML Engine Status">
+              {isLoadingSystem ? (
+                <div className="space-y-3 py-3">
+                  {[120, 90, 110, 80, 100].map((w, i) => (
+                    <div key={i} className="skeleton h-5 rounded-lg" style={{ width: `${w}px` }} />
+                  ))}
+                </div>
+              ) : (
+                <>
+                  <InfoRow label="Model Name"   value={mlStatus?.modelName ?? 'CICEV2023_RandomForest_v1'} />
+                  <InfoRow label="Version"      value={mlStatus?.version ?? '1.0.0'} />
+                  <InfoRow label="Pipeline"     value={mlStatus?.pipelineVersion ?? 'CICEV2023-TOP-RicherStats-v1'} />
+                  <InfoRow label="Status"       value={
+                    <StatusChip
+                      label={mlStatus?.status ?? 'READY'}
+                      variant={mlStatus?.status === 'READY' ? 'live' : 'warning'}
+                      dot
+                    />
+                  } />
+                  <InfoRow label="Threshold"    value="0.55 (frozen)" />
+                  <InfoRow label="Algorithm"    value="RandomForestClassifier (n=400)" />
+                  <InfoRow label="Features"     value="10 TOP statistical features" />
+                  <InfoRow label="Inference"    value="Local Python subprocess" />
+                  <InfoRow label="Dataset"      value="CICEV2023 EV Auth Benchmark" />
+                  <InfoRow label="Demo/Fake?"   value={
+                    <StatusChip label={mlStatus?.isDemo === false ? 'REAL — isDemo: false' : 'DEMO'} variant={mlStatus?.isDemo === false ? 'protected' : 'demo'} />
+                  } />
+                </>
               )}
-              <div className="flex items-center justify-between py-3">
-                <span className="text-xs font-mono font-semibold text-[#9896B0] uppercase tracking-wide">PostgreSQL</span>
-                <StatusDot ok={health?.database?.connected ?? false} label={health?.database?.connected ? 'CONNECTED' : 'DISCONNECTED'} />
-              </div>
-              <div className="flex items-center justify-between py-3">
-                <span className="text-xs font-mono font-semibold text-[#9896B0] uppercase tracking-wide">ML Engine</span>
-                <StatusDot ok={mlStatus?.status === 'READY'} label={mlStatus?.status ?? 'UNKNOWN'} />
-              </div>
-              <div className="flex items-center justify-between py-3">
-                <span className="text-xs font-mono font-semibold text-[#9896B0] uppercase tracking-wide">Environment</span>
-                <span className="text-sm font-semibold font-mono text-[#F5F3FF]">Windows / Development</span>
-              </div>
-              <div className="flex items-center justify-between py-3">
-                <span className="text-xs font-mono font-semibold text-[#9896B0] uppercase tracking-wide">Kernel Tracing</span>
-                <StatusDot ok={false} label="Linux Only (Future)" />
-              </div>
-            </>
-          )}
-        </Section>
+            </Section>
 
-        {/* 5. DEMO / DEVELOPMENT */}
-        <Section icon={<FlaskConical className="w-4 h-4" />} title="Demo / Development">
-          {/* DDoS simulation toggle */}
-          <div className="flex items-center justify-between gap-4 py-3">
-            <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <p className="text-sm font-semibold text-[#F5F3FF]">DDoS Attack Simulation</p>
-                <StatusChip label="DEMO" variant="demo" />
-              </div>
-              <p className="text-xs text-[#9896B0] mt-0.5">
-                Simulates DDoS attack state across the UI. Does NOT generate real network traffic or real ML inference.
-                Toggle also accessible via the topbar button.
-              </p>
-            </div>
-            <button
-              onClick={toggleDDoSAttack}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-bold transition-all duration-300 border shadow-sm shrink-0 ${
-                isAttackMode
-                  ? 'bg-[#FB7185]/15 border-[#FB7185]/35 text-[#FB7185]'
-                  : 'bg-[#4DD9F0]/15 border-[#4DD9F0]/35 text-[#4DD9F0] hover:bg-[#4DD9F0]/25'
-              }`}
-            >
-              {isAttackMode
-                ? <><Square className="w-3 h-3 fill-current" /> END DEMO</>
-                : <><Play className="w-3 h-3 fill-current" /> START DEMO</>
-              }
-            </button>
-          </div>
+            {/* 4. SYSTEM */}
+            <Section icon={<Server className="w-4 h-4" />} title="System Infrastructure">
+              {isLoadingSystem ? (
+                <div className="py-4 flex items-center gap-2 text-xs font-mono text-[#9896B0]">
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#9B7BFF]" />
+                  Querying system services…
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-center justify-between py-3">
+                    <span className="text-xs font-mono font-semibold text-[#9896B0] uppercase tracking-wide">Backend API</span>
+                    <StatusDot ok={!!health} label={health ? 'ONLINE' : 'OFFLINE'} />
+                  </div>
+                  {health && (
+                    <div className="flex items-center justify-between py-3">
+                      <span className="text-xs font-mono font-semibold text-[#9896B0] uppercase tracking-wide">API Latency</span>
+                      <span className="text-sm font-semibold font-mono text-[#F5F3FF]">{health.database?.latencyMs ?? '—'} ms</span>
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between py-3">
+                    <span className="text-xs font-mono font-semibold text-[#9896B0] uppercase tracking-wide">PostgreSQL</span>
+                    <StatusDot ok={health?.database?.connected ?? false} label={health?.database?.connected ? 'CONNECTED' : 'DISCONNECTED'} />
+                  </div>
+                  <div className="flex items-center justify-between py-3">
+                    <span className="text-xs font-mono font-semibold text-[#9896B0] uppercase tracking-wide">ML Engine</span>
+                    <StatusDot ok={mlStatus?.status === 'READY'} label={mlStatus?.status ?? 'UNKNOWN'} />
+                  </div>
+                  <div className="flex items-center justify-between py-3">
+                    <span className="text-xs font-mono font-semibold text-[#9896B0] uppercase tracking-wide">Environment</span>
+                    <span className="text-sm font-semibold font-mono text-[#F5F3FF]">Windows / Development</span>
+                  </div>
+                  <div className="flex items-center justify-between py-3">
+                    <span className="text-xs font-mono font-semibold text-[#9896B0] uppercase tracking-wide">Kernel Tracing</span>
+                    <StatusDot ok={false} label="Linux Only (Future)" />
+                  </div>
+                </>
+              )}
+            </Section>
 
-          {/* Replay mode info */}
-          <div className="py-3">
-            <div className="flex items-start gap-3 rounded-2xl bg-[#252542] border border-[#C4B5FD]/16 p-4">
-              <Info className="w-4 h-4 text-[#9B7BFF] shrink-0 mt-0.5" />
-              <div className="text-xs text-[#C4C2D6] space-y-2">
-                <p className="font-bold text-[#F5F3FF]">Replay Mode — Development Input</p>
-                <p>
-                  ML inferences currently use <code className="font-mono bg-[#1D1D35] text-[#C4B5FD] px-1.5 py-0.5 rounded border border-[#C4B5FD]/15">REPLAY_SERIES</code> or{' '}
-                  <code className="font-mono bg-[#1D1D35] text-[#C4B5FD] px-1.5 py-0.5 rounded border border-[#C4B5FD]/15">ENGINEERED_VECTOR</code> from CICEV2023 dataset fixtures.
-                </p>
-                <p>
-                  This is <strong>NOT</strong> live Linux kernel monitoring. The{' '}
-                  <code className="font-mono bg-[#1D1D35] text-[#C4B5FD] px-1.5 py-0.5 rounded border border-[#C4B5FD]/15">perf_event_open</code> syscall and TOP collector
-                  require a Linux host. All predictions are from the real{' '}
-                  <code className="font-mono bg-[#1D1D35] text-[#C4B5FD] px-1.5 py-0.5 rounded border border-[#C4B5FD]/15">model.joblib</code> (RandomForest, n=400) and
-                  the selected threshold <code className="font-mono bg-[#1D1D35] text-[#C4B5FD] px-1.5 py-0.5 rounded border border-[#C4B5FD]/15">0.55</code>.
-                </p>
-                <div className="flex items-center gap-2 mt-1">
-                  <StatusChip label="REPLAY MODE ACTIVE" variant="replay" dot />
-                  <StatusChip label="LIVE perf: FUTURE" variant="offline" />
+            {/* Replay mode info */}
+            <div className="py-3">
+              <div className="flex items-start gap-3 rounded-2xl bg-[#252542] border border-[#C4B5FD]/16 p-4">
+                <Info className="w-4 h-4 text-[#9B7BFF] shrink-0 mt-0.5" />
+                <div className="text-xs text-[#C4C2D6] space-y-2">
+                  <p className="font-bold text-[#F5F3FF]">Replay Mode — Development Input</p>
+                  <p>
+                    ML inferences currently use <code className="font-mono bg-[#1D1D35] text-[#C4B5FD] px-1.5 py-0.5 rounded border border-[#C4B5FD]/15">REPLAY_SERIES</code> or{' '}
+                    <code className="font-mono bg-[#1D1D35] text-[#C4B5FD] px-1.5 py-0.5 rounded border border-[#C4B5FD]/15">ENGINEERED_VECTOR</code> from CICEV2023 dataset fixtures.
+                  </p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <StatusChip label="REPLAY MODE ACTIVE" variant="replay" dot />
+                    <StatusChip label="LIVE perf: FUTURE" variant="offline" />
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </Section>
+        )}
 
         {/* Footer note */}
         <div className="text-center text-[11px] font-mono text-[#9896B0] py-2">
           <Gauge className="w-3.5 h-3.5 inline mr-1.5 text-[#9B7BFF]" />
           Settings marked <strong>Frontend Config</strong> are stored in localStorage and do not modify the backend or ML pipeline.
-          Settings marked <strong>Future / Linux</strong> require live Linux infrastructure.
         </div>
       </div>
     </AppLayout>
