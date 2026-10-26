@@ -8,6 +8,7 @@ import {
   TimelineEvent,
   AttackFeedItem,
 } from '../types';
+import { AttackIncident } from '../types/attack';
 import {
   initialTrafficData,
   initialChargingStations,
@@ -15,6 +16,7 @@ import {
   initialAttackFeed,
 } from '../data/mockData';
 import { telemetryService, LiveTelemetrySnapshot } from '../services/telemetryService';
+import { formatTime } from '../utils/dateTime';
 
 const SecurityContext = createContext<SecurityContextType | undefined>(undefined);
 
@@ -50,6 +52,10 @@ export const SecurityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [maxLatencyMs, setMaxLatencyMs] = useState<number>(0);
   const [totalRequests, setTotalRequests] = useState<number>(0);
   const [errorRatePercent, setErrorRatePercent] = useState<number>(0);
+
+  // Real Incident tracking
+  const [activeIncident, setActiveIncident] = useState<AttackIncident | null>(null);
+  const [lastIncident, setLastIncident] = useState<AttackIncident | null>(null);
 
   // Feeds & Lists
   const [trafficData, setTrafficData] = useState<TrafficDataPoint[]>(initialTrafficData);
@@ -109,12 +115,20 @@ export const SecurityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       );
     }
 
-    // Events mapping
+    // Real incident sync
+    if (snap.activeIncident !== undefined) {
+      setActiveIncident(snap.activeIncident);
+    }
+    if (snap.lastIncident !== undefined) {
+      setLastIncident(snap.lastIncident);
+    }
+
+    // Events mapping with canonical time formatting
     if (snap.events && snap.events.length > 0) {
       setTimelineEvents(
         snap.events.map((ev) => ({
           id: ev.id,
-          time: ev.timeStr,
+          time: formatTime(ev.timestamp) || ev.timeStr,
           title: ev.title,
           description: ev.message,
           type: ev.type === 'CRITICAL' ? 'escalated' : ev.type === 'WARNING' ? 'suspicious' : 'normal',
@@ -126,11 +140,11 @@ export const SecurityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setLiveFeed(
         snap.events.map((ev) => ({
           id: ev.id,
-          time: ev.timeStr,
+          time: formatTime(ev.timestamp) || ev.timeStr,
           title: ev.title,
-          nodeId: 'Gateway 127.0.0.1:8080',
+          nodeId: ev.source || 'Gateway 127.0.0.1:8080',
           severity: ev.type === 'CRITICAL' ? 'critical' : ev.type === 'WARNING' ? 'high' : 'info',
-          type: ev.type === 'CRITICAL' ? 'DDoS Authentication Burst' : 'Telemetry Event',
+          type: ev.eventType || (ev.type === 'CRITICAL' ? 'DDoS Authentication Burst' : 'Telemetry Event'),
         }))
       );
     }
@@ -149,14 +163,26 @@ export const SecurityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       )
     );
 
-    // Toast notification on state transition to CRITICAL
-    if (snap.threatLevel === 'CRITICAL' && prevThreatLevelRef.current !== 'CRITICAL') {
+    // Synchronize attack log from real active incident or detection
+    if (snap.activeIncident) {
+      setAttackLog({
+        attackId: snap.activeIncident.id,
+        attackType: snap.activeIncident.attackTypeLabel,
+        severity: snap.activeIncident.severity,
+        status: snap.activeIncident.status === 'MITIGATED' ? 'MITIGATED' : 'ACTIVE',
+        mlConfidence: `${snap.activeIncident.mlConfidence}% (Random Forest)`,
+        requestsPerSec: snap.activeIncident.requestsPerSecond || snap.telemetry.requestsPerSecond,
+        affectedNodes: snap.activeIncident.affectedNodes || 24,
+        timestamp: formatTime(snap.activeIncident.startTime || snap.activeIncident.timestamp),
+        targetScope: snap.activeIncident.targetInfrastructure || 'Gateway Zone 1 (CS-0421)',
+      });
+    } else if (snap.threatLevel === 'CRITICAL' && prevThreatLevelRef.current !== 'CRITICAL') {
       const newToast: NotificationItem = {
         id: `notif-${Date.now()}`,
         title: '⚠ DDoS ATTACK DETECTED',
         message: `Random Forest model flagged anomaly (${confidencePct}% probability >= ${Math.round(snap.ml.threshold * 100)}% threshold).`,
         type: 'critical',
-        timestamp: new Date().toLocaleTimeString('en-US', { hour12: false }),
+        timestamp: formatTime(new Date()),
       };
       setNotifications((prev) => [newToast, ...prev]);
 
@@ -168,7 +194,7 @@ export const SecurityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         mlConfidence: `${confidencePct}% (Random Forest)`,
         requestsPerSec: snap.telemetry.requestsPerSecond,
         affectedNodes: 24,
-        timestamp: new Date().toLocaleTimeString('en-US', { hour12: false }),
+        timestamp: formatTime(new Date()),
         targetScope: 'Gateway Zone 1 (CS-0421)',
       });
     } else if (snap.threatLevel === 'NORMAL' && prevThreatLevelRef.current === 'CRITICAL') {
@@ -177,9 +203,11 @@ export const SecurityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         title: '✓ THREAT MITIGATED',
         message: 'Telemetry has returned to baseline. ML classification is NORMAL.',
         type: 'success',
-        timestamp: new Date().toLocaleTimeString('en-US', { hour12: false }),
+        timestamp: formatTime(new Date()),
       };
       setNotifications((prev) => [resolvedToast, ...prev]);
+      setAttackLog(null);
+    } else if (snap.threatLevel === 'NORMAL' && !isAtk) {
       setAttackLog(null);
     }
 
@@ -242,6 +270,27 @@ export const SecurityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   };
 
+  const executeMitigation = async () => {
+    try {
+      const res = await telemetryService.executeMitigation();
+      if (res.incident) {
+        setLastIncident(res.incident);
+        setActiveIncident(null);
+      }
+      const successToast: NotificationItem = {
+        id: `notif-mitigated-${Date.now()}`,
+        title: '🛡 MITIGATION ENFORCED',
+        message: res.message || 'Mitigation rules applied: rate limit CS-0421 & quarantine tokens.',
+        type: 'success',
+        timestamp: formatTime(new Date()),
+      };
+      setNotifications((prev) => [successToast, ...prev]);
+      await fetchLiveTelemetry();
+    } catch (err: any) {
+      setLiveError(err?.message || 'Failed to execute mitigation');
+    }
+  };
+
   const toggleDDoSAttack = () => {
     if (isAttackMode || simulationMode === 'ATTACK') {
       stopTraffic();
@@ -259,6 +308,7 @@ export const SecurityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         startAttackSimulation,
         stopTraffic,
         resetDemo,
+        executeMitigation,
         securityStatus,
         activeThreats,
         requestsPerSec,
@@ -288,6 +338,8 @@ export const SecurityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         maxLatencyMs,
         totalRequests,
         errorRatePercent,
+        activeIncident,
+        lastIncident,
       }}
     >
       {children}

@@ -4,42 +4,54 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── Base Variables ────────────────────────────────────── */
+/* ─── Lighter Dark-Violet Theme Variables ─────────────────── */
 @layer base {
   :root {
-    color-scheme: light;
-    --warm-bg: #FFFBE9;
-    --warm-bg-alt: #FFF8E8;
-    --warm-text: #3F3832;
-    --warm-secondary: #514940;
-    --warm-muted: #7A7067;
-    --warm-taupe: #AD8B73;
-    --warm-peach: #CEAB93;
-    --warm-sand: #E3CAA5;
-    --cyber-cyan: #19BFA3;
-    --cyber-blue: #52A8FF;
-    --cyber-danger: #E85C68;
-    --cyber-success: #62C073;
+    color-scheme: dark;
+    --bg-main: #11111F;
+    --bg-secondary: #17172A;
+    --card-panel: #1D1D35;
+    --surface-elevated: #252542;
+    --surface-hover: #303052;
+    --brand-violet: #9B7BFF;
+    --strong-violet: #8055F6;
+    --soft-violet: #C4B5FD;
+    --telemetry-cyan: #4DD9F0;
+    --healthy-green: #34D399;
+    --warning-amber: #FBBF24;
+    --critical-red: #FB7185;
+    --text-primary: #F5F3FF;
+    --text-secondary: #C4C2D6;
+    --text-muted: #9896B0;
+    --border-subtle: rgba(196, 181, 253, 0.16);
+    --border-hover: rgba(155, 123, 255, 0.48);
 
-    /* Selection colours */
-    --selection-bg: rgba(25, 191, 163, 0.22);
-    --selection-color: #2b4a43;
+    /* Legacy mapping */
+    --warm-bg: #11111F;
+    --warm-bg-alt: #1D1D35;
+    --warm-text: #F5F3FF;
+    --warm-secondary: #C4C2D6;
+    --warm-muted: #9896B0;
+    --warm-taupe: #9B7BFF;
+    --warm-peach: #C4B5FD;
+    --warm-sand: #252542;
+    --cyber-cyan: #4DD9F0;
+    --cyber-danger: #FB7185;
+    --cyber-success: #34D399;
+
+    --selection-bg: rgba(155, 123, 255, 0.35);
+    --selection-color: #F5F3FF;
   }
 
   body {
-    background-color: var(--warm-bg);
-    color: var(--warm-text);
+    background-color: var(--bg-main);
+    color: var(--text-primary);
     font-family: 'Inter', 'Manrope', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* ── Global text selection fix ──────────────────────────
-     Applied at the * level so glassmorphic cards/badges
-     cannot accidentally override with conflicting bg colors.
-     The cyan-tinted selection on the warm background creates
-     a clearly visible, accessible highlight on every surface.
-  ──────────────────────────────────────────────────────── */
+  /* Accessible global text selection */
   *::selection {
     background-color: var(--selection-bg) !important;
     color: var(--selection-color) !important;
@@ -51,135 +63,205 @@
   }
 }
 
-/* ─── Glass Utilities ───────────────────────────────────── */
+/* ─── Global Contrast & Legacy Color Overrides ────────────── */
+/* Ensure all legacy brown and unreadable text is crisp & luminous */
+[class*="text-[#3F3832]"] { color: var(--text-primary) !important; }
+[class*="text-[#514940]"] { color: var(--text-secondary) !important; }
+[class*="text-[#7A7067]"] { color: var(--text-muted) !important; }
+[class*="text-[#A3978C]"] { color: var(--text-muted) !important; }
+[class*="text-[#a82d38]"] { color: var(--critical-red) !important; }
+[class*="text-[#E85C68]"] { color: var(--critical-red) !important; }
+[class*="text-[#FB475E]"] { color: var(--critical-red) !important; }
+[class*="text-[#a8731d]"] { color: var(--warning-amber) !important; }
+[class*="text-[#D99A32]"] { color: var(--warning-amber) !important; }
+[class*="text-[#2b703b]"] { color: var(--healthy-green) !important; }
+[class*="text-[#62C073]"] { color: var(--healthy-green) !important; }
+[class*="text-[#0d7a67]"] { color: var(--telemetry-cyan) !important; }
+[class*="text-[#19BFA3]"] { color: var(--telemetry-cyan) !important; }
+[class*="text-[#1e5ea0]"] { color: var(--soft-violet) !important; }
+
+/* Replace washed-out white/light-grey boxes with dark elevated surfaces */
+[class*="bg-white/"],
+[class*="hover:bg-white/"],
+[class*="hover:bg-white"] {
+  background-color: rgba(37, 37, 66, 0.75) !important;
+  border-color: rgba(196, 181, 253, 0.16) !important;
+  color: var(--text-primary) !important;
+}
+
+[class*="border-white/"],
+[class*="border-white"] {
+  border-color: rgba(196, 181, 253, 0.16) !important;
+}
+
+/* Modal and panel backdrops */
+[class*="bg-[#3F3832]/"] {
+  background-color: rgba(17, 17, 31, 0.85) !important;
+}
+
+/* Replace legacy warm brownish borders with subtle violet borders */
+[class*="border-[#AD8B73]"] {
+  border-color: rgba(196, 181, 253, 0.16) !important;
+}
+[class*="border-[#CEAB93]"] {
+  border-color: rgba(196, 181, 253, 0.22) !important;
+}
+
+/* Replace legacy warm background cards */
+[class*="bg-[#AD8B73]/"] {
+  background-color: rgba(155, 123, 255, 0.14) !important;
+  color: var(--soft-violet) !important;
+}
+[class*="bg-[#CEAB93]/"] {
+  background-color: rgba(128, 85, 246, 0.16) !important;
+}
+[class*="bg-[#E3CAA5]/"] {
+  background-color: rgba(37, 37, 66, 0.65) !important;
+}
+
+/* Standard select, input and option styling */
+select {
+  background-color: #252542 !important;
+  color: #F5F3FF !important;
+  border-color: rgba(196, 181, 253, 0.18) !important;
+}
+select option {
+  background-color: #1D1D35 !important;
+  color: #F5F3FF !important;
+}
+input::placeholder {
+  color: #9896B0 !important;
+  opacity: 0.8;
+}
+
+/* ─── Dark Glass Utilities ────────────────────────────────── */
 @layer components {
-  /* Default Glass Card */
+  /* Default Primary Card */
   .glass-card {
-    background: rgba(255, 255, 255, 0.58);
+    background: rgba(29, 29, 53, 0.85);
     backdrop-filter: blur(28px);
     -webkit-backdrop-filter: blur(28px);
-    border: 1px solid rgba(255, 255, 255, 0.78);
-    box-shadow: 0 16px 48px rgba(100, 75, 50, 0.07), inset 0 1px 0 rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(196, 181, 253, 0.16);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.40), inset 0 1px 0 rgba(196, 181, 253, 0.14);
     transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease, border-color 0.3s ease;
   }
   .glass-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 24px 60px rgba(100, 75, 50, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.95);
-    background: rgba(255, 255, 255, 0.72);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(196, 181, 253, 0.25);
+    border-color: rgba(155, 123, 255, 0.45);
+    background: rgba(37, 37, 66, 0.90);
   }
 
-  /* Glass Cream Variant */
+  /* Glass Cream -> Primary Card Panel */
   .glass-cream {
-    background: rgba(255, 251, 233, 0.60);
+    background: rgba(29, 29, 53, 0.88);
     backdrop-filter: blur(28px);
     -webkit-backdrop-filter: blur(28px);
-    border: 1px solid rgba(255, 255, 255, 0.85);
-    box-shadow: 0 16px 48px rgba(173, 139, 115, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.90);
+    border: 1px solid rgba(196, 181, 253, 0.18);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.40), inset 0 1px 0 rgba(196, 181, 253, 0.14);
   }
 
-  /* Glass Peach Variant */
+  /* Glass Peach -> Elevated Surface */
   .glass-peach {
-    background: rgba(206, 171, 147, 0.20);
+    background: rgba(37, 37, 66, 0.85);
     backdrop-filter: blur(32px);
     -webkit-backdrop-filter: blur(32px);
-    border: 1px solid rgba(255, 255, 255, 0.78);
-    box-shadow: 0 16px 48px rgba(206, 171, 147, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(196, 181, 253, 0.22);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.40), inset 0 1px 0 rgba(196, 181, 253, 0.16);
   }
 
-  /* Glass Sand Variant */
+  /* Glass Sand -> Sub-panel */
   .glass-sand {
-    background: rgba(227, 202, 165, 0.25);
+    background: rgba(37, 37, 66, 0.72);
     backdrop-filter: blur(28px);
     -webkit-backdrop-filter: blur(28px);
-    border: 1px solid rgba(255, 255, 255, 0.80);
-    box-shadow: 0 16px 48px rgba(227, 202, 165, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.88);
+    border: 1px solid rgba(196, 181, 253, 0.16);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(196, 181, 253, 0.12);
   }
 
-  /* Glass Taupe Variant */
+  /* Glass Taupe -> Violet Accent Surface */
   .glass-taupe {
-    background: rgba(173, 139, 115, 0.16);
+    background: rgba(155, 123, 255, 0.14);
     backdrop-filter: blur(32px);
     -webkit-backdrop-filter: blur(32px);
-    border: 1px solid rgba(255, 255, 255, 0.75);
-    box-shadow: 0 16px 48px rgba(173, 139, 115, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.82);
+    border: 1px solid rgba(155, 123, 255, 0.28);
+    box-shadow: 0 16px 48px rgba(155, 123, 255, 0.12), inset 0 1px 0 rgba(196, 181, 253, 0.18);
   }
 
-  /* Glass Cyan Variant */
+  /* Glass Cyan -> Telemetry Surface */
   .glass-cyan {
-    background: rgba(25, 191, 163, 0.10);
+    background: rgba(77, 217, 240, 0.12);
     backdrop-filter: blur(28px);
     -webkit-backdrop-filter: blur(28px);
-    border: 1px solid rgba(25, 191, 163, 0.25);
-    box-shadow: 0 16px 48px rgba(25, 191, 163, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(77, 217, 240, 0.28);
+    box-shadow: 0 16px 48px rgba(77, 217, 240, 0.12), inset 0 1px 0 rgba(77, 217, 240, 0.20);
   }
 
-  /* Glass Blue Variant */
+  /* Glass Blue -> Sky Glow Surface */
   .glass-blue {
-    background: rgba(82, 168, 255, 0.09);
+    background: rgba(56, 189, 248, 0.12);
     backdrop-filter: blur(28px);
     -webkit-backdrop-filter: blur(28px);
-    border: 1px solid rgba(82, 168, 255, 0.22);
-    box-shadow: 0 16px 48px rgba(82, 168, 255, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    box-shadow: 0 16px 48px rgba(56, 189, 248, 0.10), inset 0 1px 0 rgba(56, 189, 248, 0.20);
   }
 
-  /* Glass Danger (Attack Mode) */
+  /* Glass Danger (Active Attack Alert) */
   .glass-danger {
-    background: rgba(255, 255, 255, 0.65);
+    background: rgba(251, 113, 133, 0.15);
     backdrop-filter: blur(32px);
     -webkit-backdrop-filter: blur(32px);
-    border: 1px solid rgba(232, 92, 104, 0.35);
-    box-shadow: 0 20px 60px rgba(232, 92, 104, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.90);
+    border: 1px solid rgba(251, 113, 133, 0.38);
+    box-shadow: 0 20px 60px rgba(251, 113, 133, 0.22), inset 0 1px 0 rgba(251, 113, 133, 0.30);
   }
 
-  /* Glass Success (Protected Mode) */
+  /* Glass Success (Normal Status) */
   .glass-success {
-    background: rgba(255, 255, 255, 0.65);
+    background: rgba(52, 211, 153, 0.14);
     backdrop-filter: blur(32px);
     -webkit-backdrop-filter: blur(32px);
-    border: 1px solid rgba(25, 191, 163, 0.30);
-    box-shadow: 0 20px 60px rgba(25, 191, 163, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.90);
+    border: 1px solid rgba(52, 211, 153, 0.30);
+    box-shadow: 0 20px 60px rgba(52, 211, 153, 0.15), inset 0 1px 0 rgba(52, 211, 153, 0.25);
   }
 
   /* Glass Nav & Sidebar */
   .glass-nav {
-    background: rgba(255, 251, 233, 0.82);
+    background: rgba(17, 17, 31, 0.88);
     backdrop-filter: blur(40px);
     -webkit-backdrop-filter: blur(40px);
-    border: 1px solid rgba(255, 255, 255, 0.92);
-    box-shadow: 0 12px 36px rgba(100, 75, 50, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(196, 181, 253, 0.18);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(196, 181, 253, 0.15);
   }
 
-  /* Enhanced sidebar glass — stronger blur + inner highlight */
   .glass-sidebar {
-    background: rgba(255, 251, 233, 0.78);
-    backdrop-filter: blur(48px) saturate(1.6);
-    -webkit-backdrop-filter: blur(48px) saturate(1.6);
-    border-right: 1px solid rgba(255, 255, 255, 0.90);
-    box-shadow: 8px 0 40px rgba(100, 75, 50, 0.08), inset -1px 0 0 rgba(255,255,255,0.6);
+    background: rgba(23, 23, 42, 0.94);
+    backdrop-filter: blur(48px) saturate(1.4);
+    -webkit-backdrop-filter: blur(48px) saturate(1.4);
+    border-right: 1px solid rgba(196, 181, 253, 0.16);
+    box-shadow: 8px 0 40px rgba(0, 0, 0, 0.50), inset -1px 0 0 rgba(196, 181, 253, 0.10);
   }
 
   .glass-surface {
-    background: rgba(255, 255, 255, 0.45);
+    background: rgba(37, 37, 66, 0.65);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.70);
+    border: 1px solid rgba(196, 181, 253, 0.16);
   }
 
-  /* Settings section card */
   .glass-settings-section {
-    background: rgba(255, 251, 233, 0.55);
+    background: rgba(29, 29, 53, 0.85);
     backdrop-filter: blur(28px);
     -webkit-backdrop-filter: blur(28px);
-    border: 1px solid rgba(255, 255, 255, 0.88);
-    box-shadow: 0 8px 32px rgba(100, 75, 50, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.90);
+    border: 1px solid rgba(196, 181, 253, 0.18);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(196, 181, 253, 0.14);
     border-radius: 24px;
     padding: 24px 28px;
   }
 }
 
-/* ─── Layered Background System with Multi-colored Blobs ──── */
+/* ─── Layered Background Canvas with Dark-Violet Ambient Gradients ─── */
 .warm-bg-canvas {
-  background-color: #FFFBE9;
+  background-color: #11111F;
   position: relative;
 }
 
@@ -188,11 +270,11 @@
   position: fixed;
   inset: 0;
   background:
-    radial-gradient(ellipse 850px 650px at 10% 15%, rgba(173, 139, 115, 0.18) 0%, transparent 65%),
-    radial-gradient(ellipse 750px 600px at 85% 25%, rgba(206, 171, 147, 0.22) 0%, transparent 60%),
-    radial-gradient(ellipse 700px 550px at 45% 75%, rgba(227, 202, 165, 0.25) 0%, transparent 58%),
-    radial-gradient(ellipse 600px 500px at 80% 85%, rgba(22, 191, 163, 0.12) 0%, transparent 55%),
-    radial-gradient(ellipse 650px 500px at 15% 85%, rgba(82, 168, 255, 0.10) 0%, transparent 55%);
+    radial-gradient(ellipse 850px 650px at 10% 15%, rgba(155, 123, 255, 0.10) 0%, transparent 65%),
+    radial-gradient(ellipse 750px 600px at 85% 25%, rgba(196, 181, 253, 0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 700px 550px at 45% 75%, rgba(37, 37, 66, 0.35) 0%, transparent 58%),
+    radial-gradient(ellipse 600px 500px at 80% 85%, rgba(77, 217, 240, 0.07) 0%, transparent 55%),
+    radial-gradient(ellipse 650px 500px at 15% 85%, rgba(128, 85, 246, 0.08) 0%, transparent 55%);
   pointer-events: none;
   z-index: 0;
   animation: floatBg 16s ease-in-out infinite alternate;
@@ -218,77 +300,75 @@
   white-space: nowrap;
   flex-shrink: 0;
 }
-/* Existing variants */
 .chip-protected {
-  background: rgba(98, 192, 115, 0.15);
-  border: 1px solid rgba(98, 192, 115, 0.30);
-  color: #2b703b;
+  background: rgba(52, 211, 153, 0.15);
+  border: 1px solid rgba(52, 211, 153, 0.35);
+  color: #34D399;
 }
 .chip-threat {
-  background: rgba(232, 92, 104, 0.15);
-  border: 1px solid rgba(232, 92, 104, 0.32);
-  color: #a82d38;
+  background: rgba(251, 113, 133, 0.18);
+  border: 1px solid rgba(251, 113, 133, 0.38);
+  color: #FB7185;
 }
 .chip-live {
-  background: rgba(25, 191, 163, 0.14);
-  border: 1px solid rgba(25, 191, 163, 0.28);
-  color: #0d7a67;
+  background: rgba(77, 217, 240, 0.15);
+  border: 1px solid rgba(77, 217, 240, 0.35);
+  color: #4DD9F0;
 }
 .chip-demo {
-  background: rgba(206, 171, 147, 0.20);
-  border: 1px solid rgba(173, 139, 115, 0.30);
-  color: #5c4535;
+  background: rgba(155, 123, 255, 0.18);
+  border: 1px solid rgba(155, 123, 255, 0.35);
+  color: #C4B5FD;
 }
 .chip-critical {
-  background: rgba(232, 92, 104, 0.18);
-  border: 1px solid rgba(232, 92, 104, 0.35);
-  color: #a82d38;
+  background: rgba(251, 113, 133, 0.22);
+  border: 1px solid rgba(251, 113, 133, 0.45);
+  color: #FB7185;
   font-weight: 700;
 }
 .chip-normal {
-  background: rgba(227, 202, 165, 0.25);
-  border: 1px solid rgba(173, 139, 115, 0.25);
-  color: #514940;
+  background: rgba(37, 37, 66, 0.70);
+  border: 1px solid rgba(196, 181, 253, 0.18);
+  color: #C4C2D6;
 }
-/* New status variants */
 .chip-attack {
-  background: rgba(232, 92, 104, 0.20);
-  border: 1px solid rgba(232, 92, 104, 0.40);
-  color: #a82d38;
+  background: rgba(251, 113, 133, 0.22);
+  border: 1px solid rgba(251, 113, 133, 0.45);
+  color: #FB7185;
   font-weight: 700;
   animation: chipAttackPulse 1.6s ease-in-out infinite;
 }
 .chip-degraded {
-  background: rgba(217, 154, 50, 0.18);
-  border: 1px solid rgba(217, 154, 50, 0.35);
-  color: #7a4e10;
+  background: rgba(251, 191, 36, 0.18);
+  border: 1px solid rgba(251, 191, 36, 0.38);
+  color: #FBBF24;
   font-weight: 600;
 }
 .chip-warning {
-  background: rgba(217, 154, 50, 0.15);
-  border: 1px solid rgba(217, 154, 50, 0.30);
-  color: #7a4e10;
+  background: rgba(251, 191, 36, 0.15);
+  border: 1px solid rgba(251, 191, 36, 0.32);
+  color: #FBBF24;
 }
 .chip-offline {
-  background: rgba(122, 112, 103, 0.15);
-  border: 1px solid rgba(122, 112, 103, 0.28);
-  color: #4a4440;
+  background: rgba(152, 150, 176, 0.15);
+  border: 1px solid rgba(152, 150, 176, 0.25);
+  color: #9896B0;
 }
 .chip-monitoring {
-  background: rgba(82, 168, 255, 0.14);
-  border: 1px solid rgba(82, 168, 255, 0.28);
-  color: #1a4f80;
+  background: rgba(77, 217, 240, 0.15);
+  border: 1px solid rgba(77, 217, 240, 0.30);
+  color: #4DD9F0;
 }
 .chip-replay {
-  background: rgba(206, 171, 147, 0.25);
-  border: 1px solid rgba(173, 139, 115, 0.38);
-  color: #5c4535;
+  background: rgba(155, 123, 255, 0.20);
+  border: 1px solid rgba(155, 123, 255, 0.35);
+  color: #C4B5FD;
   font-weight: 600;
 }
 
 @keyframes chipAttackPulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(232,92,104,0); }
-  50%       { box-shadow: 0 0 0 4px rgba(232,92,104,0.18); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(251, 113, 133, 0); }
+  50%       { box-shadow: 0 0 0 4px rgba(251, 113, 133, 0.25); }
 }
 
 /* ─── Buttons ───────────────────────────────────────────── */
@@ -296,9 +376,9 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 13px 28px;
-  background: #3F3832;
-  color: #FFFBE9;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #8055F6 0%, #9B7BFF 100%);
+  color: #F5F3FF;
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.02em;
@@ -306,34 +386,35 @@
   border: none;
   cursor: pointer;
   transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
-  box-shadow: 0 8px 24px rgba(63, 56, 50, 0.20);
+  box-shadow: 0 8px 24px rgba(128, 85, 246, 0.30);
 }
 .btn-primary:hover {
   transform: translateY(-2px);
-  background: #514940;
-  box-shadow: 0 12px 32px rgba(63, 56, 50, 0.28);
+  background: linear-gradient(135deg, #9B7BFF 0%, #8055F6 100%);
+  box-shadow: 0 12px 32px rgba(128, 85, 246, 0.45);
 }
 
 .btn-secondary {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 12px 26px;
-  background: rgba(255, 255, 255, 0.65);
+  padding: 12px 24px;
+  background: #252542;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  color: #3F3832;
+  color: #F5F3FF;
   font-size: 13px;
   font-weight: 600;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(196, 181, 253, 0.18);
   cursor: pointer;
-  transition: transform 0.25s ease, background 0.25s ease;
-  box-shadow: 0 4px 16px rgba(100, 75, 50, 0.06);
+  transition: transform 0.25s ease, background 0.25s ease, border-color 0.25s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
 }
 .btn-secondary:hover {
   transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.85);
+  background: #303052;
+  border-color: rgba(155, 123, 255, 0.48);
 }
 
 /* ─── Settings toggle ───────────────────────────────────── */
@@ -354,21 +435,21 @@
   width: 18px;
   height: 18px;
   border-radius: 9999px;
-  background: #fff;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+  background: #F5F3FF;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.4);
   transition: transform 0.25s ease;
 }
-.settings-toggle[data-on="true"] { background: #19BFA3; }
-.settings-toggle[data-on="false"] { background: #AD8B73; }
+.settings-toggle[data-on="true"] { background: #8055F6; }
+.settings-toggle[data-on="false"] { background: #252542; border: 1px solid rgba(196, 181, 253, 0.16); }
 .settings-toggle[data-on="true"] .settings-toggle-thumb { transform: translateX(20px); }
 
 /* ─── Skeleton loading animation ────────────────────────── */
 .skeleton {
   background: linear-gradient(
     90deg,
-    rgba(227, 202, 165, 0.25) 0%,
-    rgba(206, 171, 147, 0.40) 50%,
-    rgba(227, 202, 165, 0.25) 100%
+    rgba(29, 29, 53, 0.6) 0%,
+    rgba(37, 37, 66, 0.9) 50%,
+    rgba(29, 29, 53, 0.6) 100%
   );
   background-size: 200% 100%;
   animation: skeletonShimmer 1.6s ease-in-out infinite;
@@ -406,8 +487,8 @@
 /* ─── Scrollbar ─────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(173, 139, 115, 0.25); border-radius: 9999px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(206, 171, 147, 0.50); }
+::-webkit-scrollbar-thumb { background: rgba(155, 123, 255, 0.25); border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(155, 123, 255, 0.45); }
 
 /* ─── Reduced motion accessibility ─────────────────────── */
 @media (prefers-reduced-motion: reduce) {

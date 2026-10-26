@@ -10,14 +10,14 @@ export const SecurityStatus: React.FC = () => {
     <div
       className={`rounded-3xl p-6 sm:p-8 border backdrop-blur-xl relative overflow-hidden transition-all duration-500 shadow-xl ${
         isProtected
-          ? 'bg-gradient-to-r from-[#101824] via-[#141D2A] to-[#101824] border-[#59E3C2]/30 shadow-[#59E3C2]/5'
-          : 'bg-gradient-to-r from-[#1A1018] via-[#24141A] to-[#1A1018] border-[#FF5C6C]/40 shadow-[#FF5C6C]/10'
+          ? 'bg-gradient-to-r from-[#17172A] via-[#1D1D35] to-[#17172A] border-[#34D399]/30 shadow-[#34D399]/5'
+          : 'bg-gradient-to-r from-[#2A1620] via-[#331826] to-[#2A1620] border-[#FB7185]/40 shadow-[#FB7185]/10'
       }`}
     >
       {/* Background Glow */}
       <div
         className={`absolute top-0 right-0 w-80 h-80 rounded-full blur-3xl pointer-events-none ${
-          isProtected ? 'bg-[#59E3C2]/10' : 'bg-[#FF5C6C]/15 animate-pulse'
+          isProtected ? 'bg-[#34D399]/10' : 'bg-[#FB7185]/15 animate-pulse'
         }`}
       />
 
@@ -27,27 +27,27 @@ export const SecurityStatus: React.FC = () => {
           <div
             className={`p-4 rounded-2xl border shadow-lg flex items-center justify-center shrink-0 ${
               isProtected
-                ? 'bg-[#59E3C2]/10 border-[#59E3C2]/30 text-[#59E3C2] shadow-[0_0_20px_rgba(89,227,194,0.15)]'
-                : 'bg-[#FF5C6C]/10 border-[#FF5C6C]/40 text-[#FF5C6C] shadow-[0_0_25px_rgba(255,92,108,0.2)] animate-bounce'
+                ? 'bg-[#34D399]/10 border-[#34D399]/30 text-[#34D399] shadow-[0_0_20px_rgba(52,211,153,0.15)]'
+                : 'bg-[#FB7185]/10 border-[#FB7185]/40 text-[#FB7185] shadow-[0_0_25px_rgba(251,113,133,0.2)] animate-bounce'
             }`}
           >
             {isProtected ? (
-              <ShieldCheck className="w-10 h-10 text-[#59E3C2]" />
+              <ShieldCheck className="w-10 h-10 text-[#34D399]" />
             ) : (
-              <ShieldAlert className="w-10 h-10 text-[#FF5C6C]" />
+              <ShieldAlert className="w-10 h-10 text-[#FB7185]" />
             )}
           </div>
 
           <div className="space-y-1">
             <div className="flex items-center gap-3">
-              <span className="text-xs font-mono tracking-widest uppercase text-[#94A3B8]">
+              <span className="text-xs font-mono tracking-widest uppercase text-[#9896B0]">
                 GLOBAL SOC STATUS
               </span>
               <span
                 className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-mono font-bold ${
                   isProtected
-                    ? 'bg-[#4ADE80]/10 text-[#4ADE80] border border-[#4ADE80]/20'
-                    : 'bg-[#FF5C6C]/20 text-[#FF5C6C] border border-[#FF5C6C]/40 animate-pulse'
+                    ? 'bg-[#34D399]/10 text-[#34D399] border border-[#34D399]/20'
+                    : 'bg-[#FB7185]/20 text-[#FB7185] border border-[#FB7185]/40 animate-pulse'
                 }`}
               >
                 {isProtected ? (
@@ -66,13 +66,13 @@ export const SecurityStatus: React.FC = () => {
 
             <h2
               className={`text-2xl sm:text-3xl font-extrabold tracking-tight font-mono ${
-                isProtected ? 'text-[#59E3C2]' : 'text-[#FF5C6C]'
+                isProtected ? 'text-[#34D399]' : 'text-[#FB7185]'
               }`}
             >
               {securityStatus}
             </h2>
 
-            <p className="text-sm sm:text-base text-[#94A3B8] max-w-xl font-normal leading-relaxed">
+            <p className="text-sm sm:text-base text-[#C4C2D6] max-w-xl font-normal leading-relaxed">
               {isProtected
                 ? 'All monitored EV charging infrastructure is operating within expected traffic patterns.'
                 : 'High-volume DDoS authentication anomaly detected across charging gateways.'}
@@ -81,21 +81,21 @@ export const SecurityStatus: React.FC = () => {
         </div>
 
         {/* Right Side: Status Telemetry Metrics */}
-        <div className="flex items-center gap-4 w-full md:w-auto pt-4 md:pt-0 border-t md:border-t-0 border-slate-800/80">
-          <div className="bg-[#0B111C]/80 px-4 py-3 rounded-2xl border border-slate-800/80 min-w-[130px] flex flex-col">
-            <span className="text-[10px] font-mono text-[#94A3B8] uppercase">ACTIVE THREATS</span>
+        <div className="flex items-center gap-4 w-full md:w-auto pt-4 md:pt-0 border-t md:border-t-0 border-[#C4B5FD]/16">
+          <div className="bg-[#252542] px-4 py-3 rounded-2xl border border-[#C4B5FD]/16 min-w-[130px] flex flex-col shadow-sm">
+            <span className="text-[10px] font-mono text-[#9896B0] uppercase">ACTIVE THREATS</span>
             <span
               className={`text-xl font-extrabold font-mono mt-0.5 ${
-                activeThreats === 0 ? 'text-[#4ADE80]' : 'text-[#FF5C6C]'
+                activeThreats === 0 ? 'text-[#34D399]' : 'text-[#FB7185]'
               }`}
             >
               {activeThreats}
             </span>
           </div>
 
-          <div className="bg-[#0B111C]/80 px-4 py-3 rounded-2xl border border-slate-800/80 min-w-[130px] flex flex-col">
-            <span className="text-[10px] font-mono text-[#94A3B8] uppercase">CHARGERS ONLINE</span>
-            <span className="text-xl font-extrabold font-mono text-[#59E3C2] mt-0.5">
+          <div className="bg-[#252542] px-4 py-3 rounded-2xl border border-[#C4B5FD]/16 min-w-[130px] flex flex-col shadow-sm">
+            <span className="text-[10px] font-mono text-[#9896B0] uppercase">CHARGERS ONLINE</span>
+            <span className="text-xl font-extrabold font-mono text-[#4DD9F0] mt-0.5">
               {isAttackMode ? '1,224 / 1,250' : '1,248 / 1,250'}
             </span>
           </div>

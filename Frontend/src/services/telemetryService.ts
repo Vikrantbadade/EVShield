@@ -1,4 +1,5 @@
 import { apiClient, ApiResponseWrapper } from './apiClient';
+import { AttackIncident } from '../types/attack';
 
 export interface TelemetryGraphPoint {
   timestamp: string;
@@ -15,6 +16,12 @@ export interface SecurityEventItem {
   type: 'INFO' | 'WARNING' | 'CRITICAL' | 'SUCCESS';
   title: string;
   message: string;
+  eventType?: string;
+  severity?: string;
+  source?: string;
+  endpoint?: string;
+  detectionResult?: any;
+  mitigationStatus?: string;
 }
 
 export interface MLInferenceResult {
@@ -67,6 +74,8 @@ export interface LiveTelemetrySnapshot {
   threatLevel: ThreatLevelState;
   securityStatus: 'PROTECTED' | 'THREAT DETECTED';
   events: SecurityEventItem[];
+  activeIncident?: AttackIncident | null;
+  lastIncident?: AttackIncident | null;
 }
 
 export const telemetryService = {
@@ -76,6 +85,23 @@ export const telemetryService = {
       return response.data.data;
     }
     throw new Error('Failed to retrieve live telemetry data.');
+  },
+
+  executeMitigation: async (): Promise<{ success: boolean; message: string; incident: AttackIncident | null }> => {
+    const response = await apiClient.post<ApiResponseWrapper<{ message: string; incident: AttackIncident | null }>>('/telemetry/mitigate');
+    return {
+      success: response.data.success,
+      message: response.data.data?.message || 'Mitigation applied',
+      incident: response.data.data?.incident || null,
+    };
+  },
+
+  getActiveIncident: async (): Promise<{ activeIncident: AttackIncident | null; lastIncident: AttackIncident | null }> => {
+    const response = await apiClient.get<ApiResponseWrapper<{ activeIncident: AttackIncident | null; lastIncident: AttackIncident | null }>>('/telemetry/incident');
+    if (response.data.success && response.data.data) {
+      return response.data.data;
+    }
+    return { activeIncident: null, lastIncident: null };
   },
 
   startNormalTraffic: async (): Promise<LiveTelemetrySnapshot> => {

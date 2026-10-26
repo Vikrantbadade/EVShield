@@ -2,6 +2,8 @@ import { spawn } from 'child_process';
 import path from 'path';
 import fs from 'fs';
 import { resolvePythonExecutable } from '../utils/python.util.js';
+import { db } from '../config/database.js';
+import { AttackIncident } from '../types/attack.types.js';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Project & ML Paths
@@ -46,11 +48,22 @@ export interface TelemetryGraphPoint {
 
 export interface SecurityEventItem {
   id: string;
-  timestamp: string;
-  timeStr: string;
+  timestamp: string; // ISO 8601 UTC
+  timeStr: string;   // Local time fallback
   type: 'INFO' | 'WARNING' | 'CRITICAL' | 'SUCCESS';
   title: string;
   message: string;
+  eventType: 'INIT' | 'NORMAL' | 'TRAFFIC_BURST' | 'ATTACK_DETECTED' | 'MITIGATION_PENDING' | 'MITIGATION_EXECUTED' | 'RECOVERY_STARTED' | 'RECOVERED';
+  severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  source: string;
+  endpoint: string;
+  detectionResult?: {
+    label: string;
+    probability: number;
+    threshold: number;
+    confidence: number;
+  };
+  mitigationStatus?: 'NONE' | 'PENDING' | 'MITIGATED' | 'RECOVERED';
 }
 
 export interface MLInferenceResult {
@@ -103,6 +116,8 @@ export interface LiveTelemetrySnapshot {
   threatLevel: ThreatLevelState;
   securityStatus: 'PROTECTED' | 'THREAT DETECTED';
   events: SecurityEventItem[];
+  activeIncident: AttackIncident | null;
+  lastIncident: AttackIncident | null;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -152,6 +167,8 @@ export class TelemetryService {
   private threatLevel: ThreatLevelState = 'NORMAL';
   private securityStatus: 'PROTECTED' | 'THREAT DETECTED' = 'PROTECTED';
   private events: SecurityEventItem[] = [];
+  private activeIncident: AttackIncident | null = null;
+  private lastIncident: AttackIncident | null = null;
 
   // Server health cache
   private fakeServerOnline = false;
@@ -166,7 +183,14 @@ export class TelemetryService {
 
   constructor() {
     this.initDefaultThreshold();
-    this.addSecurityEvent('INFO', 'EVShield Initialized', 'Real-time telemetry and ML defense platform ready.');
+    this.addSecurityEvent(
+      'INFO',
+      'EVShield Initialized',
+      'Real-time telemetry and ML defense platform ready.',
+      'INIT',
+      'LOW',
+      'NONE'
+    );
     this.seedInitialGraphHistory();
 
     // Background health check & continuous feature evaluation loop (every 1000ms)
@@ -190,11 +214,10 @@ export class TelemetryService {
 
   private seedInitialGraphHistory(): void {
     const now = Date.now();
-    for (let i = 15; i >= 0; i--) {
-      const time = new Date(now - i * 3000);
-      const timeStr = time.toLocaleTimeString('en-US', { hour12: false });
+    for (let i = 20; i >= 0; i--) {
+      const time = new Date(now - i * 2000);
       this.graphHistory.push({
-        timestamp: timeStr,
+        timestamp: time.toISOString(),
         requestsPerSec: 0,
         latencyMs: 0,
         probability: 0.24,
@@ -209,8 +232,12 @@ export class TelemetryService {
   public addSecurityEvent(
     type: 'INFO' | 'WARNING' | 'CRITICAL' | 'SUCCESS',
     title: string,
-    message: string
-  ): void {
+    message: string,
+    eventType: 'INIT' | 'NORMAL' | 'TRAFFIC_BURST' | 'ATTACK_DETECTED' | 'MITIGATION_PENDING' | 'MITIGATION_EXECUTED' | 'RECOVERY_STARTED' | 'RECOVERED' = 'NORMAL',
+    severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' = 'LOW',
+    mitigationStatus: 'NONE' | 'PENDING' | 'MITIGATED' | 'RECOVERED' = 'NONE',
+    endpoint = '/api/auth'
+  ): SecurityEventItem {
     const now = new Date();
     const event: SecurityEventItem = {
       id: `evt-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
@@ -219,11 +246,23 @@ export class TelemetryService {
       type,
       title,
       message,
+      eventType,
+      severity,
+      source: 'Gateway (127.0.0.1:8080)',
+      endpoint,
+      detectionResult: {
+        label: this.latestMLResult.label,
+        probability: this.latestMLResult.probability_attack,
+        threshold: this.latestMLResult.threshold,
+        confidence: Math.round(this.latestMLResult.probability_attack * 1000) / 10,
+      },
+      mitigationStatus,
     };
     this.events.unshift(event);
     if (this.events.length > 50) {
       this.events = this.events.slice(0, 50);
     }
+    return event;
   }
 
   // ───────────────────────────────────────────────────────────────────────────
@@ -477,20 +516,20 @@ export class TelemetryService {
     // 3. Trigger single-flight ML inference on current window
     this.triggerMLInference();
 
-    // 4. Update Security State Machine
+    // 4. Update Security State Machine & Real Incident Tracking
     const prob = this.latestMLResult.probability_attack;
     const threshold = this.latestMLResult.threshold;
 
     if (this.simulationMode === 'ATTACK') {
       if (prob >= threshold) {
         if (this.threatLevel !== 'CRITICAL') {
-          this.threatLevel = 'CRITICAL';
-          this.securityStatus = 'THREAT DETECTED';
-          this.addSecurityEvent(
-            'CRITICAL',
-            '⚠ DDoS ATTACK DETECTED',
-            `ML model flagged rate anomaly (${Math.round(prob * 100)}% probability >= ${Math.round(threshold * 100)}% threshold). Traffic rate: ${rps} req/s.`
-          );
+          this.onAttackDetected(rps, prob, threshold);
+        } else if (this.activeIncident) {
+          // Update live incident telemetry metrics
+          this.activeIncident.requestsPerSecond = rps;
+          this.activeIncident.peakRequestsPerSecond = Math.max(this.activeIncident.peakRequestsPerSecond, rps);
+          this.activeIncident.duration = this.computeDurationStr(new Date(this.activeIncident.startTime), new Date());
+          this.activeIncident.telemetryGraphPoints = [...this.graphHistory];
         }
       } else {
         if (this.threatLevel === 'NORMAL') {
@@ -498,7 +537,10 @@ export class TelemetryService {
           this.addSecurityEvent(
             'WARNING',
             'Anomalous Telemetry Observed',
-            `High request volume detected. ML probability rising (${Math.round(prob * 100)}%).`
+            `High request volume detected. ML probability rising (${Math.round(prob * 100)}%).`,
+            'TRAFFIC_BURST',
+            'MEDIUM',
+            'NONE'
           );
         }
       }
@@ -511,13 +553,12 @@ export class TelemetryService {
       // External traffic burst or idle baseline
       if (prob >= threshold) {
         if (this.threatLevel !== 'CRITICAL') {
-          this.threatLevel = 'CRITICAL';
-          this.securityStatus = 'THREAT DETECTED';
-          this.addSecurityEvent(
-            'CRITICAL',
-            '⚠ DDoS / HIGH TRAFFIC ANOMALY DETECTED',
-            `ML model detected rate anomaly (${Math.round(prob * 100)}% attack probability >= ${Math.round(threshold * 100)}% threshold). Real ingress rate: ${rps} req/s.`
-          );
+          this.onAttackDetected(rps, prob, threshold);
+        } else if (this.activeIncident) {
+          this.activeIncident.requestsPerSecond = rps;
+          this.activeIncident.peakRequestsPerSecond = Math.max(this.activeIncident.peakRequestsPerSecond, rps);
+          this.activeIncident.duration = this.computeDurationStr(new Date(this.activeIncident.startTime), new Date());
+          this.activeIncident.telemetryGraphPoints = [...this.graphHistory];
         }
       } else if (rps > 15) {
         if (this.threatLevel === 'NORMAL') {
@@ -525,38 +566,320 @@ export class TelemetryService {
           this.addSecurityEvent(
             'WARNING',
             'High Ingress Traffic Detected',
-            `Real traffic burst detected (${rps} req/s). ML analyzing live telemetry stream.`
+            `Real traffic burst detected (${rps} req/s). ML analyzing live telemetry stream.`,
+            'TRAFFIC_BURST',
+            'MEDIUM',
+            'NONE'
           );
         }
       } else {
         if (prob < threshold && this.threatLevel === 'CRITICAL') {
-          this.threatLevel = 'RECOVERING';
-          this.addSecurityEvent(
-            'INFO',
-            'Traffic Returning to Baseline',
-            `Traffic surge ceased. Telemetry draining (ML probability: ${Math.round(prob * 100)}%).`
-          );
+          this.onTrafficSubsiding(prob);
         } else if (prob < threshold && (this.threatLevel === 'RECOVERING' || this.threatLevel === 'ANALYZING')) {
-          this.threatLevel = 'NORMAL';
-          this.securityStatus = 'PROTECTED';
-          this.addSecurityEvent('SUCCESS', '✓ Threat Mitigated', 'All systems returned to normal operational baseline.');
+          this.onOperationalBaselineRestored();
         }
       }
     }
 
-    // 5. Update graph time series history
-    const timeStr = new Date(now).toLocaleTimeString('en-US', { hour12: false });
+    // 5. Update graph time series history with canonical ISO 8601 UTC timestamp
+    const isoTimestamp = new Date(now).toISOString();
     this.graphHistory.push({
-      timestamp: timeStr,
+      timestamp: isoTimestamp,
       requestsPerSec: rps,
       latencyMs: avgLatency,
       probability: prob,
       isAnomaly: prob >= threshold,
     });
 
-    if (this.graphHistory.length > 30) {
+    if (this.graphHistory.length > 45) {
       this.graphHistory.shift();
     }
+  }
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // Incident & Mitigation Lifecycle Handlers
+  // ───────────────────────────────────────────────────────────────────────────
+  private async onAttackDetected(rps: number, prob: number, threshold: number): Promise<void> {
+    this.threatLevel = 'CRITICAL';
+    this.securityStatus = 'THREAT DETECTED';
+
+    const incidentId = `INC-${Date.now().toString().slice(-6)}`;
+    const startTime = new Date();
+    const alertId = `ALT-${Date.now().toString().slice(-6)}`;
+
+    this.activeIncident = {
+      id: incidentId,
+      timestamp: startTime.toISOString(),
+      startTime: startTime.toISOString(),
+      duration: 'Ongoing',
+      status: 'DETECTED',
+      severity: 'CRITICAL',
+      attackType: 'DDOS',
+      attackTypeLabel: 'DDoS Authentication Burst',
+      classification: 'ATTACK',
+      mlConfidence: Math.round(prob * 1000) / 10,
+      requestsPerSecond: rps,
+      baselineRequestsPerSecond: 12,
+      peakRequestsPerSecond: rps,
+      affectedNodes: 1,
+      affectedStations: [
+        {
+          id: 'CS-0421',
+          name: 'Pune Express Terminal',
+          location: 'Viman Nagar, Pune',
+          status: 'UNDER ATTACK',
+          requestsPerSec: rps,
+        },
+      ],
+      sourceCategory: 'Distributed EV Gateway Auth Flood',
+      targetInfrastructure: 'Gateway CS-0421 (127.0.0.1:8080)',
+      mitigationStatus: 'ACTIVE IN PROGRESS',
+      mitigationTime: '',
+      description: 'High-frequency authentication burst flood targeting EV charging station token verification endpoint.',
+      detectionSummary: `Random Forest classifier detected rate anomaly (${Math.round(prob * 100)}% attack probability >= ${Math.round(threshold * 100)}% threshold). Traffic rate: ${rps} req/s.`,
+      isDemo: true,
+      telemetryGraphPoints: [...this.graphHistory],
+      mlFeatures: { ...this.latestMLResult.features },
+      mlThreshold: threshold,
+    };
+
+    this.addSecurityEvent(
+      'CRITICAL',
+      '⚠ DDoS ATTACK DETECTED',
+      `ML model flagged rate anomaly (${Math.round(prob * 100)}% probability >= ${Math.round(threshold * 100)}% threshold). Traffic rate: ${rps} req/s.`,
+      'ATTACK_DETECTED',
+      'CRITICAL',
+      'PENDING'
+    );
+
+    const currentIncident = this.activeIncident!;
+
+    // Asynchronously persist structured incident & alert to PostgreSQL
+    try {
+      await db.attackIncident.create({
+        data: {
+          incidentId,
+          stationId: 'CS-0421',
+          attackType: 'VOLUMETRIC',
+          severity: 'CRITICAL',
+          status: 'ACTIVE',
+          startTime,
+          requestsPerSec: rps,
+          sourceIps: ['127.0.0.1', '10.0.4.12'],
+          packetsDropped: 0,
+          description: currentIncident.description,
+          metadata: {
+            attackType: 'DDOS',
+            attackTypeLabel: 'DDoS Authentication Burst',
+            classification: 'ATTACK',
+            mlConfidence: currentIncident.mlConfidence,
+            baselineRequestsPerSecond: 12,
+            peakRequestsPerSecond: rps,
+            affectedNodes: 1,
+            affectedStations: currentIncident.affectedStations,
+            targetInfrastructure: currentIncident.targetInfrastructure,
+            mitigationStatus: 'DETECTED',
+            detectionSummary: currentIncident.detectionSummary,
+            features: this.latestMLResult.features,
+            signals: [
+              { name: 'Traffic Burst Intensity', value: `${rps} req/s`, status: 'ANOMALOUS', description: 'Request rate exceeded nominal baseline' },
+              { name: 'ML Threat Probability', value: `${Math.round(prob * 100)}%`, status: 'ANOMALOUS', description: `Model confidence >= ${Math.round(threshold * 100)}% threshold` },
+              { name: 'Target Gateway', value: 'CS-0421', status: 'ANOMALOUS', description: 'Port 8080 authentication endpoint flood' },
+              { name: 'Defense Action', value: 'PENDING', status: 'ELEVATED', description: 'Mitigation rules ready for enforcement' },
+            ],
+          } as any,
+        },
+      });
+
+      await db.securityAlert.create({
+        data: {
+          alertId,
+          stationId: 'CS-0421',
+          incidentId,
+          severity: 'CRITICAL',
+          title: 'Critical DDoS Attack Detected',
+          message: `ML model flagged rate anomaly (${Math.round(prob * 100)}% probability >= ${Math.round(threshold * 100)}% threshold). Ingress rate: ${rps} req/s.`,
+          acknowledged: false,
+          metadata: {
+            mlConfidence: currentIncident.mlConfidence,
+          } as any,
+        },
+      });
+
+      await db.chargingStation.updateMany({
+        where: { stationId: 'CS-0421' },
+        data: { status: 'UNDER_ATTACK' },
+      });
+    } catch (err) {
+      console.warn('[TelemetryService] Async DB incident persistence:', err);
+    }
+  }
+
+  private async onTrafficSubsiding(prob: number): Promise<void> {
+    this.threatLevel = 'RECOVERING';
+    this.addSecurityEvent(
+      'INFO',
+      'Traffic Returning to Baseline',
+      `Traffic surge ceased. Telemetry draining (ML probability: ${Math.round(prob * 100)}%).`,
+      'RECOVERY_STARTED',
+      'LOW',
+      'RECOVERED'
+    );
+  }
+
+  private async onOperationalBaselineRestored(): Promise<void> {
+    this.threatLevel = 'NORMAL';
+    this.securityStatus = 'PROTECTED';
+
+    const incident = this.activeIncident;
+    if (incident) {
+      const now = new Date();
+      incident.status = 'RESOLVED';
+      incident.endTime = now.toISOString();
+      incident.mitigationStatus = 'RECOVERED';
+      incident.duration = this.computeDurationStr(new Date(incident.startTime), now);
+
+      try {
+        await db.attackIncident.updateMany({
+          where: { incidentId: incident.id },
+          data: {
+            status: 'RESOLVED',
+            endTime: now,
+            metadata: {
+              attackType: incident.attackType,
+              attackTypeLabel: incident.attackTypeLabel,
+              classification: incident.classification,
+              mlConfidence: incident.mlConfidence,
+              baselineRequestsPerSecond: incident.baselineRequestsPerSecond,
+              peakRequestsPerSecond: incident.peakRequestsPerSecond,
+              affectedNodes: incident.affectedNodes,
+              affectedStations: incident.affectedStations,
+              targetInfrastructure: incident.targetInfrastructure,
+              mitigationStatus: 'RECOVERED',
+              mitigationTime: incident.duration,
+              detectionSummary: incident.detectionSummary,
+              outcome: 'Traffic subsided to nominal baseline (Recovered without manual mitigation)',
+            } as any,
+          },
+        });
+
+        await db.chargingStation.updateMany({
+          where: { stationId: 'CS-0421' },
+          data: { status: 'ONLINE' },
+        });
+      } catch (err) {
+        console.warn('[TelemetryService] Async DB incident resolution:', err);
+      }
+
+      this.lastIncident = { ...incident };
+      this.activeIncident = null;
+    }
+
+    this.addSecurityEvent(
+      'SUCCESS',
+      'Operational Baseline Restored',
+      'All systems returned to normal operational baseline (Recovered).',
+      'RECOVERED',
+      'LOW',
+      'RECOVERED'
+    );
+  }
+
+  public async executeMitigation(): Promise<{ success: boolean; message: string; incident: AttackIncident | null }> {
+    if (this.simulationMode === 'ATTACK') {
+      this.stopTraffic(false);
+    }
+
+    const now = new Date();
+    const incident = this.activeIncident || this.lastIncident;
+
+    if (incident) {
+      incident.status = 'MITIGATED';
+      incident.endTime = now.toISOString();
+      incident.mitigationStatus = 'MITIGATED';
+      incident.mitigationTime = this.computeDurationStr(new Date(incident.startTime), now);
+
+      try {
+        await db.attackIncident.updateMany({
+          where: { incidentId: incident.id },
+          data: {
+            status: 'MITIGATED',
+            endTime: now,
+            metadata: {
+              attackType: incident.attackType,
+              attackTypeLabel: incident.attackTypeLabel,
+              classification: incident.classification,
+              mlConfidence: incident.mlConfidence,
+              baselineRequestsPerSecond: incident.baselineRequestsPerSecond,
+              peakRequestsPerSecond: incident.peakRequestsPerSecond,
+              affectedNodes: incident.affectedNodes,
+              affectedStations: incident.affectedStations,
+              targetInfrastructure: incident.targetInfrastructure,
+              mitigationStatus: 'MITIGATED',
+              mitigationTime: incident.mitigationTime,
+              mitigationAction: 'Enforced rate limiting and token quarantine rules on CS-0421',
+              detectionSummary: incident.detectionSummary,
+            } as any,
+          },
+        });
+
+        await db.chargingStation.updateMany({
+          where: { stationId: 'CS-0421' },
+          data: { status: 'ONLINE' },
+        });
+      } catch (err) {
+        console.warn('[TelemetryService] Async DB mitigation:', err);
+      }
+
+      this.lastIncident = { ...incident };
+      this.activeIncident = null;
+    }
+
+    this.threatLevel = 'NORMAL';
+    this.securityStatus = 'PROTECTED';
+
+    this.addSecurityEvent(
+      'SUCCESS',
+      '🛡️ Mitigation Enforced',
+      'Rate-limiting rules applied and suspicious IP quarantine enforced on CS-0421.',
+      'MITIGATION_EXECUTED',
+      'HIGH',
+      'MITIGATED'
+    );
+
+    return {
+      success: true,
+      message: 'Mitigation successfully enforced.',
+      incident: incident || this.lastIncident,
+    };
+  }
+
+  public getActiveIncident(): AttackIncident | null {
+    return this.activeIncident;
+  }
+
+  public getLastIncident(): AttackIncident | null {
+    return this.lastIncident;
+  }
+
+  public getForensicIncident(id?: string): AttackIncident | null {
+    if (!id || id === 'current' || id === this.activeIncident?.id) {
+      if (this.activeIncident) return this.activeIncident;
+      if (this.lastIncident) return this.lastIncident;
+      return null;
+    }
+    if (id === this.lastIncident?.id) {
+      return this.lastIncident;
+    }
+    return null;
+  }
+
+  private computeDurationStr(start: Date, end: Date): string {
+    const totalSecs = Math.max(1, Math.floor((end.getTime() - start.getTime()) / 1000));
+    const m = Math.floor(totalSecs / 60);
+    const s = totalSecs % 60;
+    if (m > 0) return `${m}m ${s}s`;
+    return `${s}s`;
   }
 
   // ───────────────────────────────────────────────────────────────────────────
@@ -700,10 +1023,18 @@ export class TelemetryService {
     this.failedRequests = 0;
     this.threatLevel = 'NORMAL';
     this.securityStatus = 'PROTECTED';
+    this.activeIncident = null;
     this.events = [];
     this.graphHistory = [];
     this.seedInitialGraphHistory();
-    this.addSecurityEvent('INFO', 'System Reset', 'All telemetry buffers and counters reset to baseline.');
+    this.addSecurityEvent(
+      'INFO',
+      'System Reset',
+      'All telemetry buffers and counters reset to baseline.',
+      'INIT',
+      'LOW',
+      'NONE'
+    );
   }
 
   // ───────────────────────────────────────────────────────────────────────────
@@ -775,6 +1106,8 @@ export class TelemetryService {
       threatLevel: this.threatLevel,
       securityStatus: this.securityStatus,
       events: this.events,
+      activeIncident: this.activeIncident,
+      lastIncident: this.lastIncident,
     };
   }
 }

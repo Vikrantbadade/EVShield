@@ -3,6 +3,7 @@ import { AttackIncident } from '../../types/attack';
 import { AttackBadge } from './AttackBadge';
 import { StatusChip } from '../ui/StatusChip';
 import { ShieldAlert, Clock, Radio, Server } from 'lucide-react';
+import { formatTime } from '../../utils/dateTime';
 
 interface AttackSummaryProps {
   incident: AttackIncident;
@@ -10,6 +11,7 @@ interface AttackSummaryProps {
 
 export const AttackSummary: React.FC<AttackSummaryProps> = ({ incident }) => {
   const isAttack = incident.classification === 'ATTACK';
+  const startTimeStr = formatTime(incident.startTime || incident.timestamp);
 
   return (
     <div className="space-y-6">
@@ -21,7 +23,7 @@ export const AttackSummary: React.FC<AttackSummaryProps> = ({ incident }) => {
           <div className="space-y-3">
             <div className="flex items-center gap-3">
               <StatusChip label="SECURITY VERDICT" variant={isAttack ? 'critical' : 'protected'} dot pulse />
-              <StatusChip label="DEMO DATA" variant="demo" />
+              <StatusChip label={incident.isDemo ? "DEMO DATA" : "LIVE TELEMETRY"} variant={incident.isDemo ? "demo" : "live"} />
             </div>
 
             <h2 className={`text-3xl sm:text-4xl font-extrabold tracking-tight ${
@@ -52,9 +54,16 @@ export const AttackSummary: React.FC<AttackSummaryProps> = ({ incident }) => {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
           { label: 'Peak Request Rate', value: `${incident.peakRequestsPerSecond.toLocaleString()} req/s`, sub: `Baseline: ${incident.baselineRequestsPerSecond.toLocaleString()} req/s`, icon: Radio, variant: 'cream' as const, color: 'text-[#E85C68]' },
-          { label: 'Attack Duration',   value: incident.duration, sub: `Start: ${incident.startTime}`, icon: Clock, variant: 'peach' as const, color: 'text-[#AD8B73]' },
+          { label: 'Attack Duration',   value: incident.duration, sub: `Start: ${startTimeStr}`, icon: Clock, variant: 'peach' as const, color: 'text-[#AD8B73]' },
           { label: 'Affected Nodes',    value: `${incident.affectedNodes} Nodes`, sub: 'EV charging gateways', icon: Server, variant: 'sand' as const, color: 'text-[#D99A32]' },
-          { label: 'Mitigation Status', value: incident.status, sub: incident.mitigationTime ? `In ${incident.mitigationTime}` : 'Enforced', icon: ShieldAlert, variant: 'taupe' as const, color: 'text-[#19BFA3]' },
+          {
+            label: 'Mitigation Status',
+            value: incident.status === 'MITIGATED' ? 'MITIGATED' : incident.status === 'DETECTED' ? 'ACTIVE' : incident.status,
+            sub: incident.status === 'MITIGATED' ? (incident.mitigationTime ? `In ${incident.mitigationTime}` : 'Enforced') : incident.status === 'DETECTED' ? 'Pending Action' : 'Baseline Restored',
+            icon: ShieldAlert,
+            variant: 'taupe' as const,
+            color: 'text-[#19BFA3]',
+          },
         ].map(({ label, value, sub, icon: Icon, variant, color }) => (
           <div key={label} className={`glass-${variant} rounded-[24px] p-5 space-y-2 shadow-glass-sm hover:-translate-y-0.5 transition-all`}>
             <div className="flex items-center justify-between">

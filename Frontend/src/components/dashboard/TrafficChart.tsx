@@ -7,17 +7,19 @@ import { Line } from 'react-chartjs-2';
 import { useSecurity } from '../../context/SecurityContext';
 import { Activity, AlertTriangle, Radio } from 'lucide-react';
 import { StatusChip } from '../ui/StatusChip';
+import { formatTime } from '../../utils/dateTime';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
 
 export const TrafficChart: React.FC = () => {
   const { trafficData, isAttackMode, requestsPerSec } = useSecurity();
 
-  const labels = trafficData.map(d => d.timestamp);
+  const labels = trafficData.map(d => formatTime(d.timestamp));
   const values = trafficData.map(d => d.requests);
+  const maxVal = Math.max(...values, requestsPerSec, 25);
 
-  const lineColor = isAttackMode ? '#E85C68' : '#19BFA3';
-  const fillStart = isAttackMode ? 'rgba(232,92,104,0.22)' : 'rgba(25,191,163,0.18)';
+  const lineColor = isAttackMode ? '#FB7185' : '#4DD9F0';
+  const fillStart = isAttackMode ? 'rgba(251, 113, 133, 0.28)' : 'rgba(77, 217, 240, 0.22)';
 
   const chartData = {
     labels,
@@ -27,7 +29,7 @@ export const TrafficChart: React.FC = () => {
       borderColor: lineColor,
       borderWidth: 2.5,
       pointBackgroundColor: lineColor,
-      pointBorderColor: '#fff',
+      pointBorderColor: '#11111F',
       pointBorderWidth: 1.5,
       pointRadius: 4,
       pointHoverRadius: 6,
@@ -37,7 +39,7 @@ export const TrafficChart: React.FC = () => {
         const c = ctx.chart.ctx;
         const g = c.createLinearGradient(0, 0, 0, 300);
         g.addColorStop(0, fillStart);
-        g.addColorStop(1, 'rgba(255,251,233,0)');
+        g.addColorStop(1, 'rgba(17, 17, 31, 0)');
         return g;
       },
     }],
@@ -49,10 +51,10 @@ export const TrafficChart: React.FC = () => {
     plugins: {
       legend: { display: false },
       tooltip: {
-        backgroundColor: 'rgba(255,251,233,0.95)',
-        titleColor: '#3F3832',
-        bodyColor: isAttackMode ? '#a82d38' : '#0d7a67',
-        borderColor: isAttackMode ? 'rgba(232,92,104,0.35)' : 'rgba(25,191,163,0.35)',
+        backgroundColor: 'rgba(29, 29, 53, 0.95)',
+        titleColor: '#F5F3FF',
+        bodyColor: isAttackMode ? '#FB7185' : '#4DD9F0',
+        borderColor: isAttackMode ? 'rgba(251, 113, 133, 0.45)' : 'rgba(77, 217, 240, 0.45)',
         borderWidth: 1,
         padding: 12,
         displayColors: false,
@@ -63,16 +65,16 @@ export const TrafficChart: React.FC = () => {
     },
     scales: {
       x: {
-        grid: { color: 'rgba(173,139,115,0.08)' },
-        ticks: { color: '#7A7067', font: { family: 'JetBrains Mono', size: 11 } },
+        grid: { color: 'rgba(196, 181, 253, 0.08)' },
+        ticks: { color: '#9896B0', font: { family: 'JetBrains Mono', size: 11 } },
         border: { display: false },
       },
       y: {
         min: 0,
-        max: isAttackMode ? 22000 : 2000,
-        grid: { color: 'rgba(173,139,115,0.08)' },
+        max: Math.ceil(maxVal * 1.25),
+        grid: { color: 'rgba(196, 181, 253, 0.08)' },
         ticks: {
-          color: '#7A7067',
+          color: '#9896B0',
           font: { family: 'JetBrains Mono', size: 11 },
           callback: (v: number | string) => `${Number(v).toLocaleString()} r/s`,
         },
@@ -82,8 +84,8 @@ export const TrafficChart: React.FC = () => {
   };
 
   return (
-    <div className={`glass-cream rounded-[32px] p-8 flex flex-col transition-all duration-500 ${
-      isAttackMode ? '!border-[#E85C68]/30' : ''
+    <div className={`glass-card rounded-[32px] p-8 flex flex-col transition-all duration-500 ${
+      isAttackMode ? '!border-[#FB7185]/40' : ''
     }`}>
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
@@ -91,25 +93,25 @@ export const TrafficChart: React.FC = () => {
           <div className="flex items-center gap-3 mb-1">
             <div className={`p-2 rounded-xl border ${
               isAttackMode
-                ? 'bg-[#E85C68]/12 border-[#E85C68]/30 text-[#E85C68]'
-                : 'bg-white/70 border-white/90 text-[#AD8B73]'
+                ? 'bg-[#FB7185]/15 border-[#FB7185]/30 text-[#FB7185]'
+                : 'bg-[#252542] border-[#C4B5FD]/20 text-[#4DD9F0]'
             }`}>
               <Activity className="w-4 h-4" />
             </div>
-            <h3 className="text-lg font-bold text-[#3F3832]">Authentication Traffic</h3>
-            <StatusChip label="DEMO DATA" variant="demo" />
+            <h3 className="text-lg font-bold text-[#F5F3FF]">Authentication Traffic</h3>
+            <StatusChip label={isAttackMode ? "THREAT DETECTED" : "LIVE TELEMETRY"} variant={isAttackMode ? "critical" : "live"} />
           </div>
-          <p className="text-xs text-[#514940]">Real-time EV charging authentication throughput baseline</p>
+          <p className="text-xs text-[#C4C2D6]">Real-time EV charging authentication throughput baseline</p>
         </div>
 
-        <div className={`flex items-center gap-2 px-4 py-2 rounded-xl border font-mono text-xs font-bold transition-all duration-300 shadow-glass-sm ${
+        <div className={`flex items-center gap-2 px-4 py-2 rounded-xl border font-mono text-xs font-bold transition-all duration-300 shadow-sm ${
           isAttackMode
-            ? 'bg-[#E85C68]/14 border-[#E85C68]/30 text-[#a82d38]'
-            : 'bg-white/75 border-white/90 text-[#514940]'
+            ? 'bg-[#FB7185]/15 border-[#FB7185]/35 text-[#FB7185]'
+            : 'bg-[#252542] border-[#C4B5FD]/20 text-[#F5F3FF]'
         }`}>
           {isAttackMode
             ? <AlertTriangle className="w-3.5 h-3.5 animate-bounce" />
-            : <Radio className="w-3.5 h-3.5 animate-pulse text-[#19BFA3]" />
+            : <Radio className="w-3.5 h-3.5 animate-pulse text-[#4DD9F0]" />
           }
           {requestsPerSec.toLocaleString()} req/s
         </div>
@@ -121,7 +123,7 @@ export const TrafficChart: React.FC = () => {
       </div>
 
       {/* Footer */}
-      <div className="mt-6 pt-4 border-t border-[#AD8B73]/15 flex items-center justify-between text-[11px] font-mono text-[#7A7067]">
+      <div className="mt-6 pt-4 border-t border-[#C4B5FD]/16 flex items-center justify-between text-[11px] font-mono text-[#9896B0]">
         <span>Target: EV Charging Authentication Gateways</span>
         <span>Polling: 5s Real-time Feed</span>
       </div>

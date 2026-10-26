@@ -103,10 +103,10 @@ export const DashboardPage: React.FC = () => {
   return (
     <AppLayout pageTitle="Security Overview">
       {/* Top Controls Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-4 border-b border-[#AD8B73]/18">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-4 border-b border-[#C4B5FD]/16">
         <div>
           <div className="flex flex-wrap items-center gap-3 mb-1">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#3F3832] tracking-tight">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#F5F3FF] tracking-tight">
               Security Overview
             </h2>
             {healthStatus ? (
@@ -116,20 +116,20 @@ export const DashboardPage: React.FC = () => {
             )}
             <StatusChip label="DEMO BACKEND DATA" variant="demo" />
           </div>
-          <p className="text-sm text-[#514940] mt-1 font-normal">
+          <p className="text-sm text-[#C4C2D6] mt-1 font-normal">
             Real-time cybersecurity visibility for your EV charging authentication infrastructure.
           </p>
         </div>
 
         {/* Time Range Pills & Refresh */}
         <div className="flex items-center gap-3">
-          <div className="flex items-center bg-white/70 border border-white/90 rounded-2xl p-1 font-mono text-xs text-[#514940] backdrop-blur-xl shadow-glass-sm">
+          <div className="flex items-center bg-[#252542] border border-[#C4B5FD]/18 rounded-2xl p-1 font-mono text-xs text-[#9896B0] shadow-sm">
             <button
               onClick={() => setTimeRange('24h')}
               className={`px-4 py-1.5 rounded-xl transition-all ${
                 timeRange === '24h'
-                  ? 'bg-[#CEAB93]/30 text-[#3F3832] border border-[#CEAB93]/50 font-bold shadow-glass-sm'
-                  : 'hover:text-[#3F3832]'
+                  ? 'bg-[#9B7BFF]/25 text-[#F5F3FF] border border-[#9B7BFF]/45 font-bold shadow-sm'
+                  : 'hover:text-[#F5F3FF]'
               }`}
             >
               Last 24h
@@ -138,8 +138,8 @@ export const DashboardPage: React.FC = () => {
               onClick={() => setTimeRange('7d')}
               className={`px-4 py-1.5 rounded-xl transition-all ${
                 timeRange === '7d'
-                  ? 'bg-[#CEAB93]/30 text-[#3F3832] border border-[#CEAB93]/50 font-bold shadow-glass-sm'
-                  : 'hover:text-[#3F3832]'
+                  ? 'bg-[#9B7BFF]/25 text-[#F5F3FF] border border-[#9B7BFF]/45 font-bold shadow-sm'
+                  : 'hover:text-[#F5F3FF]'
               }`}
             >
               Last 7d
@@ -148,8 +148,8 @@ export const DashboardPage: React.FC = () => {
               onClick={() => setTimeRange('30d')}
               className={`px-4 py-1.5 rounded-xl transition-all ${
                 timeRange === '30d'
-                  ? 'bg-[#CEAB93]/30 text-[#3F3832] border border-[#CEAB93]/50 font-bold shadow-glass-sm'
-                  : 'hover:text-[#3F3832]'
+                  ? 'bg-[#9B7BFF]/25 text-[#F5F3FF] border border-[#9B7BFF]/45 font-bold shadow-sm'
+                  : 'hover:text-[#F5F3FF]'
               }`}
             >
               Last 30d
@@ -159,20 +159,20 @@ export const DashboardPage: React.FC = () => {
           <button
             onClick={fetchBackendData}
             disabled={isRefreshing}
-            className="p-3 rounded-2xl bg-white/70 hover:bg-white/90 border border-white/90 text-[#7A7067] hover:text-[#3F3832] transition-colors backdrop-blur-xl shadow-glass-sm"
+            className="p-3 rounded-2xl bg-[#252542] hover:bg-[#303052] border border-[#C4B5FD]/18 text-[#C4C2D6] hover:text-[#F5F3FF] transition-colors shadow-sm"
             title="Refresh dashboard metrics"
           >
-            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-[#AD8B73]' : ''}`} />
+            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-[#9B7BFF]' : ''}`} />
           </button>
 
           <div
-            className={`hidden md:flex items-center gap-2 px-4 py-2 rounded-2xl border text-xs font-mono font-bold transition-all shadow-glass-sm ${
+            className={`hidden md:flex items-center gap-2 px-4 py-2 rounded-2xl border text-xs font-mono font-bold transition-all shadow-sm ${
               isAttackMode
-                ? 'bg-[#E85C68]/15 border-[#E85C68]/30 text-[#a82d38]'
-                : 'bg-white/75 border-white/90 text-[#2b703b]'
+                ? 'bg-[#FB7185]/15 border-[#FB7185]/35 text-[#FB7185]'
+                : 'bg-[#252542] border-[#C4B5FD]/18 text-[#34D399]'
             }`}
           >
-            <Radio className={`w-4 h-4 ${isAttackMode ? 'text-[#E85C68] animate-ping' : 'text-[#62C073] animate-pulse'}`} />
+            <Radio className={`w-4 h-4 ${isAttackMode ? 'text-[#FB7185] animate-ping' : 'text-[#34D399] animate-pulse'}`} />
             <span>{isAttackMode ? 'ATTACK ACTIVE' : 'LIVE SOC'}</span>
           </div>
         </div>

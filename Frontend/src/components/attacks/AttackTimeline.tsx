@@ -2,20 +2,76 @@ import React from 'react';
 import { AttackIncident } from '../../types/attack';
 import { Clock, ShieldAlert, Cpu, AlertTriangle, CheckCircle2, Radio } from 'lucide-react';
 import { StatusChip } from '../ui/StatusChip';
+import { formatTime } from '../../utils/dateTime';
 
 interface AttackTimelineProps {
   incident: AttackIncident;
 }
 
 export const AttackTimeline: React.FC<AttackTimelineProps> = ({ incident }) => {
-  const events = [
-    { time: `${incident.timestamp}`, title: 'Traffic Anomaly Detected', desc: `Request rate surged past nominal 1,200 req/s baseline to ${incident.peakRequestsPerSecond.toLocaleString()} req/s.`, icon: Radio, chip: 'threat' as const },
-    { time: '12:04:31', title: 'ML Inference Triggered', desc: 'EVShield ML detection engine extracted payload frequency & retry features.', icon: Cpu, chip: 'demo' as const },
-    { time: '12:04:42', title: 'Attack Classification Confirmed', desc: `ML model confirmed DDoS Authentication Burst signature with ${incident.mlConfidence}% confidence.`, icon: ShieldAlert, chip: 'critical' as const },
-    { time: '12:05:01', title: 'Affected Infrastructure Identified', desc: `Gateway Zone 1 (${incident.targetInfrastructure}) flagged as primary target scope.`, icon: AlertTriangle, chip: 'threat' as const },
-    { time: '12:06:12', title: 'Mitigation Initiated', desc: 'Automated IP rate-limiting rules and token handshake quarantine engaged.', icon: ShieldAlert, chip: 'live' as const },
-    { time: `${incident.endTime || '12:08:00'}`, title: 'Traffic Returned to Baseline', desc: 'Attack mitigation completed. Authentication request rate stabilized back at ~1,200 req/s.', icon: CheckCircle2, chip: 'protected' as const },
+  const startTimeStr = formatTime(incident.startTime || incident.timestamp);
+  const endTimeStr = incident.endTime ? formatTime(incident.endTime) : null;
+  const isMitigated = incident.status === 'MITIGATED' || incident.status === 'RESOLVED';
+  const isRecovered = incident.status === 'RESOLVED' || (incident.status === 'MITIGATED' && !!incident.endTime);
+
+  const events: Array<{ time: string; title: string; desc: string; icon: any; chip: 'threat' | 'demo' | 'critical' | 'live' | 'protected' }> = [
+    {
+      time: startTimeStr,
+      title: 'Traffic Anomaly Observed',
+      desc: `Request rate surged past nominal ${incident.baselineRequestsPerSecond.toLocaleString()} req/s baseline to peak of ${incident.peakRequestsPerSecond.toLocaleString()} req/s.`,
+      icon: Radio,
+      chip: 'threat',
+    },
+    {
+      time: startTimeStr,
+      title: 'ML Detection Engine Triggered',
+      desc: 'EVShield ML feature extractor evaluated request frequency, inter-arrival variance, and token payload patterns.',
+      icon: Cpu,
+      chip: 'demo',
+    },
+    {
+      time: startTimeStr,
+      title: 'Attack Classification Confirmed',
+      desc: `ML classifier confirmed ${incident.attackTypeLabel || 'DDoS Flood'} with ${incident.mlConfidence}% confidence.`,
+      icon: ShieldAlert,
+      chip: 'critical',
+    },
+    {
+      time: startTimeStr,
+      title: 'Target Scope Flagged',
+      desc: `Target infrastructure identified as ${incident.targetInfrastructure || 'Gateway Auth Endpoint'}. ${incident.affectedNodes} charging nodes placed on guard.`,
+      icon: AlertTriangle,
+      chip: 'threat',
+    },
   ];
+
+  if (isMitigated) {
+    events.push({
+      time: endTimeStr || startTimeStr,
+      title: 'Mitigation Enforced',
+      desc: incident.mitigationStatus || 'Automated IP rate-limiting rules and token handshake quarantine engaged.',
+      icon: ShieldAlert,
+      chip: 'live',
+    });
+  } else {
+    events.push({
+      time: startTimeStr,
+      title: 'Mitigation Pending',
+      desc: 'Attack detected and active. Enforce mitigation or await automated policy threshold trigger.',
+      icon: ShieldAlert,
+      chip: 'threat',
+    });
+  }
+
+  if (isRecovered && endTimeStr) {
+    events.push({
+      time: endTimeStr,
+      title: 'Baseline Restored',
+      desc: `Incident closed. Request rate stabilized back at baseline (~${incident.baselineRequestsPerSecond.toLocaleString()} req/s).`,
+      icon: CheckCircle2,
+      chip: 'protected',
+    });
+  }
 
   return (
     <div className="glass-peach rounded-[32px] p-6 sm:p-8 space-y-6 shadow-glass border border-white/90">
@@ -30,7 +86,7 @@ export const AttackTimeline: React.FC<AttackTimelineProps> = ({ incident }) => {
           <p className="text-xs text-[#514940] mt-1">Detailed timestamped sequence of detection & response actions</p>
         </div>
 
-        <StatusChip label="TIMELINE LOG" variant="demo" />
+        <StatusChip label={incident.isDemo ? "HISTORICAL TIMELINE" : "LIVE INCIDENT TIMELINE"} variant={incident.isDemo ? "demo" : "live"} />
       </div>
 
       <div className="relative pl-6 space-y-5 before:absolute before:left-2.5 before:top-3 before:bottom-3 before:w-[2px] before:bg-[#CEAB93]/35">

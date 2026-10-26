@@ -125,14 +125,46 @@ export const attackService = {
   },
 
   /**
+   * Asynchronously fetch current active or most recent attack incident
+   */
+  getCurrentAttack: async (): Promise<AttackIncident | null> => {
+    try {
+      const response = await apiClient.get<ApiResponseWrapper<AttackIncident | null>>('/attacks/current');
+      if (response.data.success) {
+        return response.data.data || null;
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  },
+
+  /**
+   * Execute real mitigation on active or specific attack incident
+   */
+  mitigateAttack: async (id?: string): Promise<{ success: boolean; message: string; incident: AttackIncident | null }> => {
+    const endpoint = id ? `/attacks/${id}/mitigate` : '/attacks/mitigate';
+    const response = await apiClient.post<ApiResponseWrapper<{ message: string; incident: AttackIncident | null }>>(endpoint);
+    return {
+      success: response.data.success,
+      message: response.data.data?.message || 'Mitigation applied',
+      incident: response.data.data?.incident || null,
+    };
+  },
+
+  /**
    * Asynchronously fetch single attack incident by ID
    */
   getAttackByIdAsync: async (
-    id: string,
+    id?: string,
     activeLiveIncident?: AttackIncident | null
   ): Promise<AttackIncident | null> => {
-    if (activeLiveIncident && activeLiveIncident.id === id) {
+    if (activeLiveIncident && (!id || activeLiveIncident.id === id)) {
       return activeLiveIncident;
+    }
+
+    if (!id || id === 'current') {
+      return attackService.getCurrentAttack();
     }
 
     try {
@@ -140,7 +172,7 @@ export const attackService = {
       if (response.data.success && response.data.data) {
         return response.data.data;
       }
-      return attackService.getAttackById(id, activeLiveIncident);
+      return null;
     } catch {
       return attackService.getAttackById(id, activeLiveIncident);
     }
@@ -154,8 +186,7 @@ export const attackService = {
       return activeLiveIncident;
     }
     const found = mockAttacksData.find((a) => a.id === id);
-    if (found) return found;
-    return mockAttacksData[0] || null;
+    return found || null;
   },
 
   /**

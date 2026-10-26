@@ -21,8 +21,8 @@ const Toggle: React.FC<{
 }> = ({ on, onChange, id, label, description }) => (
   <div className="flex items-center justify-between gap-4 py-3">
     <div className="flex-1 min-w-0">
-      <label htmlFor={id} className="text-sm font-semibold text-[#3F3832] cursor-pointer">{label}</label>
-      {description && <p className="text-xs text-[#7A7067] mt-0.5 leading-relaxed">{description}</p>}
+      <label htmlFor={id} className="text-sm font-semibold text-[#F5F3FF] cursor-pointer">{label}</label>
+      {description && <p className="text-xs text-[#9896B0] mt-0.5 leading-relaxed">{description}</p>}
     </div>
     <button
       id={id}
@@ -42,21 +42,21 @@ const Section: React.FC<{ icon: React.ReactNode; title: string; children: React.
   icon, title, children,
 }) => (
   <div className="glass-settings-section space-y-1">
-    <div className="flex items-center gap-3 pb-4 mb-2 border-b border-[#AD8B73]/15">
-      <div className="w-9 h-9 rounded-xl bg-[#AD8B73]/12 border border-[#AD8B73]/25 flex items-center justify-center text-[#AD8B73] shrink-0">
+    <div className="flex items-center gap-3 pb-4 mb-2 border-b border-[#C4B5FD]/16">
+      <div className="w-9 h-9 rounded-xl bg-[#252542] border border-[#C4B5FD]/20 flex items-center justify-center text-[#9B7BFF] shrink-0">
         {icon}
       </div>
-      <h3 className="text-base font-bold text-[#3F3832]">{title}</h3>
+      <h3 className="text-base font-bold text-[#F5F3FF]">{title}</h3>
     </div>
-    <div className="divide-y divide-[#AD8B73]/10">{children}</div>
+    <div className="divide-y divide-[#C4B5FD]/10">{children}</div>
   </div>
 );
 
 /* ─── Read-only info row ──────────────────────────────────── */
 const InfoRow: React.FC<{ label: string; value: React.ReactNode }> = ({ label, value }) => (
   <div className="flex items-center justify-between gap-4 py-3">
-    <span className="text-xs font-mono font-semibold text-[#7A7067] uppercase tracking-wide">{label}</span>
-    <span className="text-sm font-semibold text-[#3F3832] font-mono text-right">{value}</span>
+    <span className="text-xs font-mono font-semibold text-[#9896B0] uppercase tracking-wide">{label}</span>
+    <span className="text-sm font-semibold text-[#F5F3FF] font-mono text-right">{value}</span>
   </div>
 );
 
@@ -70,13 +70,13 @@ const SelectRow: React.FC<{
 }> = ({ label, description, value, onChange, options }) => (
   <div className="flex items-center justify-between gap-4 py-3">
     <div className="flex-1 min-w-0">
-      <p className="text-sm font-semibold text-[#3F3832]">{label}</p>
-      {description && <p className="text-xs text-[#7A7067] mt-0.5">{description}</p>}
+      <p className="text-sm font-semibold text-[#F5F3FF]">{label}</p>
+      {description && <p className="text-xs text-[#9896B0] mt-0.5">{description}</p>}
     </div>
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="px-3 py-2 rounded-xl bg-white/70 border border-white/90 text-xs font-mono text-[#3F3832] focus:outline-none focus:border-[#AD8B73] shadow-glass-sm cursor-pointer shrink-0"
+      className="px-3 py-2 rounded-xl bg-[#252542] border border-[#C4B5FD]/25 text-xs font-mono text-[#F5F3FF] focus:outline-none focus:border-[#9B7BFF] shadow-sm cursor-pointer shrink-0"
     >
       {options.map((o) => (
         <option key={o.value} value={o.value}>{o.label}</option>
@@ -89,10 +89,10 @@ const SelectRow: React.FC<{
 const StatusDot: React.FC<{ ok: boolean; label: string }> = ({ ok, label }) => (
   <div className="flex items-center gap-2">
     {ok
-      ? <CheckCircle2 className="w-4 h-4 text-[#62C073]" />
-      : <XCircle className="w-4 h-4 text-[#E85C68]" />
+      ? <CheckCircle2 className="w-4 h-4 text-[#34D399]" />
+      : <XCircle className="w-4 h-4 text-[#FB7185]" />
     }
-    <span className={`text-sm font-semibold ${ok ? 'text-[#2b703b]' : 'text-[#a82d38]'}`}>{label}</span>
+    <span className={`text-sm font-semibold ${ok ? 'text-[#34D399]' : 'text-[#FB7185]'}`}>{label}</span>
   </div>
 );
 
@@ -174,25 +174,25 @@ export const SettingsPage: React.FC = () => {
     <AppLayout pageTitle="SOC Settings">
       <div className="space-y-8 max-w-3xl mx-auto">
         {/* Page Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#AD8B73]/18">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#C4B5FD]/16">
           <div>
             <div className="flex flex-wrap items-center gap-3 mb-1">
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-[#3F3832] tracking-tight">
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-[#F5F3FF] tracking-tight">
                 SOC Settings
               </h2>
               <StatusChip label="FRONTEND CONFIG" variant="demo" />
             </div>
-            <p className="text-sm text-[#514940]">
+            <p className="text-sm text-[#C4C2D6]">
               Platform preferences, ML engine status, and environment information.
             </p>
           </div>
           <button
             onClick={fetchSystemStatus}
             disabled={isLoadingSystem}
-            className="p-3 rounded-2xl bg-white/70 hover:bg-white/90 border border-white/90 text-[#7A7067] hover:text-[#3F3832] transition-colors shadow-glass-sm self-start sm:self-auto"
+            className="p-3 rounded-2xl bg-[#252542] hover:bg-[#303052] border border-[#C4B5FD]/18 text-[#C4C2D6] hover:text-[#F5F3FF] transition-colors shadow-sm self-start sm:self-auto"
             title="Refresh system status"
           >
-            <RefreshCw className={`w-4 h-4 ${isLoadingSystem ? 'animate-spin text-[#AD8B73]' : ''}`} />
+            <RefreshCw className={`w-4 h-4 ${isLoadingSystem ? 'animate-spin text-[#9B7BFF]' : ''}`} />
           </button>
         </div>
 
@@ -209,8 +209,8 @@ export const SettingsPage: React.FC = () => {
           <InfoRow
             label="Theme"
             value={
-              <span className="px-2.5 py-1 rounded-lg bg-[#AD8B73]/12 border border-[#AD8B73]/20 text-[#514940] text-xs">
-                Warm Light (default)
+              <span className="px-2.5 py-1 rounded-lg bg-[#9B7BFF]/15 border border-[#9B7BFF]/30 text-[#C4B5FD] text-xs font-mono font-semibold">
+                Dark Violet (default)
               </span>
             }
           />
@@ -301,36 +301,36 @@ export const SettingsPage: React.FC = () => {
         {/* 4. SYSTEM */}
         <Section icon={<Server className="w-4 h-4" />} title="System Status">
           {isLoadingSystem ? (
-            <div className="py-4 flex items-center gap-2 text-xs font-mono text-[#7A7067]">
-              <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#AD8B73]" />
+            <div className="py-4 flex items-center gap-2 text-xs font-mono text-[#9896B0]">
+              <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#9B7BFF]" />
               Querying system services…
             </div>
           ) : (
             <>
               <div className="flex items-center justify-between py-3">
-                <span className="text-xs font-mono font-semibold text-[#7A7067] uppercase tracking-wide">Backend API</span>
+                <span className="text-xs font-mono font-semibold text-[#9896B0] uppercase tracking-wide">Backend API</span>
                 <StatusDot ok={!!health} label={health ? 'ONLINE' : 'OFFLINE'} />
               </div>
               {health && (
                 <div className="flex items-center justify-between py-3">
-                  <span className="text-xs font-mono font-semibold text-[#7A7067] uppercase tracking-wide">API Latency</span>
-                  <span className="text-sm font-semibold font-mono text-[#3F3832]">{health.database?.latencyMs ?? '—'} ms</span>
+                  <span className="text-xs font-mono font-semibold text-[#9896B0] uppercase tracking-wide">API Latency</span>
+                  <span className="text-sm font-semibold font-mono text-[#F5F3FF]">{health.database?.latencyMs ?? '—'} ms</span>
                 </div>
               )}
               <div className="flex items-center justify-between py-3">
-                <span className="text-xs font-mono font-semibold text-[#7A7067] uppercase tracking-wide">PostgreSQL</span>
+                <span className="text-xs font-mono font-semibold text-[#9896B0] uppercase tracking-wide">PostgreSQL</span>
                 <StatusDot ok={health?.database?.connected ?? false} label={health?.database?.connected ? 'CONNECTED' : 'DISCONNECTED'} />
               </div>
               <div className="flex items-center justify-between py-3">
-                <span className="text-xs font-mono font-semibold text-[#7A7067] uppercase tracking-wide">ML Engine</span>
+                <span className="text-xs font-mono font-semibold text-[#9896B0] uppercase tracking-wide">ML Engine</span>
                 <StatusDot ok={mlStatus?.status === 'READY'} label={mlStatus?.status ?? 'UNKNOWN'} />
               </div>
               <div className="flex items-center justify-between py-3">
-                <span className="text-xs font-mono font-semibold text-[#7A7067] uppercase tracking-wide">Environment</span>
-                <span className="text-sm font-semibold font-mono text-[#514940]">Windows / Development</span>
+                <span className="text-xs font-mono font-semibold text-[#9896B0] uppercase tracking-wide">Environment</span>
+                <span className="text-sm font-semibold font-mono text-[#F5F3FF]">Windows / Development</span>
               </div>
               <div className="flex items-center justify-between py-3">
-                <span className="text-xs font-mono font-semibold text-[#7A7067] uppercase tracking-wide">Kernel Tracing</span>
+                <span className="text-xs font-mono font-semibold text-[#9896B0] uppercase tracking-wide">Kernel Tracing</span>
                 <StatusDot ok={false} label="Linux Only (Future)" />
               </div>
             </>
@@ -343,20 +343,20 @@ export const SettingsPage: React.FC = () => {
           <div className="flex items-center justify-between gap-4 py-3">
             <div className="flex-1">
               <div className="flex items-center gap-2">
-                <p className="text-sm font-semibold text-[#3F3832]">DDoS Attack Simulation</p>
+                <p className="text-sm font-semibold text-[#F5F3FF]">DDoS Attack Simulation</p>
                 <StatusChip label="DEMO" variant="demo" />
               </div>
-              <p className="text-xs text-[#7A7067] mt-0.5">
+              <p className="text-xs text-[#9896B0] mt-0.5">
                 Simulates DDoS attack state across the UI. Does NOT generate real network traffic or real ML inference.
                 Toggle also accessible via the topbar button.
               </p>
             </div>
             <button
               onClick={toggleDDoSAttack}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-bold transition-all duration-300 border shadow-glass-sm shrink-0 ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-bold transition-all duration-300 border shadow-sm shrink-0 ${
                 isAttackMode
-                  ? 'bg-[#E85C68]/15 border-[#E85C68]/35 text-[#a82d38]'
-                  : 'bg-[#19BFA3]/12 border-[#19BFA3]/28 text-[#0d7a67] hover:bg-[#19BFA3]/20'
+                  ? 'bg-[#FB7185]/15 border-[#FB7185]/35 text-[#FB7185]'
+                  : 'bg-[#4DD9F0]/15 border-[#4DD9F0]/35 text-[#4DD9F0] hover:bg-[#4DD9F0]/25'
               }`}
             >
               {isAttackMode
@@ -368,20 +368,20 @@ export const SettingsPage: React.FC = () => {
 
           {/* Replay mode info */}
           <div className="py-3">
-            <div className="flex items-start gap-3 rounded-2xl bg-[#CEAB93]/12 border border-[#CEAB93]/30 p-4">
-              <Info className="w-4 h-4 text-[#AD8B73] shrink-0 mt-0.5" />
-              <div className="text-xs text-[#514940] space-y-2">
-                <p className="font-bold text-[#3F3832]">Replay Mode — Development Input</p>
+            <div className="flex items-start gap-3 rounded-2xl bg-[#252542] border border-[#C4B5FD]/16 p-4">
+              <Info className="w-4 h-4 text-[#9B7BFF] shrink-0 mt-0.5" />
+              <div className="text-xs text-[#C4C2D6] space-y-2">
+                <p className="font-bold text-[#F5F3FF]">Replay Mode — Development Input</p>
                 <p>
-                  ML inferences currently use <code className="font-mono bg-white/60 px-1 rounded">REPLAY_SERIES</code> or{' '}
-                  <code className="font-mono bg-white/60 px-1 rounded">ENGINEERED_VECTOR</code> from CICEV2023 dataset fixtures.
+                  ML inferences currently use <code className="font-mono bg-[#1D1D35] text-[#C4B5FD] px-1.5 py-0.5 rounded border border-[#C4B5FD]/15">REPLAY_SERIES</code> or{' '}
+                  <code className="font-mono bg-[#1D1D35] text-[#C4B5FD] px-1.5 py-0.5 rounded border border-[#C4B5FD]/15">ENGINEERED_VECTOR</code> from CICEV2023 dataset fixtures.
                 </p>
                 <p>
                   This is <strong>NOT</strong> live Linux kernel monitoring. The{' '}
-                  <code className="font-mono bg-white/60 px-1 rounded">perf_event_open</code> syscall and TOP collector
+                  <code className="font-mono bg-[#1D1D35] text-[#C4B5FD] px-1.5 py-0.5 rounded border border-[#C4B5FD]/15">perf_event_open</code> syscall and TOP collector
                   require a Linux host. All predictions are from the real{' '}
-                  <code className="font-mono bg-white/60 px-1 rounded">model.joblib</code> (RandomForest, n=400) and
-                  the selected threshold <code className="font-mono bg-white/60 px-1 rounded">0.55</code>.
+                  <code className="font-mono bg-[#1D1D35] text-[#C4B5FD] px-1.5 py-0.5 rounded border border-[#C4B5FD]/15">model.joblib</code> (RandomForest, n=400) and
+                  the selected threshold <code className="font-mono bg-[#1D1D35] text-[#C4B5FD] px-1.5 py-0.5 rounded border border-[#C4B5FD]/15">0.55</code>.
                 </p>
                 <div className="flex items-center gap-2 mt-1">
                   <StatusChip label="REPLAY MODE ACTIVE" variant="replay" dot />
@@ -393,8 +393,8 @@ export const SettingsPage: React.FC = () => {
         </Section>
 
         {/* Footer note */}
-        <div className="text-center text-[11px] font-mono text-[#7A7067] py-2">
-          <Gauge className="w-3.5 h-3.5 inline mr-1.5 text-[#AD8B73]" />
+        <div className="text-center text-[11px] font-mono text-[#9896B0] py-2">
+          <Gauge className="w-3.5 h-3.5 inline mr-1.5 text-[#9B7BFF]" />
           Settings marked <strong>Frontend Config</strong> are stored in localStorage and do not modify the backend or ML pipeline.
           Settings marked <strong>Future / Linux</strong> require live Linux infrastructure.
         </div>

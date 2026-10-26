@@ -7,6 +7,8 @@ import { Line } from 'react-chartjs-2';
 import { AttackIncident } from '../../types/attack';
 import { Activity } from 'lucide-react';
 import { StatusChip } from '../ui/StatusChip';
+import { formatTime } from '../../utils/dateTime';
+import { useSecurity } from '../../context/SecurityContext';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
 
@@ -15,11 +17,25 @@ interface AttackTrafficChartProps {
 }
 
 export const AttackTrafficChart: React.FC<AttackTrafficChartProps> = ({ incident }) => {
-  const peak = incident.peakRequestsPerSecond;
-  const base = incident.baselineRequestsPerSecond;
+  const { trafficData } = useSecurity();
+  const peak = incident.peakRequestsPerSecond || 0;
+  const base = incident.baselineRequestsPerSecond || 12;
 
-  const labels = ['12:00', '12:01', '12:02', '12:03', '12:04 (Spike)', '12:05 (Mitigation)', '12:06', '12:07 (Nominal)', '12:08'];
-  const dataValues = [base, base + 20, base - 10, base + 50, peak, Math.round(peak * 0.45), Math.round(peak * 0.2), base + 150, base + 10];
+  let labels: string[] = [];
+  let dataValues: number[] = [];
+
+  if (incident.telemetryGraphPoints && incident.telemetryGraphPoints.length > 0) {
+    labels = incident.telemetryGraphPoints.map((p) => formatTime(p.timestamp));
+    dataValues = incident.telemetryGraphPoints.map((p) => p.requestsPerSec);
+  } else if (trafficData && trafficData.length > 0) {
+    labels = trafficData.map((p) => formatTime(p.timestamp));
+    dataValues = trafficData.map((p) => p.requests);
+  } else {
+    labels = ['T-2m', 'T-1m', 'T (Peak)', 'T+1m', 'T+2m'];
+    dataValues = [base, base, peak, Math.round(peak * 0.4), base];
+  }
+
+  const maxVal = Math.max(...dataValues, peak, base, 20);
 
   const chartData = {
     labels,
@@ -27,25 +43,25 @@ export const AttackTrafficChart: React.FC<AttackTrafficChartProps> = ({ incident
       {
         label: 'Observed Auth Traffic (req/s)',
         data: dataValues,
-        borderColor: '#E85C68',
+        borderColor: '#FB7185',
         borderWidth: 2.5,
-        pointBackgroundColor: '#E85C68',
-        pointBorderColor: '#fff',
+        pointBackgroundColor: '#FB7185',
+        pointBorderColor: '#11111F',
         pointRadius: 4,
         tension: 0.35,
         fill: true,
         backgroundColor: (ctx: ScriptableContext<'line'>) => {
           const c = ctx.chart.ctx;
           const g = c.createLinearGradient(0, 0, 0, 300);
-          g.addColorStop(0, 'rgba(232,92,104,0.25)');
-          g.addColorStop(1, 'rgba(255,251,233,0)');
+          g.addColorStop(0, 'rgba(251, 113, 133, 0.28)');
+          g.addColorStop(1, 'rgba(17, 17, 31, 0)');
           return g;
         },
       },
       {
-        label: 'Expected Baseline (1,200 req/s)',
+        label: `Expected Baseline (${base.toLocaleString()} req/s)`,
         data: Array(labels.length).fill(base),
-        borderColor: '#19BFA3',
+        borderColor: '#4DD9F0',
         borderWidth: 1.5,
         borderDash: [5, 5],
         pointRadius: 0,
@@ -63,16 +79,16 @@ export const AttackTrafficChart: React.FC<AttackTrafficChartProps> = ({ incident
         position: 'top' as const,
         align: 'end' as const,
         labels: {
-          color: '#514940',
+          color: '#C4C2D6',
           font: { family: 'JetBrains Mono', size: 11 },
           boxWidth: 12,
         },
       },
       tooltip: {
-        backgroundColor: 'rgba(255,251,233,0.95)',
-        titleColor: '#3F3832',
-        bodyColor: '#a82d38',
-        borderColor: 'rgba(232,92,104,0.35)',
+        backgroundColor: 'rgba(29, 29, 53, 0.95)',
+        titleColor: '#F5F3FF',
+        bodyColor: '#FB7185',
+        borderColor: 'rgba(251, 113, 133, 0.45)',
         borderWidth: 1,
         padding: 12,
         titleFont: { family: 'JetBrains Mono', size: 11 },
@@ -81,16 +97,16 @@ export const AttackTrafficChart: React.FC<AttackTrafficChartProps> = ({ incident
     },
     scales: {
       x: {
-        grid: { color: 'rgba(173,139,115,0.08)' },
-        ticks: { color: '#7A7067', font: { family: 'JetBrains Mono', size: 11 } },
+        grid: { color: 'rgba(196, 181, 253, 0.08)' },
+        ticks: { color: '#9896B0', font: { family: 'JetBrains Mono', size: 11 } },
         border: { display: false },
       },
       y: {
         min: 0,
-        max: Math.ceil(peak * 1.15),
-        grid: { color: 'rgba(173,139,115,0.08)' },
+        max: Math.ceil(maxVal * 1.2),
+        grid: { color: 'rgba(196, 181, 253, 0.08)' },
         ticks: {
-          color: '#7A7067',
+          color: '#9896B0',
           font: { family: 'JetBrains Mono', size: 11 },
           callback: (v: number | string) => `${Number(v).toLocaleString()} r/s`,
         },
@@ -100,28 +116,32 @@ export const AttackTrafficChart: React.FC<AttackTrafficChartProps> = ({ incident
   };
 
   return (
-    <div className="glass-cream rounded-[32px] p-6 sm:p-8 flex flex-col space-y-6 shadow-glass border border-white/90">
+    <div className="glass-card rounded-[32px] p-6 sm:p-8 space-y-6 border border-[#C4B5FD]/16">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-white/70 border border-white/90 text-[#AD8B73] shadow-glass-sm">
-              <Activity className="w-4.5 h-4.5" />
+            <div className="p-2 rounded-xl bg-[#252542] border border-[#FB7185]/30 text-[#FB7185]">
+              <Activity className="w-4 h-4" />
             </div>
-            <h3 className="text-xl font-bold text-[#3F3832]">Forensic Traffic Analysis</h3>
+            <h3 className="text-xl font-bold text-[#F5F3FF]">Attack Incident Telemetry Spike</h3>
           </div>
-          <p className="text-xs text-[#514940] mt-1">Observed authentication request throughput vs nominal baseline</p>
+          <p className="text-xs text-[#C4C2D6] mt-1">
+            Volumetric comparison during the incident window (Peak: {peak.toLocaleString()} req/s vs Baseline: {base.toLocaleString()} req/s)
+          </p>
         </div>
-
-        <StatusChip label="SYNTHETIC TELEMETRY" variant="demo" />
+        <StatusChip
+          label={incident.status === 'DETECTED' ? 'INCIDENT DETECTED' : 'INCIDENT RECORDED'}
+          variant={incident.status === 'DETECTED' ? 'critical' : 'demo'}
+        />
       </div>
 
-      <div className="w-full h-72 sm:h-80">
+      <div className="h-[280px] w-full">
         <Line data={chartData} options={options} />
       </div>
 
-      <div className="pt-4 border-t border-[#AD8B73]/15 flex items-center justify-between text-[11px] font-mono text-[#7A7067]">
-        <span>Attack Signature: DDoS Authentication Flood</span>
-        <span>Resolution: Rate Limiting & Token Quarantine</span>
+      <div className="mt-4 pt-4 border-t border-[#C4B5FD]/16 flex items-center justify-between text-[11px] font-mono text-[#9896B0]">
+        <span>Attack Signature: {incident.attackType}</span>
+        <span>Telemetry Ingestion: Live Gateway</span>
       </div>
     </div>
   );

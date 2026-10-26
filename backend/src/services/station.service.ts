@@ -17,6 +17,8 @@ function mapStationStatus(
   }
 }
 
+import { telemetryService } from './telemetry.service.js';
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Row mapper: Prisma ChargingStation → Station (frontend interface)
 // Operational telemetry fields are stored in the `metadata` JSON column.
@@ -24,7 +26,7 @@ function mapStationStatus(
 function toStation(row: Awaited<ReturnType<typeof db.chargingStation.findUniqueOrThrow>>): Station {
   const meta = (row.metadata ?? {}) as Record<string, unknown>;
 
-  return {
+  const baseStation: Station = {
     id:                row.stationId,
     name:              row.name,
     region:            (meta['region'] as Station['region'])        ?? 'MUM',
@@ -41,6 +43,25 @@ function toStation(row: Awaited<ReturnType<typeof db.chargingStation.findUniqueO
     location:          row.location,
     isDemo:            true,
   };
+
+  // Overlay live telemetry for local charging gateway node CS-0421
+  if (row.stationId === 'CS-0421') {
+    const snap = telemetryService.getLiveSnapshot();
+    const isUnderAttack = snap.threatLevel === 'CRITICAL' || snap.securityStatus === 'THREAT DETECTED';
+    return {
+      ...baseStation,
+      status: isUnderAttack ? 'UNDER ATTACK' : (snap.server.status === 'ONLINE' ? 'PROTECTED' : 'OFFLINE'),
+      requestsPerSec: snap.telemetry.requestsPerSecond,
+      latencyMs: snap.telemetry.averageLatencyMs,
+      healthPercent: isUnderAttack ? 64 : 99,
+      errorRatePercent: snap.telemetry.errorRatePercent,
+      lastEvent: snap.events[0]?.title || 'Nominal operational baseline',
+      mlStatus: isUnderAttack ? 'ATTACK DETECTED' : 'NORMAL',
+      mlConfidence: Math.round(snap.ml.probability_attack * 1000) / 10,
+    };
+  }
+
+  return baseStation;
 }
 
 export class StationService {

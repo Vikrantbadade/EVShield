@@ -1,4 +1,5 @@
 import { db } from '../config/database.js';
+import { telemetryService } from './telemetry.service.js';
 
 export interface AnalyticsResponse {
   attackFrequency: Array<{ date: string; count: number }>;
@@ -139,16 +140,32 @@ export class AnalyticsService {
     const attackCount   = predMap['ATTACK']    ?? 0;
     const anomalyCount  = predMap['ANOMALOUS'] ?? 0;
 
-    // ── Traffic trends (calibrated rolling — no time-series table yet) ────────
-    // These will be fully DB-backed once telemetry ingestion is implemented (Phase 10).
-    const trafficTrends: AnalyticsResponse['trafficTrends'] = [
-      { timestamp: '00:00', requests: 420,  anomalies: 0 },
-      { timestamp: '04:00', requests: 380,  anomalies: 0 },
-      { timestamp: '08:00', requests: 1250, anomalies: 2 },
-      { timestamp: '12:00', requests: 2400, anomalies: 5 },
-      { timestamp: '16:00', requests: 1950, anomalies: 1 },
-      { timestamp: '20:00', requests: 1845, anomalies: 4 },
-    ];
+    // ── Traffic trends computed from live rolling telemetry history ──────────
+    const snap = telemetryService.getLiveSnapshot();
+    const gp = snap.telemetry.graphPoints;
+    let trafficTrends: AnalyticsResponse['trafficTrends'] = [];
+
+    if (gp && gp.length >= 6) {
+      const step = Math.floor(gp.length / 6);
+      for (let i = 0; i < 6; i++) {
+        const pt = gp[Math.min(i * step, gp.length - 1)];
+        trafficTrends.push({
+          timestamp: pt.timestamp,
+          requests: pt.requestsPerSec,
+          anomalies: pt.isAnomaly ? 1 : 0,
+        });
+      }
+    } else {
+      // Nominal baseline intervals
+      trafficTrends = [
+        { timestamp: new Date(Date.now() - 50000).toISOString(), requests: 0, anomalies: 0 },
+        { timestamp: new Date(Date.now() - 40000).toISOString(), requests: 0, anomalies: 0 },
+        { timestamp: new Date(Date.now() - 30000).toISOString(), requests: 0, anomalies: 0 },
+        { timestamp: new Date(Date.now() - 20000).toISOString(), requests: 0, anomalies: 0 },
+        { timestamp: new Date(Date.now() - 10000).toISOString(), requests: 0, anomalies: 0 },
+        { timestamp: new Date().toISOString(), requests: snap.telemetry.requestsPerSecond, anomalies: snap.threatLevel === 'CRITICAL' ? 1 : 0 },
+      ];
+    }
 
     return {
       attackFrequency,
@@ -157,11 +174,11 @@ export class AnalyticsService {
       severityDistribution,
       stationHealthOverview,
       mlPredictionStats: {
-        totalEvaluated:         totalPredictions,
+        totalEvaluated:         totalPredictions + (snap.activeIncident ? 1 : 0),
         normalCount,
-        attackCount:            attackCount + anomalyCount,
+        attackCount:            attackCount + anomalyCount + (snap.activeIncident ? 1 : 0),
         falsePositiveRatePercent: totalPredictions > 0 ? 0.04 : 0,
-        avgInferenceTimeMs:     38,
+        avgInferenceTimeMs:     snap.ml.inferenceTimeMs || 25,
       },
       isDemo: true,
     };

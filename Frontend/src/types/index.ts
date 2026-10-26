@@ -63,6 +63,8 @@ export interface AttackLogRecord {
   targetScope: string;
 }
 
+import { AttackIncident } from './attack';
+
 export interface SecurityContextType {
   isAttackMode: boolean;
   toggleDDoSAttack: () => void;
@@ -70,6 +72,7 @@ export interface SecurityContextType {
   startAttackSimulation: () => Promise<void>;
   stopTraffic: () => Promise<void>;
   resetDemo: () => Promise<void>;
+  executeMitigation: () => Promise<void>;
   securityStatus: 'PROTECTED' | 'THREAT DETECTED';
   activeThreats: number;
   requestsPerSec: number;
@@ -99,4 +102,6 @@ export interface SecurityContextType {
   maxLatencyMs: number;
   totalRequests: number;
   errorRatePercent: number;
+  activeIncident: AttackIncident | null;
+  lastIncident: AttackIncident | null;
 }

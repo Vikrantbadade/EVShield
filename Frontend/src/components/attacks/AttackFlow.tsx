@@ -6,16 +6,22 @@ interface AttackFlowProps {
   incident: AttackIncident;
 }
 
-const flowSteps = [
-  { label: 'Traffic Spike',       sub: 'Reqs exceed threshold', icon: Activity, bg: 'glass-cream' },
-  { label: 'Authentication Burst',sub: 'Handshake payload flood', icon: Zap, bg: 'glass-peach' },
-  { label: 'ML Analysis',        sub: 'Feature extraction',     icon: Cpu, bg: 'glass-sand' },
-  { label: 'Attack Classified',   sub: 'DDoS confidence 97.4%', icon: ShieldAlert, bg: 'glass-danger' },
-  { label: 'Alert Generated',     sub: 'SOC notification sent', icon: Bell, bg: 'glass-taupe' },
-  { label: 'Automated Mitigation',sub: 'Rate limiting enforced', icon: CheckCircle2, bg: 'glass-success' },
-];
+export const AttackFlow: React.FC<AttackFlowProps> = ({ incident }) => {
+  const isMitigated = incident.status === 'MITIGATED' || incident.status === 'RESOLVED';
 
-export const AttackFlow: React.FC<AttackFlowProps> = (_props) => {
+  const flowSteps = [
+    { label: 'Traffic Spike', sub: `${incident.peakRequestsPerSecond.toLocaleString()} req/s peak`, icon: Activity, bg: 'glass-cream' },
+    { label: 'Authentication Burst', sub: 'Handshake payload flood', icon: Zap, bg: 'glass-peach' },
+    { label: 'ML Analysis', sub: 'Inter-arrival variance extraction', icon: Cpu, bg: 'glass-sand' },
+    { label: 'Attack Classified', sub: `Confidence ${incident.mlConfidence}%`, icon: ShieldAlert, bg: 'glass-danger' },
+    { label: 'Alert Generated', sub: `${incident.severity} alert broadcast`, icon: Bell, bg: 'glass-taupe' },
+    {
+      label: isMitigated ? 'Mitigation Enforced' : 'Mitigation Pending',
+      sub: isMitigated ? (incident.mitigationTime ? `Mitigated in ${incident.mitigationTime}` : 'Rate limiting active') : 'Awaiting enforcement',
+      icon: isMitigated ? CheckCircle2 : ShieldAlert,
+      bg: isMitigated ? 'glass-success' : 'glass-sand',
+    },
+  ];
   return (
     <div className="glass-cream rounded-[32px] p-6 sm:p-8 space-y-6 shadow-glass border border-white/90">
       <div className="flex items-center justify-between">

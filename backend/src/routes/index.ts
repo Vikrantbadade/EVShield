@@ -7,10 +7,12 @@ import alertRoutes from './alert.routes.js';
 import analyticsRoutes from './analytics.routes.js';
 import mlRoutes from './ml.routes.js';
 import telemetryRoutes from './telemetry.routes.js';
+import authRoutes from './auth.routes.js';
 
 const router = Router();
 
 // Version 1 API Endpoints
+router.use('/auth', authRoutes);
 router.use('/health', healthRoutes);
 router.use('/dashboard', dashboardRoutes);
 router.use('/attacks', attackRoutes);

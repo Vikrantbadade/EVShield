@@ -62,6 +62,8 @@ function computeDuration(start: Date, end: Date | null): string {
   return `${s}s`;
 }
 
+import { telemetryService } from './telemetry.service.js';
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Row type (Prisma findMany return shape)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -83,17 +85,22 @@ function toAttackIncident(row: AttackRow): AttackIncident {
     classification:           (meta['classification'] as AttackIncident['classification']) ?? 'ATTACK',
     mlConfidence:             (meta['mlConfidence'] as number)                             ?? 0,
     requestsPerSecond:        row.requestsPerSec                                           ?? 0,
-    baselineRequestsPerSecond:(meta['baselineRequestsPerSecond'] as number)                ?? 0,
-    peakRequestsPerSecond:    (meta['peakRequestsPerSecond'] as number)                    ?? 0,
-    affectedNodes:            (meta['affectedNodes'] as number)                            ?? 0,
-    affectedStations:         (meta['affectedStations'] as AffectedStationInfo[])         ?? [],
-    sourceCategory:           (meta['sourceCategory'] as string)                           ?? 'Unknown',
-    targetInfrastructure:     (meta['targetInfrastructure'] as string)                     ?? 'Unknown',
-    mitigationStatus:         (meta['mitigationStatus'] as string)                         ?? 'N/A',
-    mitigationTime:           (meta['mitigationTime'] as string)                           ?? 'N/A',
+    baselineRequestsPerSecond:(meta['baselineRequestsPerSecond'] as number)                ?? 12,
+    peakRequestsPerSecond:    (meta['peakRequestsPerSecond'] as number)                    ?? (row.requestsPerSec ?? 0),
+    affectedNodes:            (meta['affectedNodes'] as number)                            ?? 1,
+    affectedStations:         (meta['affectedStations'] as AffectedStationInfo[])         ?? [
+      { id: row.stationId || 'CS-0421', name: 'Pune Express Terminal', location: 'Viman Nagar, Pune', status: row.status === 'ACTIVE' ? 'UNDER ATTACK' : 'PROTECTED', requestsPerSec: row.requestsPerSec ?? 0 }
+    ],
+    sourceCategory:           (meta['sourceCategory'] as string)                           ?? 'Distributed EV Gateway Auth Flood',
+    targetInfrastructure:     (meta['targetInfrastructure'] as string)                     ?? `Gateway ${row.stationId || 'CS-0421'} (127.0.0.1:8080)`,
+    mitigationStatus:         (meta['mitigationStatus'] as string)                         ?? (row.status === 'MITIGATED' ? 'MITIGATED' : row.status === 'RESOLVED' ? 'RECOVERED' : 'ACTIVE IN PROGRESS'),
+    mitigationTime:           (meta['mitigationTime'] as string)                           ?? computeDuration(row.startTime, row.endTime),
     description:              row.description                                              ?? '',
-    detectionSummary:         (meta['detectionSummary'] as string)                         ?? '',
+    detectionSummary:         (meta['detectionSummary'] as string)                         ?? (row.description || 'ML detection engine classified observed traffic as anomalous.'),
     isDemo:                   true,
+    signals:                  (meta['signals'] as any)                                     ?? undefined,
+    telemetryGraphPoints:     (meta['telemetryHistory'] as any)                            ?? undefined,
+    mlFeatures:               (meta['features'] as any)                                    ?? undefined,
   };
 }
 
@@ -148,18 +155,54 @@ export class AttackService {
       }),
     ]);
 
-    const totalPages = Math.ceil(total / pageSize) || 1;
-    const items = rows.map(toAttackIncident);
+    let items = rows.map(toAttackIncident);
 
-    return { items, total, page, pageSize, totalPages, isDemo: true };
+    // Merge live active incident from telemetryService if active and not already in items
+    const active = telemetryService.getActiveIncident();
+    if (active && page === 1) {
+      const existingIdx = items.findIndex((i) => i.id === active.id);
+      if (existingIdx >= 0) {
+        items[existingIdx] = { ...items[existingIdx], ...active };
+      } else {
+        items = [active, ...items];
+      }
+    }
+
+    const totalPages = Math.ceil((total + (active ? 1 : 0)) / pageSize) || 1;
+
+    return { items, total: total + (active && !rows.find(r => r.incidentId === active.id) ? 1 : 0), page, pageSize, totalPages, isDemo: true };
   }
 
   public async getAttackById(id: string): Promise<AttackIncident | null> {
+    const active = telemetryService.getActiveIncident();
+    const last = telemetryService.getLastIncident();
+
+    if (id === 'current' || id === 'latest') {
+      if (active) return active;
+      if (last) return last;
+      const latestRow = await db.attackIncident.findFirst({
+        orderBy: { startTime: 'desc' },
+      });
+      return latestRow ? toAttackIncident(latestRow) : null;
+    }
+
+    if (active && active.id === id) {
+      return active;
+    }
+
+    if (last && last.id === id) {
+      return last;
+    }
+
     const row = await db.attackIncident.findUnique({
       where: { incidentId: id },
     });
     if (!row) return null;
     return toAttackIncident(row);
+  }
+
+  public async mitigate(id?: string): Promise<{ success: boolean; message: string; incident: AttackIncident | null }> {
+    return telemetryService.executeMitigation();
   }
 }
 

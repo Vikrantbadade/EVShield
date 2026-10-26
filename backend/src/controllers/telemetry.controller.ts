@@ -76,3 +76,27 @@ export const resetDemo = async (_req: Request, res: Response, next: NextFunction
     next(error);
   }
 };
+
+export const executeMitigation = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const result = await telemetryService.executeMitigation();
+    const snapshot = telemetryService.getLiveSnapshot();
+    res.status(200).json(createSuccessResponse({
+      ...result,
+      snapshot,
+    }));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getActiveIncident = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const id = req.query.id ? String(req.query.id) : undefined;
+    const incident = telemetryService.getForensicIncident(id);
+    res.status(200).json(createSuccessResponse(incident));
+  } catch (error) {
+    next(error);
+  }
+};
+

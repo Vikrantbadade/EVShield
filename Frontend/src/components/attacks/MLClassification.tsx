@@ -8,11 +8,39 @@ interface MLClassificationProps {
 }
 
 export const MLClassification: React.FC<MLClassificationProps> = ({ incident }) => {
+  const deviation =
+    incident.baselineRequestsPerSecond > 0
+      ? Math.round(((incident.peakRequestsPerSecond - incident.baselineRequestsPerSecond) / incident.baselineRequestsPerSecond) * 100)
+      : 0;
+
+  const deviationStr = deviation >= 0 ? `+${deviation.toLocaleString()}%` : `${deviation.toLocaleString()}%`;
+  const thresholdPct = Math.round((incident.mlThreshold || 0.55) * 100);
+
   const signals = incident.signals || [
-    { name: 'Traffic Burst Intensity', value: 'HIGH', status: 'ANOMALOUS', description: 'Request rate exceeded 15x nominal threshold' },
-    { name: 'Auth Payload Rate', value: `${incident.peakRequestsPerSecond.toLocaleString()} req/s`, status: 'ANOMALOUS', description: 'Heavy flood of unauthenticated API handshake requests' },
-    { name: 'Baseline Deviation', value: '+1437%', status: 'HIGH', description: `Extreme sudden jump from ${incident.baselineRequestsPerSecond.toLocaleString()} req/s baseline` },
-    { name: 'Handshake Retry Rate', value: 'ELEVATED', status: 'ELEVATED', description: 'Abnormal token retry patterns observed across gateways' },
+    {
+      name: 'Traffic Burst Intensity',
+      value: incident.peakRequestsPerSecond > 50 ? 'CRITICAL' : 'ELEVATED',
+      status: 'ANOMALOUS',
+      description: `Observed ${incident.peakRequestsPerSecond.toLocaleString()} req/s vs baseline ${incident.baselineRequestsPerSecond.toLocaleString()} req/s`,
+    },
+    {
+      name: 'Auth Payload Rate',
+      value: `${incident.peakRequestsPerSecond.toLocaleString()} req/s`,
+      status: 'ANOMALOUS',
+      description: 'Surge of rapid OCPP session handshake requests',
+    },
+    {
+      name: 'Baseline Deviation',
+      value: deviationStr,
+      status: deviation > 100 ? 'ANOMALOUS' : 'ELEVATED',
+      description: `Traffic divergence from ${incident.baselineRequestsPerSecond.toLocaleString()} req/s nominal level`,
+    },
+    {
+      name: 'Model Threshold Delta',
+      value: `${incident.mlConfidence}%`,
+      status: incident.mlConfidence >= thresholdPct ? 'ANOMALOUS' : 'NOMINAL',
+      description: `Configured decision threshold: ${thresholdPct}%`,
+    },
   ];
 
   return (
@@ -29,7 +57,7 @@ export const MLClassification: React.FC<MLClassificationProps> = ({ incident }) 
           <p className="text-xs text-[#514940] mt-1">Feature extraction, confidence score & classification rationale</p>
         </div>
 
-        <StatusChip label="MODEL DEMO PREVIEW" variant="demo" />
+        <StatusChip label={incident.isDemo ? "MODEL PREVIEW" : "LIVE RANDOM FOREST"} variant={incident.isDemo ? "demo" : "live"} />
       </div>
 
       {/* Feature Signals Grid */}
@@ -61,7 +89,7 @@ export const MLClassification: React.FC<MLClassificationProps> = ({ incident }) 
         </p>
         <div className="pt-2 pl-6 flex items-center gap-2 text-[10px] font-mono text-[#7A7067]">
           <Sparkles className="w-3 h-3 text-[#19BFA3]" />
-          <span>Model Interpretation &bull; Confidence: {incident.mlConfidence}%</span>
+          <span>Model: CICEV2023 Random Forest &bull; Confidence: {incident.mlConfidence}% &bull; Threshold: {thresholdPct}%</span>
         </div>
       </div>
     </div>

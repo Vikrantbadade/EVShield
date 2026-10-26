@@ -43,6 +43,15 @@ export interface AttackIncident {
   detectionSummary: string;
   isDemo: boolean;
   signals?: AttackSignal[];
+  telemetryGraphPoints?: Array<{
+    timestamp: string;
+    requestsPerSec: number;
+    latencyMs?: number;
+    probability?: number;
+    isAnomaly?: boolean;
+  }>;
+  mlFeatures?: Record<string, number>;
+  mlThreshold?: number;
 }
 
 export interface AttackFilterParams {

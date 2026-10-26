@@ -4,6 +4,7 @@ import { AttackIncident } from '../../types/attack';
 import { AttackBadge } from './AttackBadge';
 import { Eye, ShieldAlert, ChevronLeft, ChevronRight, FilterX } from 'lucide-react';
 import { StatusChip } from '../ui/StatusChip';
+import { formatDateTime } from '../../utils/dateTime';
 
 interface AttackTableProps {
   incidents: AttackIncident[];
@@ -78,7 +79,9 @@ export const AttackTable: React.FC<AttackTableProps> = ({
                   </td>
 
                   {/* Timestamp */}
-                  <td className="py-4 px-4 font-mono text-[#514940] whitespace-nowrap">{incident.timestamp}</td>
+                  <td className="py-4 px-4 font-mono text-[#514940] whitespace-nowrap">
+                    {formatDateTime(incident.startTime || incident.timestamp)}
+                  </td>
 
                   {/* Attack Type */}
                   <td className="py-4 px-4 font-semibold text-[#3F3832]">{incident.attackTypeLabel}</td>

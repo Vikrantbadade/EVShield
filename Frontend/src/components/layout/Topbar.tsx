@@ -1,34 +1,48 @@
 import React from 'react';
-import { Menu, Bell, User, Play, Square, AlertTriangle } from 'lucide-react';
+import { Menu, Bell, User, Play, Square, AlertTriangle, LogOut } from 'lucide-react';
 import { useSecurity } from '../../context/SecurityContext';
+import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { UserRole } from '../../services/authService';
 
 interface TopbarProps {
   title: string;
   onOpenMobileSidebar: () => void;
 }
 
+const ROLE_LABELS: Record<UserRole, string> = {
+  admin: 'Administrator',
+  security_analyst: 'Security Analyst',
+  soc_operator: 'SOC Operator',
+  viewer: 'Viewer (Read-Only)',
+};
+
 export const Topbar: React.FC<TopbarProps> = ({ title, onOpenMobileSidebar }) => {
   const { isAttackMode, toggleDDoSAttack, notifications } = useSecurity();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login', { replace: true });
+  };
+
+  const roleTitle = user?.role ? (ROLE_LABELS[user.role] || user.role) : 'SOC Operator';
 
   return (
     <header
-      className="h-16 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 border-b border-[#AD8B73]/15"
-      style={{
-        background: 'rgba(255, 251, 233, 0.68)',
-        backdropFilter: 'blur(28px)',
-        WebkitBackdropFilter: 'blur(28px)',
-      }}
+      className="h-16 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 border-b border-[#C4B5FD]/16 bg-[#11111F]/85 backdrop-blur-2xl"
     >
       {/* Left */}
       <div className="flex items-center gap-3">
         <button
           onClick={onOpenMobileSidebar}
-          className="p-2 rounded-xl text-[#7A7067] hover:bg-[#AD8B73]/10 lg:hidden"
+          className="p-2 rounded-xl text-[#9896B0] hover:bg-[#9B7BFF]/15 hover:text-[#F5F3FF] lg:hidden transition-colors"
           aria-label="Open sidebar"
         >
           <Menu className="w-5 h-5" />
         </button>
-        <h1 className="text-base font-semibold text-[#3F3832] tracking-tight">{title}</h1>
+        <h1 className="text-base font-semibold text-[#F5F3FF] tracking-tight">{title}</h1>
       </div>
 
       {/* Right */}
@@ -36,10 +50,10 @@ export const Topbar: React.FC<TopbarProps> = ({ title, onOpenMobileSidebar }) =>
         {/* Simulation trigger */}
         <button
           onClick={toggleDDoSAttack}
-          className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-mono font-bold tracking-wide transition-all duration-300 border shadow-glass-sm ${
+          className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-mono font-bold tracking-wide transition-all duration-300 border shadow-md ${
             isAttackMode
-              ? 'bg-[#E85C68]/15 border-[#E85C68]/35 text-[#a82d38]'
-              : 'bg-[#19BFA3]/12 border-[#19BFA3]/28 text-[#0d7a67] hover:bg-[#19BFA3]/20'
+              ? 'bg-[#FB7185]/20 border-[#FB7185]/40 text-[#FB7185] shadow-[#FB7185]/20'
+              : 'bg-[#4DD9F0]/15 border-[#4DD9F0]/35 text-[#4DD9F0] hover:bg-[#4DD9F0]/25'
           }`}
         >
           {isAttackMode ? (
@@ -47,37 +61,51 @@ export const Topbar: React.FC<TopbarProps> = ({ title, onOpenMobileSidebar }) =>
           ) : (
             <><Play className="w-3 h-3 fill-current" />SIMULATE DDOS</>
           )}
-          <span className="chip chip-demo py-0 px-1.5 text-[9px]">DEMO</span>
+          <span className="px-1.5 py-0.2 rounded bg-black/40 text-[9px] text-[#F5F3FF]">DEMO</span>
         </button>
 
         {/* Status pill */}
         <div className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-mono font-semibold border transition-all duration-300 ${
           isAttackMode
-            ? 'bg-[#E85C68]/12 border-[#E85C68]/30 text-[#a82d38]'
-            : 'bg-[#62C073]/12 border-[#62C073]/28 text-[#2b703b]'
+            ? 'bg-[#FB7185]/15 border-[#FB7185]/35 text-[#FB7185]'
+            : 'bg-[#34D399]/15 border-[#34D399]/30 text-[#34D399]'
         }`}>
           {isAttackMode
             ? <><AlertTriangle className="w-3 h-3" />ATTACK ACTIVE</>
-            : <><span className="w-1.5 h-1.5 rounded-full bg-[#62C073] animate-pulse" />OPERATIONAL</>
+            : <><span className="w-1.5 h-1.5 rounded-full bg-[#34D399] animate-pulse" />NORMAL MONITORING</>
           }
         </div>
 
         {/* Notification bell */}
         <div className="relative">
-          <button className="p-2 rounded-xl bg-white/60 border border-white/80 text-[#514940] hover:text-[#3F3832] hover:bg-white/80 transition-colors shadow-glass-sm">
-            <Bell className="w-4 h-4 text-[#AD8B73]" />
+          <button className="p-2 rounded-xl bg-[#1D1D35] border border-[#C4B5FD]/16 text-[#C4C2D6] hover:text-[#F5F3FF] hover:border-[#9B7BFF]/40 transition-colors shadow-sm">
+            <Bell className="w-4 h-4 text-[#C4B5FD]" />
             {notifications.length > 0 && (
-              <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#E85C68] border border-white" />
+              <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#FB7185]" />
             )}
           </button>
         </div>
 
-        {/* User profile */}
-        <div className="flex items-center gap-2 pl-2 pr-1 py-1 rounded-full bg-white/65 border border-white/80 shadow-glass-sm">
-          <span className="hidden sm:block text-xs font-medium text-[#3F3832] pl-1">SOC Operator</span>
-          <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-[#AD8B73] to-[#CEAB93] flex items-center justify-center">
-            <User className="w-4 h-4 text-white" />
+        {/* User profile with dynamic role */}
+        <div className="flex items-center gap-2 pl-2.5 pr-1.5 py-1 rounded-full bg-[#1D1D35] border border-[#C4B5FD]/18 shadow-sm">
+          <div className="hidden md:flex flex-col text-right pr-1">
+            <span className="text-xs font-semibold text-[#F5F3FF] leading-none">
+              {user?.name || 'Operator'}
+            </span>
+            <span className="text-[10px] font-mono text-[#4DD9F0] leading-tight">
+              {roleTitle}
+            </span>
           </div>
+          <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-[#8055F6] to-[#9B7BFF] flex items-center justify-center shadow-sm">
+            <User className="w-3.5 h-3.5 text-white" />
+          </div>
+          <button
+            onClick={handleLogout}
+            title="Log Out"
+            className="p-1 rounded-full text-[#9896B0] hover:text-[#FB7185] hover:bg-[#FB7185]/10 transition-colors"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+          </button>
         </div>
       </div>
     </header>
