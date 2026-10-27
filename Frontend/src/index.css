@@ -1,5 +1,47 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900;1,14..32,400&family=JetBrains+Mono:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
 
+/* ─── The Heritage Legacy Custom Font ──────────────────────── */
+@font-face {
+  font-family: 'The Heritage Legacy';
+  src: url('/fonts/TheHeritageLegacy-Bold.ttf') format('truetype'),
+       url('/fonts/TheHeritageLegacy-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'The Heritage Legacy';
+  src: url('/fonts/TheHeritageLegacy-SemiBold.ttf') format('truetype'),
+       url('/fonts/TheHeritageLegacy-SemiBold.otf') format('opentype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'The Heritage Legacy';
+  src: url('/fonts/TheHeritageLegacy-Medium.ttf') format('truetype'),
+       url('/fonts/TheHeritageLegacy-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'The Heritage Legacy';
+  src: url('/fonts/TheHeritageLegacy-Regular.ttf') format('truetype'),
+       url('/fonts/TheHeritageLegacy-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+.font-heritage {
+  font-family: 'The Heritage Legacy', 'Inter', system-ui, sans-serif;
+  word-spacing: -0.18em;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

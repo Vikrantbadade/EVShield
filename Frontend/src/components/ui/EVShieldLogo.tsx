@@ -25,37 +25,82 @@ export const EVShieldLogo: React.FC<EVShieldLogoProps> = ({
     <div
       className={`relative ${currentSize.icon} rounded-xl bg-gradient-to-br from-[#17172B] to-[#202039] border border-[#8B5CF6]/40 flex items-center justify-center shrink-0 shadow-lg shadow-[#8B5CF6]/15 group transition-all duration-300`}
     >
-      <svg viewBox="0 0 40 40" className="w-4/5 h-4/5" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg viewBox="0 0 100 100" className="w-[85%] h-[85%]" fill="none" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <linearGradient id="logoShield" x1="5" y1="2" x2="35" y2="38" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#A78BFA" />
-            <stop offset="50%" stopColor="#8B5CF6" />
-            <stop offset="100%" stopColor="#22D3EE" />
-          </linearGradient>
-          <linearGradient id="logoBolt" x1="20" y1="8" x2="20" y2="32" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#FFFFFF" />
-            <stop offset="40%" stopColor="#A78BFA" />
-            <stop offset="100%" stopColor="#22D3EE" />
-          </linearGradient>
+          <mask id="evshield-logo-mask">
+            <rect width="100" height="100" fill="white" />
+            <circle cx="51" cy="14" r="2.0" fill="black" />
+            <circle cx="33" cy="17" r="2.0" fill="black" />
+            <circle cx="15" cy="24" r="2.0" fill="black" />
+            <circle cx="18" cy="42" r="2.0" fill="black" />
+            <circle cx="21" cy="60" r="2.0" fill="black" />
+            <circle cx="30" cy="77" r="2.0" fill="black" />
+            <circle cx="50" cy="89" r="2.2" fill="black" />
+            <circle cx="39" cy="32" r="2.0" fill="black" />
+            <circle cx="45" cy="46" r="2.0" fill="black" />
+            <circle cx="33" cy="49" r="2.0" fill="black" />
+            <circle cx="44" cy="69" r="2.0" fill="black" />
+          </mask>
         </defs>
 
-        {/* Shield Contour */}
+        {/* Right Shield Rim (Curved Solid Band) */}
         <path
-          d="M20 4L7 9V19C7 28.5 12.5 35.8 20 39C27.5 35.8 33 28.5 33 19V9L20 4Z"
-          stroke="url(#logoShield)"
-          strokeWidth="2.2"
-          strokeLinejoin="round"
-          fill="rgba(23, 23, 43, 0.6)"
+          d="M 60 14 C 73 18 84 24 84 28 C 84 50 75 73 57 88 L 51 81 C 67 67 74 48 74 29 C 74 26 66 22 58 20 Z"
+          fill="#FFFFFF"
         />
 
-        {/* Central Electric Charging Bolt */}
+        {/* Top Connecting Collar */}
         <path
-          d="M22 9L13 21H19.5L17 31L27 18H20.5L22 9Z"
-          fill="url(#logoBolt)"
+          d="M 50 11.5 L 61 14.5 L 59 21.5 L 48 18.5 Z"
+          fill="#FFFFFF"
         />
 
-        {/* Orbit Node */}
-        <circle cx="20" cy="5" r="1.5" fill="#22D3EE" />
+        {/* Bottom Connecting Collar */}
+        <path
+          d="M 48 85.5 L 57 80.5 L 60 86.5 L 51 91.5 Z"
+          fill="#FFFFFF"
+        />
+
+        {/* Circuit Network with Masked Transparent Cutouts */}
+        <g mask="url(#evshield-logo-mask)">
+          {/* Circuit Network Traces */}
+          <g stroke="#FFFFFF" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="33" y1="17" x2="51" y2="14" />
+            <line x1="15" y1="24" x2="33" y2="17" />
+            <line x1="15" y1="24" x2="18" y2="42" />
+            <line x1="18" y1="42" x2="21" y2="60" />
+            <line x1="21" y1="60" x2="30" y2="77" />
+            <line x1="30" y1="77" x2="50" y2="89" />
+
+            <line x1="15" y1="24" x2="39" y2="32" />
+            <line x1="33" y1="17" x2="39" y2="32" />
+            <line x1="51" y1="14" x2="39" y2="32" />
+            <line x1="39" y1="32" x2="45" y2="46" />
+            <line x1="18" y1="42" x2="33" y2="49" />
+            <line x1="39" y1="32" x2="33" y2="49" />
+            <line x1="33" y1="49" x2="45" y2="46" />
+            <line x1="33" y1="49" x2="21" y2="60" />
+            <line x1="45" y1="46" x2="44" y2="69" />
+            <line x1="21" y1="60" x2="44" y2="69" />
+            <line x1="30" y1="77" x2="44" y2="69" />
+            <line x1="44" y1="69" x2="50" y2="89" />
+          </g>
+
+          {/* Circuit Network Nodes */}
+          <g fill="#FFFFFF">
+            <circle cx="51" cy="14" r="4.2" />
+            <circle cx="33" cy="17" r="4.2" />
+            <circle cx="15" cy="24" r="4.2" />
+            <circle cx="18" cy="42" r="4.2" />
+            <circle cx="21" cy="60" r="4.2" />
+            <circle cx="30" cy="77" r="4.2" />
+            <circle cx="50" cy="89" r="4.5" />
+            <circle cx="39" cy="32" r="4.2" />
+            <circle cx="45" cy="46" r="4.2" />
+            <circle cx="33" cy="49" r="4.2" />
+            <circle cx="44" cy="69" r="4.2" />
+          </g>
+        </g>
       </svg>
     </div>
   );

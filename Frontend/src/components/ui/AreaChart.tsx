@@ -646,8 +646,9 @@ export const ChartTooltip: React.FC<ChartTooltipProps> = ({
   const bottom = height - padding.bottom;
 
   // Tooltip positioning
-  const isRightSide = x > width * 0.65;
-  const tooltipLeft = Math.max(padding.left, isRightSide ? x - 195 : x + 16);
+  const tooltipWidth = 220;
+  const isRightSide = x > width * 0.6;
+  const tooltipLeft = Math.max(padding.left, isRightSide ? x - (tooltipWidth + 14) : x + 16);
   const tooltipTop = Math.max(padding.top + 5, Math.min(height - padding.bottom - 130, 30));
 
   const cardHeight = fields.length * 20 + 52;
@@ -669,7 +670,7 @@ export const ChartTooltip: React.FC<ChartTooltipProps> = ({
       <g transform={`translate(${tooltipLeft}, ${tooltipTop})`}>
         {/* Backdrop Card */}
         <rect
-          width={185}
+          width={tooltipWidth}
           height={cardHeight}
           rx={12}
           fill="#14142B"
@@ -684,7 +685,7 @@ export const ChartTooltip: React.FC<ChartTooltipProps> = ({
           Time:
         </text>
         <text
-          x={173}
+          x={tooltipWidth - 12}
           y={20}
           textAnchor="end"
           className="fill-[#F5F3FF] text-[11px] font-mono font-bold"
@@ -696,7 +697,7 @@ export const ChartTooltip: React.FC<ChartTooltipProps> = ({
         <line
           x1={12}
           y1={27}
-          x2={173}
+          x2={tooltipWidth - 12}
           y2={27}
           stroke="rgba(196, 181, 253, 0.15)"
           strokeWidth={1}
@@ -714,7 +715,7 @@ export const ChartTooltip: React.FC<ChartTooltipProps> = ({
                 {f.label}:
               </text>
               <text
-                x={173}
+                x={tooltipWidth - 12}
                 y={rowY}
                 textAnchor="end"
                 fill={f.color || '#F5F3FF'}
@@ -732,7 +733,7 @@ export const ChartTooltip: React.FC<ChartTooltipProps> = ({
             <line
               x1={12}
               y1={-8}
-              x2={173}
+              x2={tooltipWidth - 12}
               y2={-8}
               stroke="rgba(196, 181, 253, 0.12)"
               strokeWidth={1}
@@ -741,7 +742,7 @@ export const ChartTooltip: React.FC<ChartTooltipProps> = ({
               Status:
             </text>
             <text
-              x={173}
+              x={tooltipWidth - 12}
               y={4}
               textAnchor="end"
               className={`text-[9px] font-mono font-bold ${

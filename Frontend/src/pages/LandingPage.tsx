@@ -1,574 +1,575 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
-  Activity, Cpu, ShieldAlert, Server,
-  ArrowRight, Globe, ChevronRight, CheckCircle2, X, Menu, Car, BatteryCharging, User
+  ArrowRight,
+  ChevronRight,
+  X,
+  Menu,
+  Shield,
+  Activity,
+  Cpu,
+  Server,
+  Lock,
+  Radio,
 } from 'lucide-react';
-import { StatusChip } from '../components/ui/StatusChip';
-import { ScrollReveal } from '../components/ui/ScrollReveal';
-import { CountUp } from '../components/ui/CountUp';
 import { EVShieldLogo } from '../components/ui/EVShieldLogo';
 import { ShaderBackground } from '../components/layout/ShaderBackground';
+import { WaveLines } from '../components/landing/WaveLines';
+import { SpecularButton } from '../components/ui/SpecularButton';
+import { useAuth } from '../context/AuthContext';
 
-/* ── Types ── */
-interface NavLink { label: string; href: string; }
+interface NavLink {
+  label: string;
+  href: string;
+}
+
 const navLinks: NavLink[] = [
-  { label: 'Platform',       href: '#features'   },
-  { label: 'Protection',     href: '#protection' },
-  { label: 'ML Detection',   href: '#ml'         },
-  { label: 'Infrastructure', href: '#infra'      },
+  { label: 'Platform', href: '#platform' },
+  { label: 'Protection', href: '#protection' },
+  { label: 'ML Detection', href: '#ml-detection' },
+  { label: 'Infrastructure', href: '#infrastructure' },
 ];
 
-/* ── Floating Glass Navbar ── */
-const LandingNav: React.FC<{ onEnter: () => void }> = ({ onEnter }) => {
-  const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-
-  useEffect(() => {
-    const handler = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handler);
-    return () => window.removeEventListener('scroll', handler);
-  }, []);
-
-  return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-50 flex justify-center transition-all duration-500 px-4 sm:px-6 ${
-        scrolled ? 'pt-3' : 'pt-5'
-      }`}
-    >
-      <nav
-        className={`glass-nav rounded-2xl w-full max-w-6xl flex items-center justify-between px-5 py-3 transition-all duration-300 ${
-          scrolled ? 'shadow-glass' : ''
-        }`}
-      >
-        {/* Logo */}
-        <Link to="/" className="flex items-center shrink-0">
-          <EVShieldLogo size="sm" />
-        </Link>
-
-        {/* Center links — desktop only */}
-        <div className="hidden md:flex items-center gap-1">
-          {navLinks.map(l => (
-            <a
-              key={l.label}
-              href={l.href}
-              className="px-4 py-1.5 rounded-xl text-sm font-medium text-[#C4C2D6] hover:text-[#F5F3FF] hover:bg-[#252542]/70 transition-colors"
-            >
-              {l.label}
-            </a>
-          ))}
-        </div>
-
-        {/* Right actions */}
-        <div className="hidden md:flex items-center gap-3">
-          <StatusChip label="SYSTEM OPERATIONAL" variant="live" dot pulse />
-          <Link
-            to="/login"
-            title="Account / Sign In"
-            className="p-2 rounded-xl bg-[#252542] hover:bg-[#303052] border border-[#C4B5FD]/16 text-[#C4C2D6] hover:text-[#F5F3FF] transition-all shadow-sm"
-          >
-            <User className="w-4 h-4" />
-          </Link>
-          <button
-            onClick={onEnter}
-            className="btn-primary py-2 px-5 text-xs rounded-xl"
-          >
-            ACCESS SOC CONSOLE <ArrowRight className="w-3.5 h-3.5" />
-          </button>
-        </div>
-
-        {/* Hamburger */}
-        <button
-          className="md:hidden p-2 rounded-lg text-[#C4C2D6] hover:bg-[#252542]"
-          onClick={() => setMenuOpen(!menuOpen)}
-          aria-label="Toggle navigation menu"
-        >
-          {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </button>
-      </nav>
-
-      {/* Mobile menu */}
-      {menuOpen && (
-        <div className="glass-cream absolute top-full mt-2 left-4 right-4 rounded-2xl p-5 md:hidden z-50 animate-slide-in-down shadow-glass border border-[#C4B5FD]/20">
-          <div className="flex flex-col gap-1 mb-5">
-            {navLinks.map(l => (
-              <a
-                key={l.label}
-                href={l.href}
-                onClick={() => setMenuOpen(false)}
-                className="px-4 py-2.5 rounded-xl text-sm font-medium text-[#F5F3FF] hover:bg-[#252542] transition-colors"
-              >
-                {l.label}
-              </a>
-            ))}
-            <Link
-              to="/login"
-              onClick={() => setMenuOpen(false)}
-              className="px-4 py-2.5 rounded-xl text-sm font-medium text-[#9B7BFF] hover:bg-[#252542] transition-colors flex items-center gap-2"
-            >
-              <User className="w-4 h-4" /> Sign In to Console
-            </Link>
-          </div>
-          <button onClick={() => { setMenuOpen(false); onEnter(); }} className="btn-primary w-full justify-center text-sm rounded-xl py-3">
-            ACCESS SOC CONSOLE <ArrowRight className="w-4 h-4" />
-          </button>
-        </div>
-      )}
-    </header>
-  );
-};
-
-/* ── EV Ecosystem Visualization (Symmetrical, uncluttered, no overlapping labels) ── */
-const EVNetworkViz: React.FC = () => (
-  <div className="relative w-full min-h-[440px] max-w-xl mx-auto select-none flex items-center justify-center p-2 sm:p-4">
-    {/* SVG Connector Lines (behind all nodes) */}
-    <svg className="absolute inset-0 w-full h-full pointer-events-none z-0" viewBox="0 0 500 420" preserveAspectRatio="none">
-      <defs>
-        <linearGradient id="cyberLineGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#8055F6" stopOpacity="0.8" />
-          <stop offset="50%" stopColor="#9B7BFF" stopOpacity="0.8" />
-          <stop offset="100%" stopColor="#4DD9F0" stopOpacity="0.8" />
-        </linearGradient>
-      </defs>
-      {/* Top Node (ML Detection) to Center */}
-      <line
-        x1="250" y1="58" x2="250" y2="150"
-        stroke="url(#cyberLineGrad)" strokeWidth="1.5" strokeDasharray="5 4" opacity="0.8"
-      />
-      {/* Top-Left (CS Gateway) to Center */}
-      <line
-        x1="150" y1="90" x2="190" y2="180"
-        stroke="url(#cyberLineGrad)" strokeWidth="1.5" strokeDasharray="5 4" opacity="0.8"
-      />
-      {/* Top-Right (Auth Layer) to Center */}
-      <line
-        x1="350" y1="90" x2="310" y2="180"
-        stroke="url(#cyberLineGrad)" strokeWidth="1.5" strokeDasharray="5 4" opacity="0.8"
-      />
-      {/* Bottom-Left (EV Fleet) to Center */}
-      <line
-        x1="150" y1="370" x2="195" y2="240"
-        stroke="url(#cyberLineGrad)" strokeWidth="1.5" strokeDasharray="5 4" opacity="0.8"
-      />
-      {/* Bottom-Right (Secure Network) to Center */}
-      <line
-        x1="350" y1="370" x2="305" y2="240"
-        stroke="url(#cyberLineGrad)" strokeWidth="1.5" strokeDasharray="5 4" opacity="0.8"
-      />
-    </svg>
-
-    {/* Central EVShield Core Card */}
-    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
-      <div className="rounded-2xl px-5 py-4 flex flex-col items-center gap-2 bg-[#17172B]/90 backdrop-blur-xl border border-[#C4B5FD]/25 shadow-2xl shadow-black/70 min-w-[170px]">
-        <div className="p-2.5 rounded-xl bg-[#8055F6]/20 border border-[#8055F6]/35 shadow-inner">
-          <BatteryCharging className="w-7 h-7 text-[#9B7BFF]" />
-        </div>
-        <span className="font-mono text-xs font-bold text-[#F5F3FF] tracking-wider">EVSHIELD CORE</span>
-        <StatusChip label="PROTECTED" variant="protected" dot pulse />
-      </div>
-    </div>
-
-    {/* Surrounding 5 Nodes (All preserved, zero overlap, crisp visibility) */}
-    {/* 1. Top Node: ML Detection (positioned high with clearance from center) */}
-    <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10">
-      <div className="rounded-xl px-4 py-2 flex items-center gap-2.5 bg-[#17172B]/85 backdrop-blur-md border border-[#8055F6]/35 shadow-lg shadow-black/40">
-        <div className="p-1.5 rounded-lg bg-[#8055F6]/20 border border-[#8055F6]/30">
-          <Cpu className="w-4 h-4 text-[#9B7BFF]" />
-        </div>
-        <div className="flex flex-col text-left">
-          <span className="font-mono text-xs font-bold text-[#F5F3FF] whitespace-nowrap">ML Detection</span>
-          <span className="text-[10px] text-[#4DD9F0] font-mono">CICEV2023 RF</span>
-        </div>
-      </div>
-    </div>
-
-    {/* 2. Top-Left Node: CS Gateway */}
-    <div className="absolute top-16 left-2 sm:left-4 z-10">
-      <div className="rounded-xl px-3.5 py-2 flex items-center gap-2.5 bg-[#17172B]/85 backdrop-blur-md border border-[#4DD9F0]/30 shadow-lg shadow-black/40">
-        <div className="p-1.5 rounded-lg bg-[#4DD9F0]/15 border border-[#4DD9F0]/30">
-          <Server className="w-4 h-4 text-[#4DD9F0]" />
-        </div>
-        <div className="flex flex-col text-left">
-          <span className="font-mono text-xs font-bold text-[#F5F3FF] whitespace-nowrap">CS Gateway</span>
-          <span className="text-[10px] text-[#C4C2D6] font-mono">Telemetry Hub</span>
-        </div>
-      </div>
-    </div>
-
-    {/* 3. Top-Right Node: Auth Layer */}
-    <div className="absolute top-16 right-2 sm:right-4 z-10">
-      <div className="rounded-xl px-3.5 py-2 flex items-center gap-2.5 bg-[#17172B]/85 backdrop-blur-md border border-[#FB7185]/30 shadow-lg shadow-black/40">
-        <div className="p-1.5 rounded-lg bg-[#FB7185]/15 border border-[#FB7185]/30">
-          <ShieldAlert className="w-4 h-4 text-[#FB7185]" />
-        </div>
-        <div className="flex flex-col text-left">
-          <span className="font-mono text-xs font-bold text-[#F5F3FF] whitespace-nowrap">Auth Layer</span>
-          <span className="text-[10px] text-[#C4C2D6] font-mono">JWT / PKI</span>
-        </div>
-      </div>
-    </div>
-
-    {/* 4. Bottom-Left Node: EV Fleet */}
-    <div className="absolute bottom-5 left-2 sm:left-4 z-10">
-      <div className="rounded-xl px-3.5 py-2 flex items-center gap-2.5 bg-[#17172B]/85 backdrop-blur-md border border-[#38BDF8]/30 shadow-lg shadow-black/40">
-        <div className="p-1.5 rounded-lg bg-[#38BDF8]/15 border border-[#38BDF8]/30">
-          <Car className="w-4 h-4 text-[#38BDF8]" />
-        </div>
-        <div className="flex flex-col text-left">
-          <span className="font-mono text-xs font-bold text-[#F5F3FF] whitespace-nowrap">EV Fleet</span>
-          <span className="text-[10px] text-[#C4C2D6] font-mono">Charging Nodes</span>
-        </div>
-      </div>
-    </div>
-
-    {/* 5. Bottom-Right Node: Secure Network */}
-    <div className="absolute bottom-5 right-2 sm:right-4 z-10">
-      <div className="rounded-xl px-3.5 py-2 flex items-center gap-2.5 bg-[#17172B]/85 backdrop-blur-md border border-[#34D399]/30 shadow-lg shadow-black/40">
-        <div className="p-1.5 rounded-lg bg-[#34D399]/15 border border-[#34D399]/30">
-          <Globe className="w-4 h-4 text-[#34D399]" />
-        </div>
-        <div className="flex flex-col text-left">
-          <span className="font-mono text-xs font-bold text-[#F5F3FF] whitespace-nowrap">Secure Network</span>
-          <span className="text-[10px] text-[#C4C2D6] font-mono">Mesh VPN</span>
-        </div>
-      </div>
-    </div>
-  </div>
-);
-
-/* ── Bento-Style Feature Cards ── */
-const features = [
-  {
-    n: '01',
-    title: 'Continuous Monitoring',
-    body: 'Monitor EV charging authentication activity in real time across gateway nodes.',
-    Icon: Activity,
-    variant: 'cream' as const,
-    accent: '#9B7BFF',
-  },
-  {
-    n: '02',
-    title: 'ML-Powered Detection',
-    body: 'Identify abnormal traffic patterns using the EVShield ML detection engine.',
-    Icon: Cpu,
-    variant: 'peach' as const,
-    accent: '#C4B5FD',
-  },
-  {
-    n: '03',
-    title: 'Rapid Threat Visibility',
-    body: 'Surface warnings, incidents, affected infrastructure and security events instantly.',
-    Icon: ShieldAlert,
-    variant: 'sand' as const,
-    accent: '#4DD9F0',
-  },
-  {
-    n: '04',
-    title: 'Infrastructure Awareness',
-    body: 'Understand how security events affect your EV charging ecosystem.',
-    Icon: Server,
-    variant: 'taupe' as const,
-    accent: '#8055F6',
-  },
-];
-
-/* ── Pipeline Steps ── */
-const pipeline = [
-  { label: 'Authentication Traffic', sub: 'EV charging gateway telemetry' },
-  { label: 'ML Analysis',            sub: 'Feature extraction & classification' },
-  { label: 'Threat Classification',  sub: 'Normal / Attack determination' },
-  { label: 'Security Alert',         sub: 'Dashboard notification & toast' },
-  { label: 'Incident Analysis',      sub: 'Affected nodes & timeline sequence' },
-];
-
-/* ── Infrastructure City Nodes ── */
-const cities = [
-  { name: 'Mumbai',    nodes: 312, x: '20%', y: '60%', bg: 'glass-peach', color: '#9B7BFF' },
-  { name: 'Delhi',     nodes: 284, x: '38%', y: '18%', bg: 'glass-sand',  color: '#C4B5FD' },
-  { name: 'Bengaluru', nodes: 256, x: '35%', y: '75%', bg: 'glass-cyan',  color: '#4DD9F0' },
-  { name: 'Pune',      nodes: 178, x: '28%', y: '58%', bg: 'glass-blue',  color: '#38BDF8' },
-  { name: 'Hyderabad', nodes: 218, x: '42%', y: '55%', bg: 'glass-taupe', color: '#8055F6' },
-];
-
-/* ── Event Scenario Cards ── */
-const events = [
-  { tag: 'NORMAL ACTIVITY',     variant: 'live' as const,     glassVariant: 'cream' as const, time: '09:42', text: 'Authentication traffic stable across all regional charging gateways.' },
-  { tag: 'SUSPICIOUS ACTIVITY', variant: 'threat' as const,   glassVariant: 'sand' as const,  time: '11:17', text: 'Traffic deviation & handshake retry rate spike detected at CS-0421.' },
-  { tag: 'DDOS DETECTED',       variant: 'critical' as const, glassVariant: 'peach' as const, time: '12:04', text: 'ML inference engine classified high-density authentication payload flood.' },
-  { tag: 'THREAT MITIGATED',    variant: 'protected' as const, glassVariant: 'taupe' as const, time: '12:07', text: 'Automated IP rate limiting enforced. Traffic returned to expected range.' },
-];
-
-/* ── Main Landing Page ── */
 export const LandingPage: React.FC = () => {
   const navigate = useNavigate();
-  const enter = () => navigate('/login');
+  const { isAuthenticated } = useAuth();
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 24);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const handleOpenConsole = () => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    } else {
+      navigate('/login');
+    }
+  };
+
+  const handleGetStarted = () => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    } else {
+      navigate('/login');
+    }
+  };
 
   return (
-    <div className="relative min-h-screen font-sans text-[#F5F3FF] overflow-x-hidden selection:bg-[#9B7BFF]/30 selection:text-[#F5F3FF]">
-      {/* ── Continuous Animated WebGL Shader Background ── */}
+    <div className="relative min-h-screen text-[#F5F3FF] selection:bg-[#8055F6]/30 selection:text-[#F5F3FF] bg-[#0A0A14] overflow-x-hidden">
+      {/* ── Layer 1: Persistent WebGL ShaderGradient Background ── */}
       <ShaderBackground />
 
-      {/* ── Landing Page Content Layer ── */}
-      <div className="relative z-10 w-full">
-        <LandingNav onEnter={enter} />
+      {/* ── Layer 2: Subtle Atmospheric Readability Veil ── */}
+      <div className="fixed inset-0 pointer-events-none z-[1] bg-gradient-to-b from-[#0A0A14]/75 via-[#0A0A14]/40 to-[#0A0A14]/85" />
 
-        {/* ── HERO ────────────────────────────────────────────── */}
-        <section className="relative pt-32 sm:pt-40 pb-20 px-4 sm:px-6 overflow-hidden">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-
-            {/* Left: Copy */}
-            <div className="space-y-8 animate-slide-in-up">
-              <div className="flex items-center gap-3">
-                <StatusChip label="EV INFRASTRUCTURE SECURITY" variant="live" dot pulse />
+      {/* ── Layer 3: Interactive Content & Navigation ── */}
+      <div className="relative z-10 w-full flex flex-col">
+        {/* ── 1. Spacious Minimalist Navigation Bar ── */}
+        <header
+          className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 px-6 sm:px-10 ${
+            scrolled
+              ? 'py-3.5 bg-[#0D0D1A]/85 backdrop-blur-md border-b border-[#C4B5FD]/10'
+              : 'py-6 bg-transparent'
+          }`}
+        >
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            {/* Left: Brand Identity */}
+            <a href="/" className="flex items-center gap-3 shrink-0 group">
+              <EVShieldLogo size="sm" variant="mark" showSubtitle={false} />
+              <div className="flex flex-col">
+                <span className="text-base font-bold tracking-tight text-[#F5F3FF] group-hover:text-[#C4B5FD] transition-colors">
+                  EVShield
+                </span>
+                <span className="text-[9px] font-mono tracking-wider text-[#9896B0] uppercase">
+                  SOC Platform
+                </span>
               </div>
+            </a>
 
-              <div className="space-y-5">
-                <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.05] text-[#F5F3FF]">
-                  Protect every<br />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#9B7BFF] via-[#8055F6] to-[#4DD9F0]">
-                    charge.
-                  </span>
-                </h1>
-                <p className="text-lg sm:text-xl text-[#C4C2D6] leading-relaxed max-w-lg font-normal">
-                  EVShield monitors EV charging authentication traffic and uses machine-learning-powered detection to identify abnormal and DDoS-related activity.
-                </p>
-              </div>
-
-              <div className="flex flex-wrap gap-4 pt-2">
-                <button onClick={enter} className="btn-primary rounded-xl text-sm py-3.5 px-7">
-                  ACCESS SOC CONSOLE
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="btn-secondary rounded-xl text-sm py-3.5 px-6"
+            {/* Center: Clean Text Links (Desktop) */}
+            <nav className="hidden md:flex items-center gap-8">
+              {navLinks.map((link) => (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  className="text-xs font-medium tracking-wide text-[#C4C2D6] hover:text-[#F5F3FF] transition-colors"
                 >
-                  EXPLORE EVSHIELD
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
+                  {link.label}
+                </a>
+              ))}
+            </nav>
 
-              {/* Stat row with CountUp */}
-              <div className="flex flex-wrap gap-8 pt-4 border-t border-[#C4B5FD]/16">
-                <div>
-                  <div className="text-2xl font-extrabold font-mono text-[#F5F3FF]">
-                    <CountUp end={1250} suffix="+" />
-                  </div>
-                  <div className="text-xs text-[#9896B0] mt-0.5">Charging Stations</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-extrabold font-mono text-[#4DD9F0]">
-                    <CountUp end={96.8} decimals={1} suffix="%" />
-                  </div>
-                  <div className="text-xs text-[#9896B0] mt-0.5">ML Accuracy (DEMO)</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-extrabold font-mono text-[#9B7BFF]">
-                    <CountUp end={18450} suffix=" req/s" />
-                  </div>
-                  <div className="text-xs text-[#9896B0] mt-0.5">Peak throughput monitored</div>
+            {/* Right: Minimal Rectangular Console Action */}
+            <div className="hidden md:flex items-center gap-4">
+              <button
+                type="button"
+                onClick={handleOpenConsole}
+                className="px-4 py-2 rounded-lg bg-[#8055F6]/20 hover:bg-[#8055F6]/30 border border-[#8055F6]/40 hover:border-[#8055F6]/60 text-[#F5F3FF] text-xs font-medium tracking-wide transition-all shadow-sm"
+              >
+                Open Security Console
+              </button>
+            </div>
+
+            {/* Mobile Menu Toggle */}
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 rounded-lg text-[#C4C2D6] hover:text-[#F5F3FF] hover:bg-[#1C1C35]"
+              aria-label="Toggle navigation menu"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
+
+          {/* Mobile Dropdown Menu */}
+          {mobileMenuOpen && (
+            <div className="md:hidden mt-3 p-5 rounded-2xl bg-[#14142B]/95 backdrop-blur-xl border border-[#C4B5FD]/16 shadow-2xl animate-fade-in">
+              <div className="flex flex-col space-y-3">
+                {navLinks.map((link) => (
+                  <a
+                    key={link.label}
+                    href={link.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="text-sm font-medium text-[#C4C2D6] hover:text-[#F5F3FF] py-1.5 transition-colors"
+                  >
+                    {link.label}
+                  </a>
+                ))}
+                <div className="pt-3 border-t border-[#C4B5FD]/12">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      handleOpenConsole();
+                    }}
+                    className="w-full py-2.5 rounded-lg bg-[#8055F6] text-[#F5F3FF] text-xs font-semibold tracking-wide transition-all text-center"
+                  >
+                    Open Security Console
+                  </button>
                 </div>
               </div>
             </div>
+          )}
+        </header>
 
-            {/* Right: EV Network Visualization */}
-            <div className="hidden lg:block animate-fade-in">
-              <div className="glass-cream rounded-[40px] p-8 shadow-glass border border-[#C4B5FD]/20">
-                <EVNetworkViz />
-              </div>
+        {/* ── 2. Editorial Hero with Flowing Wave-Line Art ── */}
+        <section className="relative min-h-[92vh] sm:min-h-screen flex flex-col justify-center items-center pt-32 sm:pt-36 pb-28 sm:pb-36 px-6 sm:px-10 overflow-hidden">
+          {/* Hero Content (Positioned with high relative z-index) */}
+          <div className="max-w-4xl mx-auto text-center space-y-7 relative z-20">
+            {/* Controlled Deliberate Headline with The Heritage Legacy Font */}
+            <h1 className="font-heritage text-5xl sm:text-7xl md:text-8xl font-bold tracking-tight text-[#F5F3FF] leading-[1.08] max-w-4xl mx-auto">
+              Security for every
+              <br />
+              EV charge.
+            </h1>
+
+            {/* Grounded Supporting Copy */}
+            <p className="text-base sm:text-lg md:text-xl text-[#C4C2D6] max-w-2xl mx-auto font-normal leading-relaxed">
+              EVShield monitors charging authentication traffic, detects suspicious activity with
+              machine learning, and helps protect the infrastructure behind electric mobility.
+            </p>
+
+            {/* Single Centered SpecularButton Call to Action */}
+            <div className="pt-6 flex justify-center items-center relative z-20">
+              <SpecularButton
+                size="lg"
+                radius={18}
+                tint="#ffffff"
+                tintOpacity={0.03}
+                textColor="#f5f5f5"
+                lineColor="#ffffff"
+                baseColor="#525252"
+                intensity={1}
+                idleIntensity={0.35}
+                shineSize={10}
+                shineFade={34}
+                thickness={1.2}
+                glow={1}
+                followMouse
+                proximity={250}
+                onClick={handleGetStarted}
+              >
+                Get Started
+              </SpecularButton>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* ── FEATURES (Bento Grid with Glass Variations) ───────── */}
-      <section id="features" className="py-24 px-4 sm:px-6">
-        <div className="max-w-6xl mx-auto space-y-12">
-          <ScrollReveal>
-            <div className="text-center space-y-3 max-w-2xl mx-auto">
-              <span className="font-mono text-xs font-semibold tracking-widest text-[#9B7BFF] uppercase">Capabilities</span>
-              <h2 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-[#F5F3FF]">
-                Defense built for EV grids.
+          {/* Wave-Line Art Layer: Edge-to-Edge full viewport width, starting behind lower hero */}
+          <div className="absolute inset-x-0 bottom-0 h-[480px] sm:h-[560px] md:h-[640px] pointer-events-none z-10 overflow-hidden">
+            <WaveLines className="w-full h-full" />
+          </div>
+        </section>
+
+        {/* ── 3. Section A — The Infrastructure EVShield Protects ── */}
+        <section id="platform" className="py-28 px-6 sm:px-10 border-t border-[#C4B5FD]/10">
+          <div className="max-w-6xl mx-auto space-y-16">
+            <div className="max-w-2xl space-y-3">
+              <span className="text-[11px] font-mono tracking-widest text-[#9B7BFF] uppercase">
+                System Architecture
+              </span>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-[#F5F3FF]">
+                The charging grid EVShield protects.
               </h2>
-              <p className="text-[#C4C2D6]">
-                Modern EV charging infrastructure combines cloud systems with field hardware. EVShield gives operators full visibility into that surface.
+              <p className="text-sm sm:text-base text-[#C4C2D6] leading-relaxed">
+                Modern charging networks combine distributed hardware, edge gateways, and central
+                management systems. EVShield inspects authentication traffic across every tier.
               </p>
             </div>
-          </ScrollReveal>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map(({ n, title, body, Icon, variant, accent }, i) => (
-              <ScrollReveal key={n} delay={i * 80}>
-                <div className={`glass-${variant} rounded-3xl p-7 flex flex-col justify-between h-full space-y-6 shadow-glass-sm hover:-translate-y-1.5 transition-all duration-300 border border-[#C4B5FD]/16`}>
-                  <div className="flex items-center justify-between">
-                    <div className="w-10 h-10 rounded-2xl bg-[#252542] border border-[#C4B5FD]/20 flex items-center justify-center">
-                      <Icon className="w-5 h-5" style={{ color: accent }} />
-                    </div>
-                    <span className="font-mono text-xs font-bold text-[#9896B0]">{n}</span>
-                  </div>
-                  <div className="space-y-2">
-                    <h3 className="font-bold text-lg text-[#F5F3FF] tracking-tight">{title}</h3>
-                    <p className="text-sm text-[#C4C2D6] leading-relaxed">{body}</p>
-                  </div>
+            {/* Purposeful Architectural Flow Diagram */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 relative">
+              {/* Step 1: Charging Stations */}
+              <div className="p-7 rounded-2xl bg-[#14142B]/75 border border-[#C4B5FD]/14 space-y-4">
+                <div className="w-10 h-10 rounded-xl bg-[#252542] border border-[#C4B5FD]/20 flex items-center justify-center text-[#4DD9F0]">
+                  <Radio className="w-5 h-5" />
                 </div>
-              </ScrollReveal>
-            ))}
+                <div className="space-y-1.5">
+                  <div className="text-[10px] font-mono text-[#9896B0] uppercase">Tier 01</div>
+                  <h3 className="text-base font-bold text-[#F5F3FF]">Charging Stations</h3>
+                  <p className="text-xs text-[#C4C2D6] leading-relaxed">
+                    Physical field EVSE units initiating OCPP 2.0.1 handshakes and session tokens
+                    during vehicle connection.
+                  </p>
+                </div>
+                <div className="pt-2 text-[10px] font-mono text-[#4DD9F0]">OCPP 2.0.1 / ISO 15118</div>
+              </div>
+
+              {/* Step 2: Edge Gateways */}
+              <div className="p-7 rounded-2xl bg-[#14142B]/75 border border-[#C4B5FD]/14 space-y-4">
+                <div className="w-10 h-10 rounded-xl bg-[#252542] border border-[#C4B5FD]/20 flex items-center justify-center text-[#9B7BFF]">
+                  <Server className="w-5 h-5" />
+                </div>
+                <div className="space-y-1.5">
+                  <div className="text-[10px] font-mono text-[#9896B0] uppercase">Tier 02</div>
+                  <h3 className="text-base font-bold text-[#F5F3FF]">Edge Ingestion Gateways</h3>
+                  <p className="text-xs text-[#C4C2D6] leading-relaxed">
+                    Regional ingress endpoints terminating encrypted TLS connections and streaming
+                    raw authentication request metrics.
+                  </p>
+                </div>
+                <div className="pt-2 text-[10px] font-mono text-[#9B7BFF]">Mutual TLS / Ingress</div>
+              </div>
+
+              {/* Step 3: Security & ML Core */}
+              <div className="p-7 rounded-2xl bg-[#14142B]/75 border border-[#8055F6]/40 space-y-4 relative shadow-lg shadow-[#8055F6]/10">
+                <div className="w-10 h-10 rounded-xl bg-[#8055F6]/25 border border-[#8055F6]/50 flex items-center justify-center text-[#C4B5FD]">
+                  <Cpu className="w-5 h-5" />
+                </div>
+                <div className="space-y-1.5">
+                  <div className="text-[10px] font-mono text-[#9B7BFF] uppercase">Tier 03</div>
+                  <h3 className="text-base font-bold text-[#F5F3FF]">EVShield Security Core</h3>
+                  <p className="text-xs text-[#C4C2D6] leading-relaxed">
+                    Real-time volumetric traffic inspection, baseline comparison, and CICEV2023
+                    Random Forest threat classification.
+                  </p>
+                </div>
+                <div className="pt-2 text-[10px] font-mono text-[#34D399]">ML Anomaly Pipeline</div>
+              </div>
+
+              {/* Step 4: Fleet SOC Management */}
+              <div className="p-7 rounded-2xl bg-[#14142B]/75 border border-[#C4B5FD]/14 space-y-4">
+                <div className="w-10 h-10 rounded-xl bg-[#252542] border border-[#C4B5FD]/20 flex items-center justify-center text-[#34D399]">
+                  <Shield className="w-5 h-5" />
+                </div>
+                <div className="space-y-1.5">
+                  <div className="text-[10px] font-mono text-[#9896B0] uppercase">Tier 04</div>
+                  <h3 className="text-base font-bold text-[#F5F3FF]">Fleet SOC Console</h3>
+                  <p className="text-xs text-[#C4C2D6] leading-relaxed">
+                    Automated rate limiting enforcement, rogue token quarantine, and operator
+                    forensic timelines.
+                  </p>
+                </div>
+                <div className="pt-2 text-[10px] font-mono text-[#34D399]">Quarantine & Defense</div>
+              </div>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ── HOW PROTECTION WORKS (Pipeline) ───────────────────── */}
-      <section id="protection" className="py-24 px-4 sm:px-6">
-        <div className="max-w-6xl mx-auto space-y-12">
-          <ScrollReveal>
-            <div className="text-center space-y-3 max-w-2xl mx-auto">
-              <span className="font-mono text-xs font-semibold tracking-widest text-[#9B7BFF] uppercase">Pipeline</span>
-              <h2 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-[#F5F3FF]">
-                How EVShield detects threats.
+        {/* ── 4. Section B — How Protection Works ── */}
+        <section id="protection" className="py-28 px-6 sm:px-10 border-t border-[#C4B5FD]/10">
+          <div className="max-w-6xl mx-auto space-y-16">
+            <div className="max-w-2xl space-y-3">
+              <span className="text-[11px] font-mono tracking-widest text-[#9B7BFF] uppercase">
+                Defense Lifecycle
+              </span>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-[#F5F3FF]">
+                How protection works.
               </h2>
-              <p className="text-[#C4C2D6]">From raw charging station authentication traffic to actionable security alerts in seconds.</p>
+              <p className="text-sm sm:text-base text-[#C4C2D6] leading-relaxed">
+                Three compact stages safeguard critical charging hardware from denial-of-service
+                authentication bursts.
+              </p>
             </div>
-          </ScrollReveal>
 
-          <ScrollReveal delay={100}>
-            <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-              {pipeline.map((p, i) => (
-                <div
-                  key={p.label}
-                  className="glass-card rounded-2xl p-5 space-y-3 shadow-glass-sm relative overflow-hidden"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono text-xs font-bold text-[#9B7BFF]">STEP 0{i + 1}</span>
-                    <CheckCircle2 className="w-4 h-4 text-[#34D399]" />
-                  </div>
-                  <div className="space-y-1">
-                    <div className="font-bold text-sm text-[#F5F3FF]">{p.label}</div>
-                    <div className="text-xs text-[#9896B0] leading-relaxed">{p.sub}</div>
-                  </div>
+            {/* Three Compact Stages Connected by Clean Editorial Geometry */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {/* Stage 1: Monitor */}
+              <div className="p-8 rounded-2xl bg-[#14142B]/70 border border-[#C4B5FD]/14 space-y-5">
+                <div className="flex items-center justify-between">
+                  <span className="text-2xl font-bold font-mono text-[#9B7BFF]">01</span>
+                  <Activity className="w-5 h-5 text-[#4DD9F0]" />
                 </div>
-              ))}
-            </div>
-          </ScrollReveal>
-        </div>
-      </section>
+                <div className="space-y-2">
+                  <h3 className="text-lg font-bold text-[#F5F3FF]">Monitor</h3>
+                  <p className="text-xs sm:text-sm text-[#C4C2D6] leading-relaxed">
+                    Observe charging authentication throughput in real time across all regional
+                    gateways, continuously comparing incoming request rates against expected
+                    operational baselines (12 req/s).
+                  </p>
+                </div>
+              </div>
 
-      {/* ── INFRASTRUCTURE MAP (Conceptual) ──────────────────── */}
-      <section id="infra" className="py-24 px-4 sm:px-6">
-        <div className="max-w-6xl mx-auto space-y-12">
-          <ScrollReveal>
-            <div className="text-center space-y-3 max-w-2xl mx-auto">
-              <span className="font-mono text-xs font-semibold tracking-widest text-[#9B7BFF] uppercase">Infrastructure</span>
-              <h2 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-[#F5F3FF]">
-                Protected EV charging hubs.
+              {/* Stage 2: Detect */}
+              <div className="p-8 rounded-2xl bg-[#14142B]/70 border border-[#C4B5FD]/14 space-y-5">
+                <div className="flex items-center justify-between">
+                  <span className="text-2xl font-bold font-mono text-[#9B7BFF]">02</span>
+                  <Cpu className="w-5 h-5 text-[#9B7BFF]" />
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-lg font-bold text-[#F5F3FF]">Detect</h3>
+                  <p className="text-xs sm:text-sm text-[#C4C2D6] leading-relaxed">
+                    Identify abnormal patterns using the trained machine learning pipeline. The
+                    inference model evaluates burst intensity and handshake retries to flag
+                    volumetric DDoS attacks before stations degrade.
+                  </p>
+                </div>
+              </div>
+
+              {/* Stage 3: Respond */}
+              <div className="p-8 rounded-2xl bg-[#14142B]/70 border border-[#C4B5FD]/14 space-y-5">
+                <div className="flex items-center justify-between">
+                  <span className="text-2xl font-bold font-mono text-[#9B7BFF]">03</span>
+                  <Lock className="w-5 h-5 text-[#34D399]" />
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-lg font-bold text-[#F5F3FF]">Respond</h3>
+                  <p className="text-xs sm:text-sm text-[#C4C2D6] leading-relaxed">
+                    Trigger automated mitigation workflows. Enforce gateway rate limits, isolate
+                    compromised tokens, and generate comprehensive forensic audit dossiers for
+                    security analysts.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── 5. Section C — Security Capabilities ── */}
+        <section id="ml-detection" className="py-28 px-6 sm:px-10 border-t border-[#C4B5FD]/10">
+          <div className="max-w-6xl mx-auto space-y-16">
+            <div className="max-w-2xl space-y-3">
+              <span className="text-[11px] font-mono tracking-widest text-[#9B7BFF] uppercase">
+                Platform Capabilities
+              </span>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-[#F5F3FF]">
+                Engineered for critical charging operations.
               </h2>
-              <p className="text-[#C4C2D6]">Simulated regional charging hub nodes actively reporting authentication traffic telemetry.</p>
+              <p className="text-sm sm:text-base text-[#C4C2D6] leading-relaxed">
+                Purpose-built cybersecurity capabilities addressing the unique protocol and
+                volumetric constraints of EV charging infrastructure.
+              </p>
             </div>
-          </ScrollReveal>
 
-          <ScrollReveal delay={100}>
-            <div className="glass-card rounded-[36px] p-8 sm:p-12 shadow-glass border border-[#C4B5FD]/16">
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-                {cities.map(c => (
-                  <div key={c.name} className={`${c.bg} rounded-2xl p-4 text-center space-y-1 border border-[#C4B5FD]/16`}>
-                    <div className="font-bold text-sm text-[#F5F3FF]">{c.name}</div>
-                    <div className="font-mono text-xs text-[#4DD9F0]">{c.nodes} stations</div>
-                    <div className="flex items-center justify-center gap-1 text-[10px] text-[#34D399]">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#34D399] animate-pulse" />
-                      Active
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <p className="text-center text-xs text-[#9896B0] mt-6 font-mono">Conceptual visualization — synthetic infrastructure telemetry</p>
-            </div>
-          </ScrollReveal>
-        </div>
-      </section>
-
-      {/* ── SECURITY EVENTS ────────────────────────────────────── */}
-      <section className="py-24 px-4 sm:px-6">
-        <div className="max-w-6xl mx-auto space-y-10">
-          <ScrollReveal>
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-              <div className="space-y-2">
-                <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#F5F3FF]">
-                  See threats as they happen.
-                </h2>
-                <p className="text-[#C4C2D6]">Historical security scenario timeline — demo records.</p>
-              </div>
-              <StatusChip label="DEMO SCENARIO LOG" variant="demo" />
-            </div>
-          </ScrollReveal>
-
-          <ScrollReveal delay={150}>
-            <div className="flex gap-5 overflow-x-auto pb-4 snap-x snap-mandatory">
-              {events.map(({ tag, variant, glassVariant, time, text }) => (
-                <div
-                  key={tag}
-                  className={`glass-${glassVariant} rounded-3xl p-7 shrink-0 w-72 sm:w-80 snap-start space-y-4 shadow-glass-sm hover:-translate-y-1 transition-all duration-300 border border-[#C4B5FD]/16`}
-                >
-                  <div className="flex items-center justify-between">
-                    <StatusChip label={tag} variant={variant} />
-                    <span className="font-mono text-xs text-[#C4B5FD] font-bold">{time}</span>
-                  </div>
-                  <p className="text-sm text-[#C4C2D6] leading-relaxed">{text}</p>
-                </div>
-              ))}
-            </div>
-          </ScrollReveal>
-        </div>
-      </section>
-
-      {/* ── FINAL CTA ─────────────────────────────────────────── */}
-      <section className="py-24 px-4 sm:px-6">
-        <div className="max-w-4xl mx-auto">
-          <ScrollReveal>
-            <div className="glass-cream rounded-[40px] p-12 sm:p-16 text-center space-y-8 relative overflow-hidden shadow-glass border border-[#C4B5FD]/20">
-              <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-64 h-64 bg-[#8055F6]/15 rounded-full blur-3xl pointer-events-none" />
-              <div className="absolute -bottom-20 left-1/4 w-48 h-48 bg-[#9B7BFF]/10 rounded-full blur-3xl pointer-events-none" />
-
-              <div className="relative z-10 space-y-6">
-                <h2 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-[#F5F3FF]">
-                  Ready to secure the electric future?
-                </h2>
-                <p className="text-lg text-[#C4C2D6] max-w-xl mx-auto leading-relaxed">
-                  Enter the EVShield security console and explore the charging infrastructure protection layer.
+            {/* Editorial Grid with Restrained Dividers */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* Capability 1 */}
+              <div className="p-7 rounded-2xl bg-[#14142B]/60 border border-[#C4B5FD]/12 space-y-3 hover:border-[#4DD9F0]/30 transition-colors">
+                <div className="text-[10px] font-mono text-[#4DD9F0] uppercase">Telemetry</div>
+                <h3 className="text-base font-bold text-[#F5F3FF]">
+                  Authentication Traffic Monitoring
+                </h3>
+                <p className="text-xs text-[#C4C2D6] leading-relaxed">
+                  Real-time throughput metrics tracking authentication requests per second against
+                  expected baselines and alert thresholds.
                 </p>
-                <button onClick={enter} className="btn-primary rounded-xl text-sm py-3.5 px-8 mx-auto">
-                  ACCESS SOC CONSOLE
-                  <ArrowRight className="w-4 h-4" />
-                </button>
+              </div>
+
+              {/* Capability 2 */}
+              <div className="p-7 rounded-2xl bg-[#14142B]/60 border border-[#C4B5FD]/12 space-y-3 hover:border-[#9B7BFF]/30 transition-colors">
+                <div className="text-[10px] font-mono text-[#9B7BFF] uppercase">Machine Learning</div>
+                <h3 className="text-base font-bold text-[#F5F3FF]">
+                  Volumetric DDoS Detection
+                </h3>
+                <p className="text-xs text-[#C4C2D6] leading-relaxed">
+                  Supervised Random Forest classification model trained on empirical CICEV2023 EV
+                  charging attack traffic datasets.
+                </p>
+              </div>
+
+              {/* Capability 3 */}
+              <div className="p-7 rounded-2xl bg-[#14142B]/60 border border-[#C4B5FD]/12 space-y-3 hover:border-[#34D399]/30 transition-colors">
+                <div className="text-[10px] font-mono text-[#34D399] uppercase">Network</div>
+                <h3 className="text-base font-bold text-[#F5F3FF]">
+                  Charging Network Mesh Visibility
+                </h3>
+                <p className="text-xs text-[#C4C2D6] leading-relaxed">
+                  Centralized topology visualizing regional hubs, operational states, active
+                  stations, and encrypted interconnects.
+                </p>
+              </div>
+
+              {/* Capability 4 */}
+              <div className="p-7 rounded-2xl bg-[#14142B]/60 border border-[#C4B5FD]/12 space-y-3 hover:border-[#FBBF24]/30 transition-colors">
+                <div className="text-[10px] font-mono text-[#FBBF24] uppercase">Forensics</div>
+                <h3 className="text-base font-bold text-[#F5F3FF]">
+                  Incident Dossiers & Attack Logs
+                </h3>
+                <p className="text-xs text-[#C4C2D6] leading-relaxed">
+                  Historical attack logs detailing peak rates, affected infrastructure nodes,
+                  timeline sequences, and ML confidence levels.
+                </p>
+              </div>
+
+              {/* Capability 5 */}
+              <div className="p-7 rounded-2xl bg-[#14142B]/60 border border-[#C4B5FD]/12 space-y-3 hover:border-[#FB7185]/30 transition-colors">
+                <div className="text-[10px] font-mono text-[#FB7185] uppercase">Mitigation</div>
+                <h3 className="text-base font-bold text-[#F5F3FF]">
+                  Automated Quarantine & Recovery
+                </h3>
+                <p className="text-xs text-[#C4C2D6] leading-relaxed">
+                  Dynamic rate limiting policies and token quarantine workflows that restore
+                  degraded charging gateways to nominal operation.
+                </p>
+              </div>
+
+              {/* Capability 6 */}
+              <div className="p-7 rounded-2xl bg-[#14142B]/60 border border-[#C4B5FD]/12 space-y-3 hover:border-[#38BDF8]/30 transition-colors">
+                <div className="text-[10px] font-mono text-[#38BDF8] uppercase">Governance</div>
+                <h3 className="text-base font-bold text-[#F5F3FF]">
+                  Role-Based Security Operations
+                </h3>
+                <p className="text-xs text-[#C4C2D6] leading-relaxed">
+                  Fine-grained operational roles for SOC Administrators, Security Analysts, and
+                  Incident Operators with full audit tracking.
+                </p>
               </div>
             </div>
-          </ScrollReveal>
-        </div>
-      </section>
-
-      {/* ── FOOTER ────────────────────────────────────────────── */}
-      <footer className="border-t border-[#C4B5FD]/12 py-12 px-4 sm:px-6">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-8">
-          <div className="space-y-2">
-            <EVShieldLogo size="sm" />
-            <p className="text-xs text-[#9896B0]">Intelligent security for EV infrastructure.</p>
           </div>
+        </section>
 
-          <div className="flex flex-wrap gap-6 text-sm text-[#C4C2D6]">
-            {['Platform', 'Security', 'ML Detection', 'Infrastructure'].map(l => (
-              <a key={l} href={`#${l.toLowerCase()}`} className="hover:text-[#F5F3FF] transition-colors">{l}</a>
-            ))}
-            <Link to="/login" className="hover:text-[#9B7BFF] transition-colors font-semibold">
-              SOC Login
-            </Link>
-          </div>
+        {/* ── 6. Section D — Infrastructure Visibility ── */}
+        <section id="infrastructure" className="py-28 px-6 sm:px-10 border-t border-[#C4B5FD]/10">
+          <div className="max-w-6xl mx-auto space-y-16">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+              <div className="max-w-2xl space-y-3">
+                <span className="text-[11px] font-mono tracking-widest text-[#9B7BFF] uppercase">
+                  Regional Hubs
+                </span>
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-[#F5F3FF]">
+                  Infrastructure visibility.
+                </h2>
+                <p className="text-sm sm:text-base text-[#C4C2D6] leading-relaxed">
+                  Operators maintain real-time situational awareness across monitored regional
+                  charging hubs and connected field stations.
+                </p>
+              </div>
 
-          <div className="flex items-center gap-3">
-            <StatusChip label="SYSTEM OPERATIONAL" variant="live" dot pulse />
-            <StatusChip label="DEMO ENV" variant="demo" />
+              <button
+                type="button"
+                onClick={handleOpenConsole}
+                className="text-xs font-mono text-[#C4B5FD] hover:text-[#F5F3FF] flex items-center gap-1.5 transition-colors shrink-0"
+              >
+                <span>Inspect full topology in console</span>
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Monitored Regional Charging Gateways */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+              {[
+                { name: 'Mumbai Central Hub', stations: 312, code: 'BOM-01', health: '99.8%' },
+                { name: 'Delhi NCR Gateway', stations: 284, code: 'DEL-01', health: '99.5%' },
+                { name: 'Bengaluru Tech Corridor', stations: 256, code: 'BLR-01', health: '99.9%' },
+                { name: 'Hyderabad Cyber City', stations: 218, code: 'HYD-01', health: '99.4%' },
+                { name: 'Pune Express Cluster', stations: 178, code: 'PUN-01', health: '99.7%' },
+              ].map((hub) => (
+                <div
+                  key={hub.name}
+                  className="p-5 rounded-2xl bg-[#14142B]/75 border border-[#C4B5FD]/12 space-y-3 hover:border-[#8055F6]/40 transition-colors"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-mono text-[#9896B0]">{hub.code}</span>
+                    <span className="flex items-center gap-1 text-[10px] font-mono text-[#34D399]">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#34D399] inline-block" />
+                      Active
+                    </span>
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-[#F5F3FF] leading-snug">{hub.name}</h3>
+                    <p className="text-xs font-mono text-[#4DD9F0] mt-1">{hub.stations} stations</p>
+                  </div>
+                  <div className="pt-2 border-t border-[#C4B5FD]/10 flex items-center justify-between text-[10px] font-mono text-[#9896B0]">
+                    <span>Health</span>
+                    <span className="text-[#F5F3FF]">{hub.health}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      </footer>
+        </section>
+
+        {/* ── 7. Section E — Final Call to Action ── */}
+        <section className="py-32 px-6 sm:px-10 border-t border-[#C4B5FD]/10 relative overflow-hidden">
+          <div className="max-w-3xl mx-auto text-center space-y-7 relative z-10">
+            <h2 className="text-3xl sm:text-5xl font-bold tracking-tight text-[#F5F3FF] leading-tight">
+              Keep charging infrastructure secure.
+            </h2>
+            <p className="text-base sm:text-lg text-[#C4C2D6] leading-relaxed max-w-xl mx-auto">
+              Enter the EVShield security console to access live telemetry, ML anomaly detection,
+              and charging network defense.
+            </p>
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={handleOpenConsole}
+                className="px-7 py-3.5 rounded-lg bg-[#8055F6] hover:bg-[#7043EA] text-[#F5F3FF] text-xs sm:text-sm font-semibold tracking-wide transition-all shadow-xl shadow-[#8055F6]/25 inline-flex items-center gap-2 group"
+              >
+                <span>Open Security Console</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {/* ── 8. Minimalist Footer ── */}
+        <footer className="border-t border-[#C4B5FD]/10 py-10 px-6 sm:px-10 bg-[#0B0B14]">
+          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-3">
+              <EVShieldLogo size="sm" variant="mark" showSubtitle={false} />
+              <span className="text-xs text-[#9896B0] font-mono">
+                © {new Date().getFullYear()} EVShield. EV Charging Infrastructure Cybersecurity.
+              </span>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-6 text-xs text-[#C4C2D6]">
+              {navLinks.map((link) => (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  className="hover:text-[#F5F3FF] transition-colors"
+                >
+                  {link.label}
+                </a>
+              ))}
+              <button
+                type="button"
+                onClick={handleOpenConsole}
+                className="hover:text-[#9B7BFF] transition-colors font-medium"
+              >
+                Console Login
+              </button>
+            </div>
+          </div>
+        </footer>
       </div>
     </div>
   );
 };
+
+export default LandingPage;
