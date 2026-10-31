@@ -8,8 +8,10 @@ import { useSecurity } from '../context/SecurityContext';
 import {
   Brain, Shield, Server, Play, Square,
   Monitor, RefreshCw, Info, CheckCircle2, XCircle,
-  Gauge, FlaskConical,
+  Gauge, FlaskConical, Globe, Key, Database,
 } from 'lucide-react';
+import { incidentService, ThreatIntelConfig } from '../services/incidentService';
+import { ThreatIntelResult } from '../types/incident';
 
 /* ─── Small toggle component ─────────────────────────────── */
 const Toggle: React.FC<{
@@ -99,13 +101,34 @@ const StatusDot: React.FC<{ ok: boolean; label: string }> = ({ ok, label }) => (
 /* ─── Settings Page ──────────────────────────────────────── */
 export const SettingsPage: React.FC = () => {
   const { isAttackMode, toggleDDoSAttack } = useSecurity();
-  const [activeTab, setActiveTab] = useState<'preferences' | 'system'>('preferences');
+  const [activeTab, setActiveTab] = useState<'preferences' | 'system' | 'threat-intel'>('preferences');
 
   /* Live system status */
   const [mlStatus, setMlStatus] = useState<MLModelStatus | null>(null);
   const [health, setHealth] = useState<HealthCheckStatus | null>(null);
   const [isLoadingSystem, setIsLoadingSystem] = useState(true);
   const [systemError, setSystemError] = useState<string | null>(null);
+
+  /* Threat Intelligence Configuration */
+  const [tiConfig, setTiConfig] = useState<ThreatIntelConfig | null>(null);
+  const [abuseIpDbKeyInput, setAbuseIpDbKeyInput] = useState('');
+  const [virusTotalKeyInput, setVirusTotalKeyInput] = useState('');
+  const [tiEnabled, setTiEnabled] = useState(true);
+  const [isSavingTI, setIsSavingTI] = useState(false);
+  const [tiMessage, setTiMessage] = useState<string | null>(null);
+  const [testIndicator, setTestIndicator] = useState('185.220.101.5');
+  const [isTestingTI, setIsTestingTI] = useState(false);
+  const [testResult, setTestResult] = useState<ThreatIntelResult | null>(null);
+
+  const fetchThreatIntelConfig = useCallback(async () => {
+    try {
+      const cfg = await incidentService.getThreatIntelConfig();
+      setTiConfig(cfg);
+      setTiEnabled(cfg.enabled);
+    } catch (err) {
+      console.warn('Unable to load threat intelligence config:', err);
+    }
+  }, []);
 
   /* localStorage-persisted frontend settings */
   const [reducedMotion, setReducedMotion] = useState(
@@ -169,7 +192,43 @@ export const SettingsPage: React.FC = () => {
 
   useEffect(() => {
     fetchSystemStatus();
-  }, [fetchSystemStatus]);
+    fetchThreatIntelConfig();
+  }, [fetchSystemStatus, fetchThreatIntelConfig]);
+
+  const handleSaveThreatIntel = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      setIsSavingTI(true);
+      setTiMessage(null);
+      await incidentService.updateThreatIntelConfig({
+        abuseIpDbKey: abuseIpDbKeyInput.trim() || undefined,
+        virusTotalKey: virusTotalKeyInput.trim() || undefined,
+        enableThreatIntel: tiEnabled,
+      });
+      setTiMessage('Threat Intelligence configuration updated successfully.');
+      setAbuseIpDbKeyInput('');
+      setVirusTotalKeyInput('');
+      await fetchThreatIntelConfig();
+    } catch (err: any) {
+      setTiMessage(`Failed to update config: ${err.message}`);
+    } finally {
+      setIsSavingTI(false);
+    }
+  };
+
+  const handleTestIndicator = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!testIndicator.trim()) return;
+    try {
+      setIsTestingTI(true);
+      const res = await incidentService.lookupThreatIntel(testIndicator.trim());
+      setTestResult(res);
+    } catch (err: any) {
+      console.error('Test indicator lookup failed:', err);
+    } finally {
+      setIsTestingTI(false);
+    }
+  };
 
   return (
     <AppLayout pageTitle="SOC Settings">
@@ -231,6 +290,19 @@ export const SettingsPage: React.FC = () => {
           >
             <Server className="w-3.5 h-3.5" />
             <span>Engine &amp; System Status</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('threat-intel')}
+            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+              activeTab === 'threat-intel'
+                ? 'bg-[#8055F6] text-white shadow-md shadow-[#8055F6]/30 font-bold'
+                : 'text-[#C4C2D6] hover:text-[#F5F3FF] hover:bg-[#252542]'
+            }`}
+          >
+            <Globe className="w-3.5 h-3.5" />
+            <span>Threat Intelligence</span>
           </button>
         </div>
 
@@ -420,6 +492,134 @@ export const SettingsPage: React.FC = () => {
                 </div>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Tab 3: Threat Intelligence Integration */}
+        {activeTab === 'threat-intel' && (
+          <div className="space-y-4 animate-fade-in">
+            {tiMessage && (
+              <div className="p-3.5 rounded-2xl bg-[#8055F6]/15 border border-[#8055F6]/30 text-xs font-mono text-[#C4B5FD] flex items-center justify-between">
+                <span>{tiMessage}</span>
+                <button onClick={() => setTiMessage(null)} className="text-[#9896B0] hover:text-[#F5F3FF]">✕</button>
+              </div>
+            )}
+
+            {/* Provider Status */}
+            <Section icon={<Globe className="w-4 h-4" />} title="Threat Intelligence Providers">
+              <Toggle
+                id="threat-intel-master"
+                label="Enable Threat Intelligence Enrichment"
+                description="Enrich anomaly indicators (IPs, domains) during incident correlation and evidence inspection."
+                on={tiEnabled}
+                onChange={setTiEnabled}
+              />
+              <div className="flex items-center justify-between py-3">
+                <span className="text-xs font-mono font-semibold text-[#9896B0] uppercase tracking-wide">AbuseIPDB API</span>
+                <StatusDot
+                  ok={tiConfig?.abuseIpDbConfigured ?? false}
+                  label={tiConfig?.abuseIpDbConfigured ? 'KEY CONFIGURED' : 'NOT CONFIGURED'}
+                />
+              </div>
+              <div className="flex items-center justify-between py-3">
+                <span className="text-xs font-mono font-semibold text-[#9896B0] uppercase tracking-wide">VirusTotal API</span>
+                <StatusDot
+                  ok={tiConfig?.virusTotalConfigured ?? false}
+                  label={tiConfig?.virusTotalConfigured ? 'KEY CONFIGURED' : 'NOT CONFIGURED'}
+                />
+              </div>
+              <InfoRow label="Cache TTL" value={`${tiConfig?.cacheTtlMinutes ?? 60} Minutes (In-Memory)`} />
+              <InfoRow label="RFC 1918 Filter" value="Enabled (Private Subnet Bypass)" />
+            </Section>
+
+            {/* API Credentials Configuration */}
+            <Section icon={<Key className="w-4 h-4" />} title="API Credentials (Admin Only)">
+              <form onSubmit={handleSaveThreatIntel} className="space-y-4 pt-2">
+                <div>
+                  <label className="block text-xs font-mono text-[#9896B0] mb-1">AbuseIPDB API Key</label>
+                  <input
+                    type="password"
+                    value={abuseIpDbKeyInput}
+                    onChange={(e) => setAbuseIpDbKeyInput(e.target.value)}
+                    placeholder={tiConfig?.abuseIpDbConfigured ? '•••••••••••••••••••• (Leave blank to keep existing)' : 'Enter AbuseIPDB API key...'}
+                    className="w-full px-3 py-2 rounded-xl bg-[#252542] border border-[#C4B5FD]/25 text-xs font-mono text-[#F5F3FF] focus:outline-none focus:border-[#8055F6]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono text-[#9896B0] mb-1">VirusTotal API Key</label>
+                  <input
+                    type="password"
+                    value={virusTotalKeyInput}
+                    onChange={(e) => setVirusTotalKeyInput(e.target.value)}
+                    placeholder={tiConfig?.virusTotalConfigured ? '•••••••••••••••••••• (Leave blank to keep existing)' : 'Enter VirusTotal API key...'}
+                    className="w-full px-3 py-2 rounded-xl bg-[#252542] border border-[#C4B5FD]/25 text-xs font-mono text-[#F5F3FF] focus:outline-none focus:border-[#8055F6]"
+                  />
+                </div>
+
+                <div className="flex justify-end pt-2">
+                  <button
+                    type="submit"
+                    disabled={isSavingTI}
+                    className="px-4 py-2 rounded-xl text-xs font-mono font-medium text-white bg-[#8055F6] hover:bg-[#6D3DF3] shadow-md transition-colors disabled:opacity-50"
+                  >
+                    {isSavingTI ? 'Saving...' : 'Save Threat Intelligence Settings'}
+                  </button>
+                </div>
+              </form>
+            </Section>
+
+            {/* Test Indicator Lookup Sandbox */}
+            <Section icon={<Database className="w-4 h-4" />} title="Threat Intelligence Test Sandbox">
+              <div className="py-2 space-y-3">
+                <p className="text-xs text-[#C4C2D6]">
+                  Query any public IP or private test address against the active threat intelligence pipeline to test caching and provider responses.
+                </p>
+
+                <form onSubmit={handleTestIndicator} className="flex gap-2">
+                  <input
+                    type="text"
+                    value={testIndicator}
+                    onChange={(e) => setTestIndicator(e.target.value)}
+                    placeholder="Enter indicator (e.g. 185.220.101.5 or 192.168.1.1)..."
+                    className="flex-1 px-3 py-2 rounded-xl bg-[#252542] border border-[#C4B5FD]/25 text-xs font-mono text-[#F5F3FF] focus:outline-none focus:border-[#8055F6]"
+                  />
+                  <button
+                    type="submit"
+                    disabled={isTestingTI || !testIndicator.trim()}
+                    className="px-4 py-2 rounded-xl text-xs font-mono font-medium text-[#C4B5FD] bg-[#8055F6]/20 hover:bg-[#8055F6]/30 border border-[#8055F6]/40 transition-colors disabled:opacity-50"
+                  >
+                    {isTestingTI ? 'Looking up...' : 'Test Lookup'}
+                  </button>
+                </form>
+
+                {testResult && (
+                  <div className="p-3.5 rounded-xl bg-[#252542] border border-[#C4B5FD]/20 space-y-2 text-xs font-mono">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-[#F5F3FF]">{testResult.indicator}</span>
+                      <span
+                        className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
+                          testResult.reputation === 'MALICIOUS'
+                            ? 'bg-[#FB7185]/20 text-[#FB7185] border-[#FB7185]/40'
+                            : testResult.reputation === 'SUSPICIOUS'
+                            ? 'bg-[#FBBF24]/20 text-[#FBBF24] border-[#FBBF24]/40'
+                            : 'bg-[#34D399]/20 text-[#34D399] border-[#34D399]/40'
+                        }`}
+                      >
+                        {testResult.reputation} ({testResult.confidence}%)
+                      </span>
+                    </div>
+                    <p className="text-[#C4C2D6] font-sans">{testResult.details}</p>
+                    <div className="flex items-center gap-4 text-[10px] text-[#9896B0] pt-1 border-t border-[#C4B5FD]/10">
+                      <span>Provider: {testResult.provider}</span>
+                      <span>Status: {testResult.status}</span>
+                      {testResult.country && <span>Country: {testResult.country}</span>}
+                      {testResult.asn && <span>ASN: {testResult.asn}</span>}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </Section>
           </div>
         )}
 

@@ -1,7 +1,8 @@
 import React from 'react';
-import { Menu, Bell, Play, Square } from 'lucide-react';
+import { Menu, Play, Square } from 'lucide-react';
 import { useSecurity } from '../../context/SecurityContext';
 import { ProfileDropdown } from './ProfileDropdown';
+import { NotificationCenter } from '../notifications/NotificationCenter';
 
 interface TopbarProps {
   title: string;
@@ -11,7 +12,6 @@ interface TopbarProps {
 export const Topbar: React.FC<TopbarProps> = ({ title, onOpenMobileSidebar }) => {
   const {
     toggleDDoSAttack,
-    notifications,
     detectionStatus,
     simulationLifecycle,
     simulationMode,
@@ -89,18 +89,8 @@ export const Topbar: React.FC<TopbarProps> = ({ title, onOpenMobileSidebar }) =>
           </span>
         </div>
 
-        {/* Notification Bell */}
-        <div className="relative">
-          <button
-            className="h-9 w-9 rounded-xl flex items-center justify-center bg-[#17172B]/50 hover:bg-[#17172B]/80 border border-[#C4B5FD]/16 hover:border-[#C4B5FD]/30 text-[#C4C2D6] hover:text-[#F5F3FF] transition-all backdrop-blur-md"
-            aria-label="Notifications"
-          >
-            <Bell className="w-4 h-4 text-[#C4B5FD]" />
-            {notifications.length > 0 && (
-              <span className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-[#FB7185]" />
-            )}
-          </button>
-        </div>
+        {/* Notification Center */}
+        <NotificationCenter />
 
         {/* Profile Dropdown */}
         <ProfileDropdown />

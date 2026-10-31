@@ -144,3 +144,6 @@ export interface SecurityContextType {
   updateThresholds: (config: Partial<DetectionThresholdsConfig>) => Promise<void>;
   resetBaseline: () => Promise<void>;
 }
+
+export * from './incident';
+

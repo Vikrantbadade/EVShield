@@ -63,6 +63,7 @@ function computeDuration(start: Date, end: Date | null): string {
 }
 
 import { telemetryService } from './telemetry.service.js';
+import { incidentStorageService } from './incident-storage.service.js';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Row type (Prisma findMany return shape)
@@ -145,17 +146,55 @@ export class AttackService {
       ];
     }
 
-    const [total, rows] = await Promise.all([
-      db.attackIncident.count({ where }),
-      db.attackIncident.findMany({
-        where,
-        orderBy: { startTime: 'desc' },
-        skip: (page - 1) * pageSize,
-        take: pageSize,
-      }),
-    ]);
+    let total = 0;
+    let rows: AttackRow[] = [];
+    try {
+      [total, rows] = await Promise.all([
+        db.attackIncident.count({ where }),
+        db.attackIncident.findMany({
+          where,
+          orderBy: { startTime: 'desc' },
+          skip: (page - 1) * pageSize,
+          take: pageSize,
+        }),
+      ]);
+    } catch {
+      // Fallback to persisted incident storage if PostgreSQL is offline
+      const stored = incidentStorageService.getAllIncidents();
+      total = stored.length;
+    }
 
-    let items = rows.map(toAttackIncident);
+    let items = rows.length > 0 ? rows.map(toAttackIncident) : incidentStorageService.getAllIncidents().map((inc) => ({
+      id: inc.id,
+      timestamp: inc.createdAt,
+      startTime: inc.firstDetectedAt,
+      endTime: inc.resolvedAt,
+      duration: 'Ongoing',
+      status: inc.status === 'CONTAINED' ? 'MITIGATED' as const : inc.status === 'RESOLVED' || inc.status === 'CLOSED' ? 'RESOLVED' as const : 'DETECTED' as const,
+      severity: inc.severity,
+      attackType: (inc.category === 'COMBINED_ANOMALY' || inc.category === 'DDOS' ? 'DDOS' : 'TRAFFIC_ANOMALY') as any,
+      attackTypeLabel: inc.categoryLabel,
+      classification: 'ATTACK' as const,
+      mlConfidence: Math.round(inc.confidence * 1000) / 10,
+      requestsPerSecond: 95,
+      baselineRequestsPerSecond: 12,
+      peakRequestsPerSecond: 110,
+      affectedNodes: inc.affectedStations.length * 12,
+      affectedStations: inc.affectedStations.map((st) => ({
+        id: st,
+        name: `Terminal ${st}`,
+        location: 'Charging Zone',
+        status: inc.status === 'CONTAINED' || inc.status === 'RESOLVED' ? 'PROTECTED' as const : 'UNDER ATTACK' as const,
+        requestsPerSec: 95,
+      })),
+      sourceCategory: 'External Ingress Attack',
+      targetInfrastructure: inc.targetInfrastructure,
+      mitigationStatus: inc.status === 'CONTAINED' ? 'CONTAINED' : inc.status === 'RESOLVED' ? 'RESOLVED' : 'PENDING',
+      mitigationTime: '15s',
+      description: inc.description,
+      detectionSummary: inc.rootCauseAnalysis || inc.description,
+      isDemo: true,
+    }));
 
     // Merge live active incident from telemetryService if active and not already in items
     const active = telemetryService.getActiveIncident();
@@ -180,10 +219,48 @@ export class AttackService {
     if (id === 'current' || id === 'latest') {
       if (active) return active;
       if (last) return last;
-      const latestRow = await db.attackIncident.findFirst({
-        orderBy: { startTime: 'desc' },
-      });
-      return latestRow ? toAttackIncident(latestRow) : null;
+      try {
+        const latestRow = await db.attackIncident.findFirst({
+          orderBy: { startTime: 'desc' },
+        });
+        if (latestRow) return toAttackIncident(latestRow);
+      } catch {}
+      const allIncidents = incidentStorageService.getAllIncidents();
+      if (allIncidents.length > 0) {
+        const inc = allIncidents[0];
+        return {
+          id: inc.id,
+          timestamp: inc.createdAt,
+          startTime: inc.firstDetectedAt,
+          endTime: inc.resolvedAt,
+          duration: 'Ongoing',
+          status: inc.status === 'CONTAINED' ? 'MITIGATED' : inc.status === 'RESOLVED' || inc.status === 'CLOSED' ? 'RESOLVED' : 'DETECTED',
+          severity: inc.severity,
+          attackType: (inc.category === 'COMBINED_ANOMALY' || inc.category === 'DDOS' ? 'DDOS' : 'TRAFFIC_ANOMALY') as any,
+          attackTypeLabel: inc.categoryLabel,
+          classification: 'ATTACK',
+          mlConfidence: Math.round(inc.confidence * 1000) / 10,
+          requestsPerSecond: 95,
+          baselineRequestsPerSecond: 12,
+          peakRequestsPerSecond: 110,
+          affectedNodes: inc.affectedStations.length * 12,
+          affectedStations: inc.affectedStations.map((st) => ({
+            id: st,
+            name: `Terminal ${st}`,
+            location: 'Charging Zone',
+            status: inc.status === 'CONTAINED' || inc.status === 'RESOLVED' ? 'PROTECTED' as const : 'UNDER ATTACK' as const,
+            requestsPerSec: 95,
+          })),
+          sourceCategory: 'External Ingress Attack',
+          targetInfrastructure: inc.targetInfrastructure,
+          mitigationStatus: inc.status === 'CONTAINED' ? 'CONTAINED' : inc.status === 'RESOLVED' ? 'RESOLVED' : 'PENDING',
+          mitigationTime: '15s',
+          description: inc.description,
+          detectionSummary: inc.rootCauseAnalysis || inc.description,
+          isDemo: true,
+        };
+      }
+      return null;
     }
 
     if (active && active.id === id) {
@@ -194,11 +271,47 @@ export class AttackService {
       return last;
     }
 
-    const row = await db.attackIncident.findUnique({
-      where: { incidentId: id },
-    });
-    if (!row) return null;
-    return toAttackIncident(row);
+    try {
+      const row = await db.attackIncident.findUnique({
+        where: { incidentId: id },
+      });
+      if (row) return toAttackIncident(row);
+    } catch {}
+
+    const inc = incidentStorageService.getIncidentById(id);
+    if (!inc) return null;
+
+    return {
+      id: inc.id,
+      timestamp: inc.createdAt,
+      startTime: inc.firstDetectedAt,
+      endTime: inc.resolvedAt,
+      duration: 'Ongoing',
+      status: inc.status === 'CONTAINED' ? 'MITIGATED' : inc.status === 'RESOLVED' || inc.status === 'CLOSED' ? 'RESOLVED' : 'DETECTED',
+      severity: inc.severity,
+      attackType: (inc.category === 'COMBINED_ANOMALY' || inc.category === 'DDOS' ? 'DDOS' : 'TRAFFIC_ANOMALY') as any,
+      attackTypeLabel: inc.categoryLabel,
+      classification: 'ATTACK',
+      mlConfidence: Math.round(inc.confidence * 1000) / 10,
+      requestsPerSecond: 95,
+      baselineRequestsPerSecond: 12,
+      peakRequestsPerSecond: 110,
+      affectedNodes: inc.affectedStations.length * 12,
+      affectedStations: inc.affectedStations.map((st) => ({
+        id: st,
+        name: `Terminal ${st}`,
+        location: 'Charging Zone',
+        status: inc.status === 'CONTAINED' || inc.status === 'RESOLVED' ? 'PROTECTED' as const : 'UNDER ATTACK' as const,
+        requestsPerSec: 95,
+      })),
+      sourceCategory: 'External Ingress Attack',
+      targetInfrastructure: inc.targetInfrastructure,
+      mitigationStatus: inc.status === 'CONTAINED' ? 'CONTAINED' : inc.status === 'RESOLVED' ? 'RESOLVED' : 'PENDING',
+      mitigationTime: '15s',
+      description: inc.description,
+      detectionSummary: inc.rootCauseAnalysis || inc.description,
+      isDemo: true,
+    };
   }
 
   public async mitigate(id?: string): Promise<{ success: boolean; message: string; incident: AttackIncident | null }> {

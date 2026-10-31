@@ -8,6 +8,7 @@ import { AttackAnalysisPage } from './pages/AttackAnalysisPage';
 import { ChargingNetworkPage } from './pages/ChargingNetworkPage';
 import { LiveMonitoringPage } from './pages/LiveMonitoringPage';
 import { MlDetectionPage } from './pages/MlDetectionPage';
+import { IncidentManagementPage } from './pages/IncidentManagementPage';
 import { AnalyticsPage } from './pages/AnalyticsPage';
 import { AlertsPage } from './pages/AlertsPage';
 import { SettingsPage } from './pages/SettingsPage';
@@ -50,6 +51,8 @@ const App: React.FC = () => {
         <Route path="/logs" element={<AttackLogsPage />} />
         <Route path="/analysis" element={<AttackAnalysisPage />} />
         <Route path="/analysis/:attackId" element={<AttackAnalysisPage />} />
+        <Route path="/incidents" element={<IncidentManagementPage />} />
+        <Route path="/incidents/:incidentId" element={<IncidentManagementPage />} />
         <Route path="/monitoring" element={<LiveMonitoringPage />} />
         <Route path="/charging-network" element={<ChargingNetworkPage />} />
         <Route path="/ml-detection" element={<MlDetectionPage />} />

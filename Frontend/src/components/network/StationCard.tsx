@@ -1,7 +1,7 @@
 import React from 'react';
 import { DemoStation } from '../../types/station';
 import { StatusChip } from '../ui/StatusChip';
-import { Activity, Cpu, Clock } from 'lucide-react';
+import { Activity, Cpu, Clock, ShieldAlert } from 'lucide-react';
 
 interface StationCardProps {
   station: DemoStation;
@@ -67,12 +67,19 @@ export const StationCard: React.FC<StationCardProps> = ({ station, onClick }) =>
         </div>
       </div>
 
-      {/* ML Status */}
-      <div className="flex items-center gap-2 bg-white/50 rounded-xl px-3 py-2 text-[11px] font-mono border border-white/70">
-        <Cpu className={`w-3 h-3 ${station.mlStatus === 'ATTACK DETECTED' ? 'text-[#E85C68]' : 'text-[#19BFA3]'}`} />
-        <span className="text-[#514940]">ML:</span>
-        <span className={`font-bold ${station.mlStatus === 'ATTACK DETECTED' ? 'text-[#a82d38]' : 'text-[#0d7a67]'}`}>{station.mlStatus}</span>
-        {station.mlConfidence && <span className="text-[#7A7067]">({station.mlConfidence}%)</span>}
+      {/* ML Status & Risk Score */}
+      <div className="flex items-center justify-between gap-2 bg-white/50 rounded-xl px-3 py-2 text-[11px] font-mono border border-white/70">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <Cpu className={`w-3 h-3 shrink-0 ${station.mlStatus === 'ATTACK DETECTED' ? 'text-[#E85C68]' : 'text-[#19BFA3]'}`} />
+          <span className="text-[#514940]">ML:</span>
+          <span className={`font-bold truncate ${station.mlStatus === 'ATTACK DETECTED' ? 'text-[#a82d38]' : 'text-[#0d7a67]'}`}>{station.mlStatus}</span>
+        </div>
+        <div className="flex items-center gap-1 shrink-0">
+          <ShieldAlert className="w-3 h-3 text-[#8055F6]" />
+          <span className="font-bold text-[#3F3832]">
+            Risk: {station.securityRiskScore ?? (isAttack ? 85 : 12)}/100
+          </span>
+        </div>
       </div>
 
       {/* Last Event */}

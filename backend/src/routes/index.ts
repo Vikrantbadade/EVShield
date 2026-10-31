@@ -8,6 +8,7 @@ import analyticsRoutes from './analytics.routes.js';
 import mlRoutes from './ml.routes.js';
 import telemetryRoutes from './telemetry.routes.js';
 import authRoutes from './auth.routes.js';
+import incidentRoutes from './incident.routes.js';
 
 const router = Router();
 
@@ -16,6 +17,7 @@ router.use('/auth', authRoutes);
 router.use('/health', healthRoutes);
 router.use('/dashboard', dashboardRoutes);
 router.use('/attacks', attackRoutes);
+router.use('/incidents', incidentRoutes);
 router.use('/stations', stationRoutes);
 router.use('/alerts', alertRoutes);
 router.use('/analytics', analyticsRoutes);

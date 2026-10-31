@@ -1,5 +1,5 @@
 {
-  "evaluation_timestamp": "2026-11-01T00:07:13.079137",
+  "evaluation_timestamp": "2026-11-01T00:29:37.070048",
   "dataset": {
     "name": "EVShield_Network_Flow_v1",
     "features": [
@@ -51,8 +51,8 @@
             300
           ]
         ],
-        "latency_ms": 0.021,
-        "throughput_samples_per_sec": 46693.0
+        "latency_ms": 0.02,
+        "throughput_samples_per_sec": 50595.3
       },
       "summary": "Fast, fully explainable baseline Z-score rules; highly effective on volumetric anomalies, requires careful tuning for subtle duration drifts."
     },
@@ -63,7 +63,7 @@
       "status": "READY",
       "is_supervised": true,
       "training_samples": 2798,
-      "training_time_seconds": 0.176,
+      "training_time_seconds": 0.173,
       "metrics": {
         "accuracy": 1.0,
         "precision": 1.0,
@@ -81,8 +81,8 @@
             300
           ]
         ],
-        "latency_ms": 0.096,
-        "throughput_samples_per_sec": 10428.3,
+        "latency_ms": 0.175,
+        "throughput_samples_per_sec": 5701.6,
         "multi_class": {
           "accuracy": 1.0,
           "macro_f1": 1.0,
@@ -181,7 +181,7 @@
       "status": "READY",
       "is_supervised": false,
       "training_samples": 1400,
-      "training_time_seconds": 0.14,
+      "training_time_seconds": 0.125,
       "metrics": {
         "accuracy": 0.9783,
         "precision": 0.9585,
@@ -199,8 +199,8 @@
             300
           ]
         ],
-        "latency_ms": 0.027,
-        "throughput_samples_per_sec": 37405.8
+        "latency_ms": 0.023,
+        "throughput_samples_per_sec": 43627.8
       },
       "score_distribution": {
         "normal": {

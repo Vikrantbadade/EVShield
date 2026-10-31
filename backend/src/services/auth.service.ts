@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { db } from '../config/database.js';
+import { db, checkDatabaseConnection } from '../config/database.js';
 import { config } from '../config/env.js';
 
 export type UserRole = 'admin' | 'security_analyst' | 'soc_operator' | 'viewer';
@@ -99,33 +99,36 @@ class AuthService {
       });
     }
 
-    // Attempt persistent PostgreSQL database seeding via Prisma (with fast timeout fallback)
-    try {
-      await Promise.race([
-        (async () => {
-          for (const demo of DEMO_ACCOUNTS) {
-            const emailLower = demo.email.toLowerCase();
-            const pwdHash = this.hashPassword(DEMO_PASSWORD);
+    // Check if database is reachable before attempting Prisma seeding
+    const dbStatus = await checkDatabaseConnection();
+    if (!dbStatus.connected) {
+      console.log('ℹ️ [AuthService] PostgreSQL offline; using in-memory demo account store.');
+      this.initialized = true;
+      return;
+    }
 
-            await db.user.upsert({
-              where: { email: emailLower },
-              update: {
-                name: demo.name,
-                role: demo.role,
-                password: pwdHash,
-              },
-              create: {
-                email: emailLower,
-                name: demo.name,
-                role: demo.role,
-                password: pwdHash,
-              },
-            });
-          }
-          console.log('🔐 [AuthService] 4 Demo accounts seeded idempotently in PostgreSQL.');
-        })(),
-        new Promise((_, reject) => setTimeout(() => reject(new Error("Database connection timeout (offline mode)")), 1500)),
-      ]);
+    // Attempt persistent PostgreSQL database seeding via Prisma
+    try {
+      for (const demo of DEMO_ACCOUNTS) {
+        const emailLower = demo.email.toLowerCase();
+        const pwdHash = this.hashPassword(DEMO_PASSWORD);
+
+        await db.user.upsert({
+          where: { email: emailLower },
+          update: {
+            name: demo.name,
+            role: demo.role,
+            password: pwdHash,
+          },
+          create: {
+            email: emailLower,
+            name: demo.name,
+            role: demo.role,
+            password: pwdHash,
+          },
+        });
+      }
+      console.log('🔐 [AuthService] 4 Demo accounts seeded idempotently in PostgreSQL.');
     } catch (err) {
       console.warn('⚠️ [AuthService] Database seed fallback to memory store:', err instanceof Error ? err.message : err);
     }

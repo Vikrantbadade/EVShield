@@ -60,12 +60,16 @@ export async function checkDatabaseConnection(): Promise<{
 }> {
   const start = Date.now();
   try {
-    await db.$queryRaw`SELECT 1`;
+    const queryPromise = db.$queryRaw`SELECT 1`;
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Database connection timed out')), 1500)
+    );
+    await Promise.race([queryPromise, timeoutPromise]);
     return { connected: true, latencyMs: Date.now() - start };
   } catch (err) {
     return {
       connected: false,
-      error: err instanceof Error ? err.message : 'Unknown database error',
+      error: err instanceof Error ? err.message : 'Database offline',
     };
   }
 }

@@ -26,6 +26,8 @@ import { wsService } from './websocket.service.js';
 import { mlEngineService } from './ml-engine.service.js';
 import { DetectionMethod } from '../types/ml.types.js';
 import { RawTelemetrySampleSchema } from '../schemas/telemetry.schema.js';
+import { incidentCorrelationService } from './incident-correlation.service.js';
+import { incidentStorageService } from './incident-storage.service.js';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Project & ML Paths
@@ -435,6 +437,11 @@ export class TelemetryService {
         ? Math.round((latencies.reduce((a, b) => a + b, 0) / latencies.length) * 10) / 10
         : 12.0;
 
+    const windowFailures = this.telemetryBuffer.filter((s) => s.statusCode >= 400).length;
+    const rollingErrorRate = this.telemetryBuffer.length > 0
+      ? Math.round((windowFailures / this.telemetryBuffer.length) * 1000) / 10
+      : 0;
+
     const currentMetrics: LiveTelemetryMetrics = {
       packetRate: packetRate > 0 ? packetRate : rps * 4,
       dataTransferredBytes: bytesInSec > 0 ? bytesInSec : rps * 512,
@@ -444,7 +451,7 @@ export class TelemetryService {
       avgConnectionDurationMs: avgLatency,
       requestRate: rps,
       requestFrequencyHz: rps,
-      errorRatePercent: this.totalRequests > 0 ? Math.round((this.failedRequests / this.totalRequests) * 1000) / 10 : 0,
+      errorRatePercent: rollingErrorRate,
       windowSampleCount: this.telemetryBuffer.length,
       timestamp: new Date(now).toISOString(),
     };
@@ -462,6 +469,10 @@ export class TelemetryService {
 
     // 6. Security Event & Alert notification
     if (anomalyResult.isAnomaly && anomalyResult.alerts.length > 0) {
+      const latestSample = this.telemetryBuffer.slice(-1)[0];
+      const sourceIp = latestSample?.sourceIp || '192.168.1.50';
+      const stationId = 'CS-0421';
+
       for (const alert of anomalyResult.alerts) {
         this.addSecurityEvent(
           alert.severity === 'CRITICAL' ? 'CRITICAL' : 'WARNING',
@@ -472,23 +483,30 @@ export class TelemetryService {
           'NONE'
         );
         wsService.broadcast('ANOMALY_ALERT', alert);
+
+        // Stage 3: Intelligent Alert Correlation & Auto Incident Creation
+        incidentCorrelationService.processAlert(alert, {
+          stationId,
+          sourceIp,
+          confidence: this.latestMLResult.probability_attack,
+          detectorName: mlEngineService.getActiveDetector(),
+        }).catch((err) => console.warn('[IncidentCorrelation] Error processing alert:', err));
       }
     }
 
     // 7. Synchronize Threat Level State & Authoritative Multi-State Dimensions (Issue 1 & Issue 3)
     const activeDetector = mlEngineService.getActiveDetector();
     const isExplicitAttack = this.simulationMode !== 'NORMAL';
-    let isAnomalous = false;
+    let isAnomalous = isExplicitAttack || anomalyResult.isAnomaly;
 
-    if (activeDetector === 'THRESHOLD') {
-      isAnomalous = anomalyResult.isAnomaly || (isExplicitAttack && this.latestMLResult.probability_attack >= this.latestMLResult.threshold);
-    } else if (activeDetector === 'RANDOM_FOREST') {
-      isAnomalous = (this.latestMLResult.label === 'ATTACK' && isExplicitAttack) || anomalyResult.isAnomaly;
-    } else if (activeDetector === 'ISOLATION_FOREST') {
-      isAnomalous = (this.latestMLResult.label === 'ATTACK' && isExplicitAttack) || anomalyResult.isAnomaly;
-    } else {
-      // ENSEMBLE
-      isAnomalous = anomalyResult.isAnomaly || (isExplicitAttack && this.latestMLResult.label === 'ATTACK');
+    if (!isAnomalous) {
+      if (activeDetector === 'THRESHOLD') {
+        isAnomalous = this.latestMLResult.probability_attack >= this.latestMLResult.threshold;
+      } else if (activeDetector === 'RANDOM_FOREST' || activeDetector === 'ISOLATION_FOREST') {
+        isAnomalous = this.latestMLResult.label === 'ATTACK';
+      } else {
+        isAnomalous = this.latestMLResult.label === 'ATTACK';
+      }
     }
 
     if (isAnomalous) {
@@ -926,17 +944,17 @@ export class TelemetryService {
           timestamp: Date.now(),
           endpoint: '/api/auth',
           method: 'POST',
-          statusCode: 500,
+          statusCode: 200,
           latencyMs: 14,
-          bytesTransferred: 256,
-          packetCount: 2,
-          activeConnections: 1,
+          bytesTransferred: 512,
+          packetCount: 4,
+          activeConnections: 2,
           newConnections: 1,
           sourceIp: '192.168.1.50',
           destination: '127.0.0.1:8080',
           trafficCategory: 'NORMAL',
-          success: false,
-          metricValue: 2.8,
+          success: true,
+          metricValue: 2.5,
           isSimulated: true,
         });
       }
@@ -1667,6 +1685,14 @@ export class TelemetryService {
         : 'Stable baseline',
     };
 
+    const windowFailures = this.telemetryBuffer.filter((s) => s.statusCode >= 400).length;
+    const rollingErrorRate =
+      this.telemetryBuffer.length > 0
+        ? Math.round((windowFailures / this.telemetryBuffer.length) * 1000) / 10
+        : 0;
+    const totalBytes = this.totalBytesTransferred > 0 ? this.totalBytesTransferred : this.totalRequests * 512;
+    const cumulativeDataMB = Math.round((totalBytes / (1024 * 1024)) * 100) / 100;
+
     return {
       server: {
         status: this.fakeServerOnline ? 'ONLINE' : 'OFFLINE',
@@ -1687,14 +1713,14 @@ export class TelemetryService {
         packetRate: packetRate > 0 ? packetRate : rps * 4,
         dataTransferredBytes: bytesInSec > 0 ? bytesInSec : rps * 512,
         bytesPerSecond: bytesInSec > 0 ? bytesInSec : rps * 512,
-        dataTransferredMB: Math.round(((bytesInSec > 0 ? bytesInSec : rps * 512) / (1024 * 1024)) * 1000) / 1000,
+        dataTransferredMB: cumulativeDataMB,
         activeConnections: Math.max(1, this.telemetryBuffer.slice(-5).reduce((max, s) => Math.max(max, s.activeConnections || 1), 1)),
         newConnectionRate: newConns > 0 ? newConns : Math.ceil(rps * 0.4),
         averageLatencyMs: avgLatency,
         minLatencyMs: minLatency,
         maxLatencyMs: maxLatency,
         stdLatencyMs: stdLatency,
-        errorRatePercent: this.totalRequests > 0 ? Math.round((this.failedRequests / this.totalRequests) * 1000) / 10 : 0,
+        errorRatePercent: rollingErrorRate,
         totalRequests: this.totalRequests,
         totalBytes: this.totalBytesTransferred,
         windowSize: this.telemetryBuffer.length,

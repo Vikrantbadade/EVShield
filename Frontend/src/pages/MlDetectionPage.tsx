@@ -11,6 +11,7 @@ import {
 import { StatusChip } from '../components/ui/StatusChip';
 import { ScrollReveal } from '../components/ui/ScrollReveal';
 import { ApiConnectionBanner } from '../components/ui/ApiConnectionBanner';
+import { useSecurity } from '../context/SecurityContext';
 import {
   Cpu,
   RefreshCw,
@@ -29,6 +30,7 @@ import {
 } from 'lucide-react';
 
 export const MlDetectionPage: React.FC = () => {
+  const { activeDetector, setActiveDetector } = useSecurity();
   const [status, setStatus] = useState<MLModelStatus | null>(null);
   const [comparison, setComparison] = useState<MLComparisonReport | null>(null);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
@@ -187,7 +189,21 @@ export const MlDetectionPage: React.FC = () => {
             </p>
           </div>
 
-          <div className="flex items-center gap-2 self-start sm:self-auto">
+          <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
+            <div className="flex items-center gap-2 bg-[#252542] px-3 py-1.5 rounded-xl border border-[#C4B5FD]/18 shadow-sm">
+              <span className="text-[11px] font-mono text-[#C4C2D6]">Live Detector:</span>
+              <select
+                value={activeDetector}
+                onChange={(e) => setActiveDetector(e.target.value as DetectionMethod)}
+                className="bg-[#17172A] text-xs font-mono font-bold text-[#34D399] border border-[#C4B5FD]/20 rounded-lg px-2 py-1 focus:outline-none"
+              >
+                <option value="RANDOM_FOREST">Random Forest</option>
+                <option value="THRESHOLD">Threshold Rules</option>
+                <option value="ISOLATION_FOREST">Isolation Forest</option>
+                <option value="ENSEMBLE">Ensemble Voting</option>
+              </select>
+            </div>
+
             <button
               onClick={handleRetrain}
               disabled={isRetraining}
@@ -914,7 +930,7 @@ export const MlDetectionPage: React.FC = () => {
 
                   {/* Multi-detector comparison grid if ALL requested */}
                   {predictionResult.all_results && (
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
                       {predictionResult.all_results.threshold && (
                         <div className="p-3.5 rounded-xl bg-[#252542] border border-[#818CF8]/30 space-y-1.5">
                           <div className="flex justify-between items-center text-xs font-mono">
@@ -928,6 +944,10 @@ export const MlDetectionPage: React.FC = () => {
                             >
                               {predictionResult.all_results.threshold.is_anomaly ? 'ANOMALY' : 'NORMAL'}
                             </span>
+                          </div>
+                          <div className="text-[10px] font-mono text-[#A5B4FC]">
+                            Score: {predictionResult.all_results.threshold.anomaly_score?.toFixed(1) ?? '0.0'} &bull; Dev:{' '}
+                            {predictionResult.all_results.threshold.max_deviation_percent?.toFixed(0) ?? '0'}%
                           </div>
                           <p className="text-[11px] text-[#C4C2D6] line-clamp-2">
                             {predictionResult.all_results.threshold.explanation}
@@ -951,6 +971,10 @@ export const MlDetectionPage: React.FC = () => {
                                 : 'NORMAL'}
                             </span>
                           </div>
+                          <div className="text-[10px] font-mono text-[#34D399]">
+                            Prob: {Math.round((predictionResult.all_results.random_forest.probability_attack ?? 0) * 100)}% &bull; Conf:{' '}
+                            {Math.round((predictionResult.all_results.random_forest.confidence ?? 1) * 100)}%
+                          </div>
                           <p className="text-[11px] text-[#C4C2D6] line-clamp-2">
                             {predictionResult.all_results.random_forest.explanation}
                           </p>
@@ -971,8 +995,38 @@ export const MlDetectionPage: React.FC = () => {
                               {predictionResult.all_results.isolation_forest.is_anomaly ? 'OUTLIER' : 'INLIER'}
                             </span>
                           </div>
+                          <div className="text-[10px] font-mono text-[#F472B6]">
+                            Anomaly Score:{' '}
+                            {predictionResult.all_results.isolation_forest.anomaly_score != null
+                              ? `${predictionResult.all_results.isolation_forest.anomaly_score > 0 ? '+' : ''}${predictionResult.all_results.isolation_forest.anomaly_score.toFixed(3)}`
+                              : '0.000'}{' '}
+                            (boundary: 0.0)
+                          </div>
                           <p className="text-[11px] text-[#C4C2D6] line-clamp-2">
                             {predictionResult.all_results.isolation_forest.explanation}
+                          </p>
+                        </div>
+                      )}
+
+                      {predictionResult.all_results.ensemble && (
+                        <div className="p-3.5 rounded-xl bg-[#252542] border border-[#C4B5FD]/30 space-y-1.5">
+                          <div className="flex justify-between items-center text-xs font-mono">
+                            <span className="font-bold text-[#C4B5FD]">Ensemble Voting</span>
+                            <span
+                              className={`text-[10px] font-bold px-1.5 py-0.2 rounded border ${
+                                predictionResult.all_results.ensemble.is_anomaly
+                                  ? 'bg-[#FB7185]/20 text-[#FB7185] border-[#FB7185]/30'
+                                  : 'bg-[#34D399]/20 text-[#34D399] border-[#34D399]/30'
+                              }`}
+                            >
+                              {predictionResult.all_results.ensemble.is_anomaly ? 'ATTACK' : 'NORMAL'}
+                            </span>
+                          </div>
+                          <div className="text-[10px] font-mono text-[#C4B5FD]">
+                            Consensus: {predictionResult.all_results.ensemble.vote_count ?? (predictionResult.all_results.ensemble.is_anomaly ? 3 : 0)}/3 Detectors Agreed
+                          </div>
+                          <p className="text-[11px] text-[#C4C2D6] line-clamp-2">
+                            {predictionResult.all_results.ensemble.explanation}
                           </p>
                         </div>
                       )}

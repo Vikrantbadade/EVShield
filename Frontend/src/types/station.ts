@@ -16,6 +16,8 @@ export interface DemoStation {
   lastEvent: string;
   mlStatus: 'NORMAL' | 'MONITORING' | 'ATTACK DETECTED';
   mlConfidence?: number;
+  securityRiskScore?: number;
+  activeIncidentId?: string | null;
 }
 
 export interface ChargingRegion {

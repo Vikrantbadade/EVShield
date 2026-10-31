@@ -47,22 +47,60 @@ function toAlert(row: AlertRow): Alert {
 // Service
 // ─────────────────────────────────────────────────────────────────────────────
 
+import { anomalyDetectionService } from './anomaly-detection.service.js';
+
 export class AlertService {
   public async getAlerts(): Promise<{ items: Alert[]; total: number; isDemo: boolean }> {
-    const rows = await db.securityAlert.findMany({
-      orderBy: { createdAt: 'desc' },
-    });
+    try {
+      const rows = await db.securityAlert.findMany({
+        orderBy: { createdAt: 'desc' },
+      });
 
-    const items = rows.map(toAlert);
-    return { items, total: items.length, isDemo: true };
+      if (rows && rows.length > 0) {
+        const items = rows.map(toAlert);
+        return { items, total: items.length, isDemo: true };
+      }
+    } catch {
+      // Fallback to recent telemetry anomaly alerts if database is offline
+    }
+
+    const history = anomalyDetectionService.getAlertHistory();
+    const fallbackItems: Alert[] = history.map((a) => ({
+      id: a.alertId || a.id,
+      title: `Anomaly Alert: ${a.category}`,
+      message: a.explanation,
+      severity: a.severity === 'CRITICAL' ? 'CRITICAL' : a.severity === 'HIGH' ? 'HIGH' : 'WARNING',
+      status: 'ACTIVE',
+      timestamp: a.timestamp,
+      stationId: 'CS-0421',
+      isDemo: true,
+    }));
+
+    return { items: fallbackItems, total: fallbackItems.length, isDemo: true };
   }
 
   public async getAlertById(id: string): Promise<Alert | null> {
-    const row = await db.securityAlert.findUnique({
-      where: { alertId: id },
-    });
-    if (!row) return null;
-    return toAlert(row);
+    try {
+      const row = await db.securityAlert.findUnique({
+        where: { alertId: id },
+      });
+      if (row) return toAlert(row);
+    } catch {}
+
+    const history = anomalyDetectionService.getAlertHistory();
+    const found = history.find((a) => a.alertId === id || a.id === id);
+    if (!found) return null;
+
+    return {
+      id: found.alertId || found.id,
+      title: `Anomaly Alert: ${found.category}`,
+      message: found.explanation,
+      severity: found.severity === 'CRITICAL' ? 'CRITICAL' : found.severity === 'HIGH' ? 'HIGH' : 'WARNING',
+      status: 'ACTIVE',
+      timestamp: found.timestamp,
+      stationId: 'CS-0421',
+      isDemo: true,
+    };
   }
 }
 

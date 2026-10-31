@@ -31,6 +31,8 @@ export interface DetectorPredictionResult {
   explanation: string;
   max_deviation_percent?: number;
   latency_ms: number;
+  vote_count?: number;
+  votes?: Record<string, boolean>;
 }
 
 export interface MLPrediction {

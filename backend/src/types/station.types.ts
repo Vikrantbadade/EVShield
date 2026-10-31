@@ -18,6 +18,11 @@ export interface Station {
   mlConfidence?: number;
   location?: string;
   isDemo: boolean;
+  riskScore?: number;
+  securityRiskScore?: number;
+  riskLevel?: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  activeIncidentsCount?: number;
+  activeIncidentId?: string;
 }
 
 export interface ChargingRegion {
