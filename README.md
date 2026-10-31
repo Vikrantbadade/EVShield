@@ -6,7 +6,7 @@ The platform integrates a local **Fake EV Charging Server**, continuous **Real-T
 
 ---
 
-## 🏗️ End-to-End Pipeline Architecture
+##  End-to-End Pipeline Architecture
 
 ```text
 ┌────────────────────────────────────────────────────────┐
@@ -42,7 +42,7 @@ The platform integrates a local **Fake EV Charging Server**, continuous **Real-T
 
 ---
 
-## 🚀 Key Demonstration Features
+##  Key Demonstration Features
 
 1. **Demonstration Control Panel**:
    - `[ Start Normal Traffic ]`: Generates realistic ~12 req/s authentication requests against `127.0.0.1:8080`.
@@ -64,7 +64,7 @@ The platform integrates a local **Fake EV Charging Server**, continuous **Real-T
 
 ---
 
-## 📐 Exact 10-Feature Contract
+##  Exact 10-Feature Contract
 
 The CICEV2023 Random Forest model strictly requires the following 10 statistical features in this exact order:
 
@@ -83,7 +83,7 @@ The CICEV2023 Random Forest model strictly requires the following 10 statistical
 
 ---
 
-## 🛠️ Installation & Setup Guide
+##  Installation & Setup Guide
 
 ### 1. Prerequisites
 - **Node.js**: v18.0.0 or later (v20+ recommended)
@@ -211,7 +211,7 @@ npm run frontend
 
 ---
 
-## 🧪 Automated End-to-End Verification Test
+## Automated End-to-End Verification Test
 
 To verify the entire pipeline automatically, run the included test suite:
 
@@ -239,7 +239,7 @@ node scratch/test_e2e_pipeline.js
 
 ---
 
-## 📁 Repository Structure
+##  Repository Structure
 
 ```text
 EVShield/
@@ -271,5 +271,5 @@ EVShield/
 
 ---
 
-## 📄 License
+## License
 This project is developed as part of an EV Charging Infrastructure Cybersecurity Demonstration.
