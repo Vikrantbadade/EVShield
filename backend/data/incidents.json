@@ -1,0 +1,2965 @@
+[
+  {
+    "id": "INC-20261031-1042",
+    "title": "Distributed Ingress Flood on Station CS-0421",
+    "description": "Supervised ML model and dynamic Z-score baseline flagged high-throughput authentication burst exceeding +710% of nominal threshold.",
+    "category": "TRAFFIC_BURST",
+    "categoryLabel": "Sudden Traffic Burst Surge",
+    "severity": "CRITICAL",
+    "status": "RESOLVED",
+    "riskScore": 32,
+    "riskLevel": "LOW",
+    "confidence": 0.98,
+    "primaryStationId": "CS-0421",
+    "affectedStations": [
+      "CS-0421",
+      "CS-0422"
+    ],
+    "sourceIps": [
+      "192.168.1.145",
+      "192.168.1.189"
+    ],
+    "targetInfrastructure": "Gateway Zone 1 (CS-0421 / 127.0.0.1:8080)",
+    "detectorAttribution": "RandomForestClassifier & ThresholdEngine",
+    "createdAt": "2026-10-31T19:02:08.602Z",
+    "firstDetectedAt": "2026-10-31T19:02:08.602Z",
+    "lastUpdatedAt": "2026-10-31T19:59:00.963Z",
+    "containedAt": "2026-10-31T19:32:08.602Z",
+    "assignedTo": {
+      "email": "analyst@evshield.demo",
+      "name": "Security Analyst",
+      "role": "security_analyst",
+      "assignedAt": "2026-10-31T19:59:00.901Z"
+    },
+    "correlationGroup": {
+      "groupId": "GRP-20261031-01",
+      "primaryCategory": "TRAFFIC_BURST",
+      "alertCount": 4,
+      "firstAlertTimestamp": "2026-10-31T19:02:08.602Z",
+      "lastAlertTimestamp": "2026-10-31T19:27:08.602Z",
+      "correlationReason": "Four consecutive high-throughput surges observed on CS-0421 within 25 seconds originating from identical subnet.",
+      "patternType": "SINGLE_VECTOR_BURST",
+      "alerts": [
+        {
+          "alertId": "ALT-20261031-01",
+          "timestamp": "2026-10-31T19:02:08.602Z",
+          "category": "TRAFFIC_BURST",
+          "severity": "CRITICAL",
+          "sourceIp": "192.168.1.145",
+          "targetStationId": "CS-0421",
+          "metricValue": 95,
+          "deviationPercent": 710,
+          "explanation": "Request rate spiked to 95.0 req/s (+710% above baseline)."
+        },
+        {
+          "alertId": "ALT-20261031-02",
+          "timestamp": "2026-10-31T19:07:08.602Z",
+          "category": "TRAFFIC_BURST",
+          "severity": "HIGH",
+          "sourceIp": "192.168.1.189",
+          "targetStationId": "CS-0421",
+          "metricValue": 88,
+          "deviationPercent": 640,
+          "explanation": "Sustained throughput flood observed on gateway authentication route."
+        }
+      ]
+    },
+    "alerts": [
+      {
+        "alertId": "ALT-20261031-01",
+        "timestamp": "2026-10-31T19:02:08.602Z",
+        "category": "TRAFFIC_BURST",
+        "severity": "CRITICAL",
+        "sourceIp": "192.168.1.145",
+        "targetStationId": "CS-0421",
+        "metricValue": 95,
+        "deviationPercent": 710,
+        "explanation": "Request rate spiked to 95.0 req/s (+710% above baseline)."
+      }
+    ],
+    "timeline": [
+      {
+        "id": "EVT-1793476740963-67",
+        "incidentId": "INC-20261031-1042",
+        "timestamp": "2026-10-31T19:59:00.963Z",
+        "eventType": "STATUS_CHANGED",
+        "title": "Status Changed to RESOLVED",
+        "description": "Incident transitioned from CONTAINED to RESOLVED. Note: Normal traffic resumed.",
+        "actor": {
+          "type": "ANALYST",
+          "name": "Security Analyst",
+          "role": "security_analyst"
+        }
+      },
+      {
+        "id": "EVT-1793476740944-85",
+        "incidentId": "INC-20261031-1042",
+        "timestamp": "2026-10-31T19:59:00.944Z",
+        "eventType": "STATUS_CHANGED",
+        "title": "Status Changed to CONTAINED",
+        "description": "Incident transitioned from INVESTIGATING to CONTAINED. Note: Attacking traffic isolated.",
+        "actor": {
+          "type": "ANALYST",
+          "name": "Security Analyst",
+          "role": "security_analyst"
+        }
+      },
+      {
+        "id": "EVT-1793476740928-38",
+        "incidentId": "INC-20261031-1042",
+        "timestamp": "2026-10-31T19:59:00.928Z",
+        "eventType": "ACTION_EXECUTED",
+        "title": "Response Action Marked COMPLETED",
+        "description": "Action 'Verify Ingress Rate Limiter' set to COMPLETED by Security Analyst. Note: Rate limiting applied successfully.",
+        "actor": {
+          "type": "ANALYST",
+          "name": "Security Analyst",
+          "role": "security_analyst"
+        }
+      },
+      {
+        "id": "EVT-1793476740916-93",
+        "incidentId": "INC-20261031-1042",
+        "timestamp": "2026-10-31T19:59:00.916Z",
+        "eventType": "NOTE_ADDED",
+        "title": "Investigation Note Added",
+        "description": "Verified packet rate surge originated from test probe IP 192.168.1.145.",
+        "actor": {
+          "type": "ANALYST",
+          "name": "Security Analyst",
+          "role": "security_analyst"
+        }
+      },
+      {
+        "id": "EVT-1793476740901-62",
+        "incidentId": "INC-20261031-1042",
+        "timestamp": "2026-10-31T19:59:00.901Z",
+        "eventType": "ANALYST_ASSIGNED",
+        "title": "Analyst Assigned",
+        "description": "Assigned to Security Analyst (analyst@evshield.demo).",
+        "actor": {
+          "type": "ANALYST",
+          "name": "Security Analyst",
+          "role": "security_analyst"
+        }
+      },
+      {
+        "id": "EVT-1793476740882-36",
+        "incidentId": "INC-20261031-1042",
+        "timestamp": "2026-10-31T19:59:00.882Z",
+        "eventType": "STATUS_CHANGED",
+        "title": "Status Changed to INVESTIGATING",
+        "description": "Incident transitioned from RESOLVED to INVESTIGATING. Note: Lead analyst started investigation.",
+        "actor": {
+          "type": "ANALYST",
+          "name": "Security Analyst",
+          "role": "security_analyst"
+        }
+      },
+      {
+        "id": "EVT-1793476560912-55",
+        "incidentId": "INC-20261031-1042",
+        "timestamp": "2026-10-31T19:56:00.912Z",
+        "eventType": "STATUS_CHANGED",
+        "title": "Status Changed to RESOLVED",
+        "description": "Incident transitioned from CONTAINED to RESOLVED. Note: Normal traffic resumed.",
+        "actor": {
+          "type": "ANALYST",
+          "name": "Security Analyst",
+          "role": "security_analyst"
+        }
+      },
+      {
+        "id": "EVT-1793476560908-65",
+        "incidentId": "INC-20261031-1042",
+        "timestamp": "2026-10-31T19:56:00.908Z",
+        "eventType": "STATUS_CHANGED",
+        "title": "Status Changed to CONTAINED",
+        "description": "Incident transitioned from INVESTIGATING to CONTAINED. Note: Attacking traffic isolated.",
+        "actor": {
+          "type": "ANALYST",
+          "name": "Security Analyst",
+          "role": "security_analyst"
+        }
+      },
+      {
+        "id": "EVT-1793476560906-71",
+        "incidentId": "INC-20261031-1042",
+        "timestamp": "2026-10-31T19:56:00.906Z",
+        "eventType": "ACTION_EXECUTED",
+        "title": "Response Action Marked COMPLETED",
+        "description": "Action 'Verify Ingress Rate Limiter' set to COMPLETED by Security Analyst. Note: Rate limiting applied successfully.",
+        "actor": {
+          "type": "ANALYST",
+          "name": "Security Analyst",
+          "role": "security_analyst"
+        }
+      },
+      {
+        "id": "EVT-1793476560885-36",
+        "incidentId": "INC-20261031-1042",
+        "timestamp": "2026-10-31T19:56:00.885Z",
+        "eventType": "NOTE_ADDED",
+        "title": "Investigation Note Added",
+        "description": "Verified packet rate surge originated from test probe IP 192.168.1.145.",
+        "actor": {
+          "type": "ANALYST",
+          "name": "Security Analyst",
+          "role": "security_analyst"
+        }
+      },
+      {
+        "id": "EVT-1793476560868-59",
+        "incidentId": "INC-20261031-1042",
+        "timestamp": "2026-10-31T19:56:00.868Z",
+        "eventType": "STATUS_CHANGED",
+        "title": "Status Changed to INVESTIGATING",
+        "description": "Incident transitioned from INVESTIGATING to INVESTIGATING. Note: Lead analyst started investigation.",
+        "actor": {
+          "type": "ANALYST",
+          "name": "Security Analyst",
+          "role": "security_analyst"
+        }
+      },
+      {
+        "id": "EVT-1793476399208-95",
+        "incidentId": "INC-20261031-1042",
+        "timestamp": "2026-10-31T19:53:19.208Z",
+        "eventType": "STATUS_CHANGED",
+        "title": "Status Changed to INVESTIGATING",
+        "description": "Incident transitioned from CONTAINED to INVESTIGATING. Note: Lead analyst started investigation.",
+        "actor": {
+          "type": "ANALYST",
+          "name": "Security Analyst",
+          "role": "security_analyst"
+        }
+      },
+      {
+        "id": "EVT-01",
+        "incidentId": "INC-20261031-1042",
+        "timestamp": "2026-10-31T19:02:08.602Z",
+        "eventType": "ANOMALY_DETECTED",
+        "title": "Throughput Threshold Breached",
+        "description": "Request frequency reached 95 req/s on FastCharge CS-0421.",
+        "actor": {
+          "type": "DETECTOR",
+          "name": "ThresholdDetector"
+        }
+      },
+      {
+        "id": "EVT-02",
+        "incidentId": "INC-20261031-1042",
+        "timestamp": "2026-10-31T19:02:08.602Z",
+        "eventType": "INCIDENT_CREATED",
+        "title": "Incident Opened Automatically",
+        "description": "Correlated 2 qualifying alerts into incident INC-20261031-1042.",
+        "actor": {
+          "type": "SYSTEM",
+          "name": "AlertCorrelationEngine"
+        }
+      },
+      {
+        "id": "EVT-03",
+        "incidentId": "INC-20261031-1042",
+        "timestamp": "2026-10-31T19:17:08.602Z",
+        "eventType": "ANALYST_ASSIGNED",
+        "title": "Investigator Assigned",
+        "description": "Assigned to Security Analyst (analyst@evshield.demo).",
+        "actor": {
+          "type": "ANALYST",
+          "name": "Security Analyst",
+          "role": "security_analyst"
+        }
+      },
+      {
+        "id": "EVT-04",
+        "incidentId": "INC-20261031-1042",
+        "timestamp": "2026-10-31T19:32:08.602Z",
+        "eventType": "CONTAINMENT_INITIATED",
+        "title": "Containment Action Logged",
+        "description": "Ingress rate limit policy applied to station CS-0421 gateway.",
+        "actor": {
+          "type": "ANALYST",
+          "name": "Security Analyst"
+        }
+      }
+    ],
+    "notes": [
+      {
+        "id": "NOTE-1793476740963-56",
+        "incidentId": "INC-20261031-1042",
+        "authorEmail": "analyst@evshield.demo",
+        "authorName": "Security Analyst",
+        "authorRole": "security_analyst",
+        "content": "Normal traffic resumed.",
+        "timestamp": "2026-10-31T19:59:00.963Z"
+      },
+      {
+        "id": "NOTE-1793476740944-88",
+        "incidentId": "INC-20261031-1042",
+        "authorEmail": "analyst@evshield.demo",
+        "authorName": "Security Analyst",
+        "authorRole": "security_analyst",
+        "content": "Attacking traffic isolated.",
+        "timestamp": "2026-10-31T19:59:00.944Z"
+      },
+      {
+        "id": "NOTE-1793476740916-76",
+        "incidentId": "INC-20261031-1042",
+        "authorEmail": "analyst@evshield.demo",
+        "authorName": "Security Analyst",
+        "authorRole": "security_analyst",
+        "content": "Verified packet rate surge originated from test probe IP 192.168.1.145.",
+        "timestamp": "2026-10-31T19:59:00.916Z"
+      },
+      {
+        "id": "NOTE-1793476740882-60",
+        "incidentId": "INC-20261031-1042",
+        "authorEmail": "analyst@evshield.demo",
+        "authorName": "Security Analyst",
+        "authorRole": "security_analyst",
+        "content": "Lead analyst started investigation.",
+        "timestamp": "2026-10-31T19:59:00.882Z"
+      },
+      {
+        "id": "NOTE-1793476560912-24",
+        "incidentId": "INC-20261031-1042",
+        "authorEmail": "analyst@evshield.demo",
+        "authorName": "Security Analyst",
+        "authorRole": "security_analyst",
+        "content": "Normal traffic resumed.",
+        "timestamp": "2026-10-31T19:56:00.912Z"
+      },
+      {
+        "id": "NOTE-1793476560908-51",
+        "incidentId": "INC-20261031-1042",
+        "authorEmail": "analyst@evshield.demo",
+        "authorName": "Security Analyst",
+        "authorRole": "security_analyst",
+        "content": "Attacking traffic isolated.",
+        "timestamp": "2026-10-31T19:56:00.908Z"
+      },
+      {
+        "id": "NOTE-1793476560885-16",
+        "incidentId": "INC-20261031-1042",
+        "authorEmail": "analyst@evshield.demo",
+        "authorName": "Security Analyst",
+        "authorRole": "security_analyst",
+        "content": "Verified packet rate surge originated from test probe IP 192.168.1.145.",
+        "timestamp": "2026-10-31T19:56:00.885Z"
+      },
+      {
+        "id": "NOTE-1793476560868-63",
+        "incidentId": "INC-20261031-1042",
+        "authorEmail": "analyst@evshield.demo",
+        "authorName": "Security Analyst",
+        "authorRole": "security_analyst",
+        "content": "Lead analyst started investigation.",
+        "timestamp": "2026-10-31T19:56:00.868Z"
+      },
+      {
+        "id": "NOTE-1793476399208-26",
+        "incidentId": "INC-20261031-1042",
+        "authorEmail": "analyst@evshield.demo",
+        "authorName": "Security Analyst",
+        "authorRole": "security_analyst",
+        "content": "Lead analyst started investigation.",
+        "timestamp": "2026-10-31T19:53:19.208Z"
+      },
+      {
+        "id": "NOTE-01",
+        "incidentId": "INC-20261031-1042",
+        "authorEmail": "analyst@evshield.demo",
+        "authorName": "Security Analyst",
+        "authorRole": "security_analyst",
+        "content": "Confirmed synthetic traffic flood during morning charging schedule. Ingress rate limit verified.",
+        "timestamp": "2026-10-31T19:22:08.602Z"
+      }
+    ],
+    "responseActions": [
+      {
+        "id": "ACT-01",
+        "incidentId": "INC-20261031-1042",
+        "title": "Verify Ingress Rate Limiter",
+        "description": "Check gateway firewall drop metrics and confirm threshold suppression.",
+        "category": "TRAFFIC_BURST",
+        "priority": "HIGH",
+        "status": "COMPLETED",
+        "actionType": "CONTAINMENT",
+        "rationale": "Suppresses downstream processing load on charging station backend.",
+        "updatedBy": "analyst@evshield.demo",
+        "updatedAt": "2026-10-31T19:59:00.928Z",
+        "notes": "Rate limiting applied successfully."
+      },
+      {
+        "id": "ACT-02",
+        "incidentId": "INC-20261031-1042",
+        "title": "Inspect Replay Token Cache",
+        "description": "Ensure duplicate authentication nonces are rejected.",
+        "category": "TRAFFIC_BURST",
+        "priority": "MEDIUM",
+        "status": "PENDING",
+        "actionType": "INVESTIGATION",
+        "rationale": "Identifies whether flood includes credential stuffing or replay attempts."
+      }
+    ],
+    "threatIntel": [
+      {
+        "indicator": "192.168.1.145",
+        "type": "IP",
+        "provider": "INTERNAL_RANGE",
+        "reputation": "BENIGN",
+        "confidence": 1,
+        "threatCategory": "Private Network Range (RFC 1918)",
+        "country": "Local Subnet",
+        "lookupTimestamp": "2026-10-31T19:07:08.602Z",
+        "status": "AVAILABLE",
+        "details": "Internal EV charging network station subnet."
+      }
+    ],
+    "riskAssessment": {
+      "score": 32,
+      "level": "LOW",
+      "calculatedAt": "2026-10-31T19:59:00.963Z",
+      "factors": [
+        {
+          "name": "Incident Severity Tier",
+          "weight": 30,
+          "score": 30,
+          "impact": "CRITICAL",
+          "description": "Baseline classification assigned at CRITICAL severity rating."
+        },
+        {
+          "name": "Attack Vector Profile",
+          "weight": 20,
+          "score": 16,
+          "impact": "TRAFFIC_BURST",
+          "description": "High-frequency request flood stressing backend charging session dispatch."
+        },
+        {
+          "name": "Baseline Deviation Magnitude",
+          "weight": 15,
+          "score": 1,
+          "impact": "+0%",
+          "description": "Observed traffic metrics exceed established normal baseline by +0%."
+        },
+        {
+          "name": "Alert Clustering Density",
+          "weight": 10,
+          "score": 2,
+          "impact": "1 alerts",
+          "description": "1 correlated alert observations aggregated within sliding observation window."
+        },
+        {
+          "name": "Infrastructure Blast Radius",
+          "weight": 10,
+          "score": 7,
+          "impact": "2 station(s)",
+          "description": "2 charging terminal(s) actively reporting correlated degradation."
+        },
+        {
+          "name": "ML Detector Confidence",
+          "weight": 10,
+          "score": 10,
+          "impact": "98%",
+          "description": "Consensus confidence across supervised and unsupervised detection models."
+        },
+        {
+          "name": "Threat Intelligence Signals",
+          "weight": 10,
+          "score": 1,
+          "impact": "NOMINAL",
+          "description": "Target source IPs verified clean or benign in threat database."
+        },
+        {
+          "name": "Incident Resolution Credit",
+          "weight": -35,
+          "score": -35,
+          "impact": "RESOLVED",
+          "description": "Incident verified recovered and nominal traffic baseline re-established."
+        }
+      ],
+      "explanation": "Calculated risk score of 32/100 (LOW) driven primarily by CRITICAL severity, TRAFFIC_BURST attack profile (+16 pts), and +0% deviation from baseline (+1 pts).",
+      "recommendations": [
+        "Continue standard continuous monitoring. Incident within nominal operating risk bounds."
+      ]
+    },
+    "rootCauseAnalysis": "External automated bot script generated high-frequency HTTP POST authentications against endpoint /api/auth.",
+    "resolvedAt": "2026-10-31T19:56:00.912Z"
+  },
+  {
+    "id": "INC-20261031-4450",
+    "title": "Multi-Vector Combined Attack Surge on Station CS-0421",
+    "description": "Multi-vector traffic anomaly observed. Request rate (20 req/s, +63.5%), connection rate (20 conn/s), and packet rate (80 pps) show systemic synchronized deviation across charging gateway.",
+    "category": "COMBINED_ANOMALY",
+    "categoryLabel": "Multi-Vector Combined Attack Surge",
+    "severity": "CRITICAL",
+    "status": "RESOLVED",
+    "riskScore": 28,
+    "riskLevel": "LOW",
+    "riskAssessment": {
+      "score": 28,
+      "level": "LOW",
+      "calculatedAt": "2026-10-31T20:00:08.165Z",
+      "factors": [
+        {
+          "name": "Incident Severity Tier",
+          "weight": 30,
+          "score": 30,
+          "impact": "CRITICAL",
+          "description": "Baseline classification assigned at CRITICAL severity rating."
+        },
+        {
+          "name": "Attack Vector Profile",
+          "weight": 20,
+          "score": 20,
+          "impact": "COMBINED_ANOMALY",
+          "description": "Multi-vector distributed volumetric surge threatening EV gateway availability."
+        },
+        {
+          "name": "Baseline Deviation Magnitude",
+          "weight": 15,
+          "score": 1,
+          "impact": "+0%",
+          "description": "Observed traffic metrics exceed established normal baseline by +0%."
+        },
+        {
+          "name": "Alert Clustering Density",
+          "weight": 10,
+          "score": 5,
+          "impact": "4 alerts",
+          "description": "4 correlated alert observations aggregated within sliding observation window."
+        },
+        {
+          "name": "Infrastructure Blast Radius",
+          "weight": 10,
+          "score": 4,
+          "impact": "1 station(s)",
+          "description": "1 charging terminal(s) actively reporting correlated degradation."
+        },
+        {
+          "name": "ML Detector Confidence",
+          "weight": 10,
+          "score": 2,
+          "impact": "24%",
+          "description": "Consensus confidence across supervised and unsupervised detection models."
+        },
+        {
+          "name": "Threat Intelligence Signals",
+          "weight": 10,
+          "score": 1,
+          "impact": "NOMINAL",
+          "description": "Target source IPs verified clean or benign in threat database."
+        },
+        {
+          "name": "Incident Resolution Credit",
+          "weight": -35,
+          "score": -35,
+          "impact": "RESOLVED",
+          "description": "Incident verified recovered and nominal traffic baseline re-established."
+        }
+      ],
+      "explanation": "Calculated risk score of 28/100 (LOW) driven primarily by CRITICAL severity, COMBINED_ANOMALY attack profile (+20 pts), and +0% deviation from baseline (+1 pts).",
+      "recommendations": [
+        "Continue standard continuous monitoring. Incident within nominal operating risk bounds."
+      ]
+    },
+    "confidence": 0.24,
+    "primaryStationId": "CS-0421",
+    "affectedStations": [
+      "CS-0421"
+    ],
+    "sourceIps": [
+      "127.0.0.1"
+    ],
+    "targetInfrastructure": "Gateway Zone (CS-0421 / 127.0.0.1:8080)",
+    "detectorAttribution": "RANDOM_FOREST",
+    "createdAt": "2026-10-31T19:59:01.076Z",
+    "firstDetectedAt": "2026-10-31T19:59:01.067Z",
+    "lastUpdatedAt": "2026-10-31T20:00:08.165Z",
+    "correlationGroup": {
+      "groupId": "GRP-1793476741076",
+      "primaryCategory": "COMBINED_ANOMALY",
+      "alertCount": 4,
+      "firstAlertTimestamp": "2026-10-31T19:59:01.067Z",
+      "lastAlertTimestamp": "2026-10-31T19:59:01.067Z",
+      "correlationReason": "Single qualifying CRITICAL anomaly alert initiated incident boundary on CS-0421.",
+      "patternType": "SINGLE_VECTOR_BURST",
+      "alerts": [
+        {
+          "alertId": "ALT-1793476741067-5004",
+          "timestamp": "2026-10-31T19:59:01.067Z",
+          "category": "ABNORMAL_PACKET_RATE",
+          "severity": "MEDIUM",
+          "sourceIp": "127.0.0.1",
+          "targetStationId": "CS-0421",
+          "metricValue": 80,
+          "deviationPercent": 63.5,
+          "explanation": "Packet delivery rate reached 80 packets/sec compared to nominal 48.93 packets/sec (+63.5% increase, Z-Score: 3.88)."
+        },
+        {
+          "alertId": "ALT-1793476741067-3090",
+          "timestamp": "2026-10-31T19:59:01.067Z",
+          "category": "HIGH_CONNECTION_RATE",
+          "severity": "MEDIUM",
+          "sourceIp": "127.0.0.1",
+          "targetStationId": "CS-0421",
+          "metricValue": 20,
+          "deviationPercent": 96.5,
+          "explanation": "Connection creation rate of 20 connections/sec significantly exceeded the established baseline of 10.18 connections/sec (+96.5% increase)."
+        },
+        {
+          "alertId": "ALT-1793476741067-5080",
+          "timestamp": "2026-10-31T19:59:01.067Z",
+          "category": "TRAFFIC_BURST",
+          "severity": "MEDIUM",
+          "sourceIp": "127.0.0.1",
+          "targetStationId": "CS-0421",
+          "metricValue": 20,
+          "deviationPercent": 63.5,
+          "explanation": "Observed request rate surged to 20 req/s against nominal baseline of 12.23 req/s (+63.5% increase, Z-Score: 3.11)."
+        },
+        {
+          "alertId": "ALT-1793476741067-3236",
+          "timestamp": "2026-10-31T19:59:01.067Z",
+          "category": "COMBINED_ANOMALY",
+          "severity": "CRITICAL",
+          "sourceIp": "127.0.0.1",
+          "targetStationId": "CS-0421",
+          "metricValue": 20,
+          "deviationPercent": 96.5,
+          "explanation": "Multi-vector traffic anomaly observed. Request rate (20 req/s, +63.5%), connection rate (20 conn/s), and packet rate (80 pps) show systemic synchronized deviation across charging gateway."
+        }
+      ]
+    },
+    "alerts": [
+      {
+        "alertId": "ALT-1793476741067-5004",
+        "timestamp": "2026-10-31T19:59:01.067Z",
+        "category": "ABNORMAL_PACKET_RATE",
+        "severity": "MEDIUM",
+        "sourceIp": "127.0.0.1",
+        "targetStationId": "CS-0421",
+        "metricValue": 80,
+        "deviationPercent": 63.5,
+        "explanation": "Packet delivery rate reached 80 packets/sec compared to nominal 48.93 packets/sec (+63.5% increase, Z-Score: 3.88)."
+      },
+      {
+        "alertId": "ALT-1793476741067-3090",
+        "timestamp": "2026-10-31T19:59:01.067Z",
+        "category": "HIGH_CONNECTION_RATE",
+        "severity": "MEDIUM",
+        "sourceIp": "127.0.0.1",
+        "targetStationId": "CS-0421",
+        "metricValue": 20,
+        "deviationPercent": 96.5,
+        "explanation": "Connection creation rate of 20 connections/sec significantly exceeded the established baseline of 10.18 connections/sec (+96.5% increase)."
+      },
+      {
+        "alertId": "ALT-1793476741067-5080",
+        "timestamp": "2026-10-31T19:59:01.067Z",
+        "category": "TRAFFIC_BURST",
+        "severity": "MEDIUM",
+        "sourceIp": "127.0.0.1",
+        "targetStationId": "CS-0421",
+        "metricValue": 20,
+        "deviationPercent": 63.5,
+        "explanation": "Observed request rate surged to 20 req/s against nominal baseline of 12.23 req/s (+63.5% increase, Z-Score: 3.11)."
+      },
+      {
+        "alertId": "ALT-1793476741067-3236",
+        "timestamp": "2026-10-31T19:59:01.067Z",
+        "category": "COMBINED_ANOMALY",
+        "severity": "CRITICAL",
+        "sourceIp": "127.0.0.1",
+        "targetStationId": "CS-0421",
+        "metricValue": 20,
+        "deviationPercent": 96.5,
+        "explanation": "Multi-vector traffic anomaly observed. Request rate (20 req/s, +63.5%), connection rate (20 conn/s), and packet rate (80 pps) show systemic synchronized deviation across charging gateway."
+      }
+    ],
+    "timeline": [
+      {
+        "id": "EVT-1793476808165-73",
+        "incidentId": "INC-20261031-4450",
+        "timestamp": "2026-10-31T20:00:08.165Z",
+        "eventType": "STATUS_CHANGED",
+        "title": "Status Changed to RESOLVED",
+        "description": "Incident transitioned from CONTAINED to RESOLVED. Note: Normal traffic resumed.",
+        "actor": {
+          "type": "ANALYST",
+          "name": "Security Analyst",
+          "role": "security_analyst"
+        }
+      },
+      {
+        "id": "EVT-1793476808163-71",
+        "incidentId": "INC-20261031-4450",
+        "timestamp": "2026-10-31T20:00:08.163Z",
+        "eventType": "STATUS_CHANGED",
+        "title": "Status Changed to CONTAINED",
+        "description": "Incident transitioned from INVESTIGATING to CONTAINED. Note: Attacking traffic isolated.",
+        "actor": {
+          "type": "ANALYST",
+          "name": "Security Analyst",
+          "role": "security_analyst"
+        }
+      },
+      {
+        "id": "EVT-1793476808157-88",
+        "incidentId": "INC-20261031-4450",
+        "timestamp": "2026-10-31T20:00:08.157Z",
+        "eventType": "ACTION_EXECUTED",
+        "title": "Response Action Marked COMPLETED",
+        "description": "Action 'Acknowledge Incident & Validate Telemetry Stream' set to COMPLETED by Security Analyst. Note: Rate limiting applied successfully.",
+        "actor": {
+          "type": "ANALYST",
+          "name": "Security Analyst",
+          "role": "security_analyst"
+        }
+      },
+      {
+        "id": "EVT-1793476808150-99",
+        "incidentId": "INC-20261031-4450",
+        "timestamp": "2026-10-31T20:00:08.150Z",
+        "eventType": "NOTE_ADDED",
+        "title": "Investigation Note Added",
+        "description": "Verified packet rate surge originated from test probe IP 192.168.1.145.",
+        "actor": {
+          "type": "ANALYST",
+          "name": "Security Analyst",
+          "role": "security_analyst"
+        }
+      },
+      {
+        "id": "EVT-1793476808143-89",
+        "incidentId": "INC-20261031-4450",
+        "timestamp": "2026-10-31T20:00:08.143Z",
+        "eventType": "ANALYST_ASSIGNED",
+        "title": "Analyst Assigned",
+        "description": "Assigned to Security Analyst (analyst@evshield.demo).",
+        "actor": {
+          "type": "ANALYST",
+          "name": "Security Analyst",
+          "role": "security_analyst"
+        }
+      },
+      {
+        "id": "EVT-1793476808136-29",
+        "incidentId": "INC-20261031-4450",
+        "timestamp": "2026-10-31T20:00:08.136Z",
+        "eventType": "STATUS_CHANGED",
+        "title": "Status Changed to INVESTIGATING",
+        "description": "Incident transitioned from OPEN to INVESTIGATING. Note: Lead analyst started investigation.",
+        "actor": {
+          "type": "ANALYST",
+          "name": "Security Analyst",
+          "role": "security_analyst"
+        }
+      },
+      {
+        "id": "EVT-1793476741075-1",
+        "incidentId": "INC-20261031-4450",
+        "timestamp": "2026-10-31T19:59:01.067Z",
+        "eventType": "ANOMALY_DETECTED",
+        "title": "Multi-Vector Combined Attack Surge Detected",
+        "description": "Multi-vector traffic anomaly observed. Request rate (20 req/s, +63.5%), connection rate (20 conn/s), and packet rate (80 pps) show systemic synchronized deviation across charging gateway.",
+        "actor": {
+          "type": "DETECTOR",
+          "name": "RANDOM_FOREST"
+        },
+        "evidence": {
+          "alertId": "ALT-1793476741067-3236",
+          "detector": "RANDOM_FOREST",
+          "deviationPercent": 96.5,
+          "sourceIp": "127.0.0.1"
+        }
+      },
+      {
+        "id": "EVT-1793476741075-2",
+        "incidentId": "INC-20261031-4450",
+        "timestamp": "2026-10-31T19:59:01.075Z",
+        "eventType": "INCIDENT_CREATED",
+        "title": "Incident Automatically Created",
+        "description": "Qualifying CRITICAL alert breached security threshold. Assigned incident ID INC-20261031-4450.",
+        "actor": {
+          "type": "SYSTEM",
+          "name": "AlertCorrelationEngine"
+        }
+      }
+    ],
+    "notes": [
+      {
+        "id": "NOTE-1793476808165-33",
+        "incidentId": "INC-20261031-4450",
+        "authorEmail": "analyst@evshield.demo",
+        "authorName": "Security Analyst",
+        "authorRole": "security_analyst",
+        "content": "Normal traffic resumed.",
+        "timestamp": "2026-10-31T20:00:08.165Z"
+      },
+      {
+        "id": "NOTE-1793476808163-31",
+        "incidentId": "INC-20261031-4450",
+        "authorEmail": "analyst@evshield.demo",
+        "authorName": "Security Analyst",
+        "authorRole": "security_analyst",
+        "content": "Attacking traffic isolated.",
+        "timestamp": "2026-10-31T20:00:08.163Z"
+      },
+      {
+        "id": "NOTE-1793476808150-33",
+        "incidentId": "INC-20261031-4450",
+        "authorEmail": "analyst@evshield.demo",
+        "authorName": "Security Analyst",
+        "authorRole": "security_analyst",
+        "content": "Verified packet rate surge originated from test probe IP 192.168.1.145.",
+        "timestamp": "2026-10-31T20:00:08.150Z"
+      },
+      {
+        "id": "NOTE-1793476808136-75",
+        "incidentId": "INC-20261031-4450",
+        "authorEmail": "analyst@evshield.demo",
+        "authorName": "Security Analyst",
+        "authorRole": "security_analyst",
+        "content": "Lead analyst started investigation.",
+        "timestamp": "2026-10-31T20:00:08.136Z"
+      }
+    ],
+    "responseActions": [
+      {
+        "id": "ACT-1793476741075-1",
+        "incidentId": "INC-20261031-4450",
+        "title": "Acknowledge Incident & Validate Telemetry Stream",
+        "description": "Review active latency, requests/sec, and packet rates on the live monitoring dashboard to confirm anomaly persistence.",
+        "category": "COMBINED_ANOMALY",
+        "priority": "HIGH",
+        "status": "COMPLETED",
+        "actionType": "INVESTIGATION",
+        "rationale": "Establishes initial operational scope and rules out transient network hiccups.",
+        "updatedBy": "analyst@evshield.demo",
+        "updatedAt": "2026-10-31T20:00:08.157Z",
+        "notes": "Rate limiting applied successfully."
+      },
+      {
+        "id": "ACT-1793476741075-2",
+        "incidentId": "INC-20261031-4450",
+        "title": "Initiate Coordinated Multi-Vector Shield Protocol",
+        "description": "Engage gateway rate clamping, connection duration ceilings, and strict token nonce checks concurrently.",
+        "category": "COMBINED_ANOMALY",
+        "priority": "HIGH",
+        "status": "PENDING",
+        "actionType": "CONTAINMENT",
+        "rationale": "Attacks spanning multiple metrics require layered defense across both rate and transport layers."
+      },
+      {
+        "id": "ACT-1793476741075-4",
+        "incidentId": "INC-20261031-4450",
+        "title": "Conduct Post-Mitigation Recovery Verification",
+        "description": "Observe 2 consecutive 1-second telemetry cycles at baseline (~12 req/s) before marking incident RESOLVED.",
+        "category": "COMBINED_ANOMALY",
+        "priority": "LOW",
+        "status": "PENDING",
+        "actionType": "RECOVERY",
+        "rationale": "Ensures security status returns to PROTECTED only after abnormal activity has completely subsided."
+      }
+    ],
+    "rootCauseAnalysis": "Multi-vector traffic anomaly observed. Request rate (20 req/s, +63.5%), connection rate (20 conn/s), and packet rate (80 pps) show systemic synchronized deviation across charging gateway.",
+    "threatIntel": [
+      {
+        "indicator": "127.0.0.1",
+        "type": "IP",
+        "provider": "INTERNAL_RANGE",
+        "reputation": "BENIGN",
+        "confidence": 1,
+        "threatCategory": "Private Network Range (RFC 1918)",
+        "country": "Local Subnet",
+        "lookupTimestamp": "2026-10-31T19:59:01.076Z",
+        "status": "AVAILABLE",
+        "details": "Internal EV charging network station subnet. IP belongs to private address allocation (RFC 1918)."
+      }
+    ],
+    "assignedTo": {
+      "email": "analyst@evshield.demo",
+      "name": "Security Analyst",
+      "role": "security_analyst",
+      "assignedAt": "2026-10-31T20:00:08.143Z"
+    },
+    "containedAt": "2026-10-31T20:00:08.163Z",
+    "resolvedAt": "2026-10-31T20:00:08.165Z"
+  },
+  {
+    "id": "INC-20261031-9911",
+    "title": "Multi-Vector Combined Attack Surge on Station CS-0421",
+    "description": "Multi-vector traffic anomaly observed. Request rate (21 req/s, +76.2%), connection rate (21 conn/s), and packet rate (84 pps) show systemic synchronized deviation across charging gateway.",
+    "category": "COMBINED_ANOMALY",
+    "categoryLabel": "Multi-Vector Combined Attack Surge",
+    "severity": "CRITICAL",
+    "status": "OPEN",
+    "riskScore": 75,
+    "riskLevel": "HIGH",
+    "riskAssessment": {
+      "score": 75,
+      "level": "HIGH",
+      "calculatedAt": "2026-10-31T20:01:19.407Z",
+      "factors": [
+        {
+          "name": "Incident Severity Tier",
+          "weight": 30,
+          "score": 30,
+          "impact": "CRITICAL",
+          "description": "Baseline classification assigned at CRITICAL severity rating."
+        },
+        {
+          "name": "Attack Vector Profile",
+          "weight": 20,
+          "score": 20,
+          "impact": "COMBINED_ANOMALY",
+          "description": "Multi-vector distributed volumetric surge threatening EV gateway availability."
+        },
+        {
+          "name": "Baseline Deviation Magnitude",
+          "weight": 15,
+          "score": 8,
+          "impact": "+142%",
+          "description": "Observed traffic metrics exceed established normal baseline by +142%."
+        },
+        {
+          "name": "Alert Clustering Density",
+          "weight": 10,
+          "score": 10,
+          "impact": "27 alerts",
+          "description": "27 correlated alert observations aggregated within sliding observation window."
+        },
+        {
+          "name": "Infrastructure Blast Radius",
+          "weight": 10,
+          "score": 4,
+          "impact": "1 station(s)",
+          "description": "1 charging terminal(s) actively reporting correlated degradation."
+        },
+        {
+          "name": "ML Detector Confidence",
+          "weight": 10,
+          "score": 2,
+          "impact": "24%",
+          "description": "Consensus confidence across supervised and unsupervised detection models."
+        },
+        {
+          "name": "Threat Intelligence Signals",
+          "weight": 10,
+          "score": 1,
+          "impact": "NOMINAL",
+          "description": "Target source IPs verified clean or benign in threat database."
+        }
+      ],
+      "explanation": "Calculated risk score of 75/100 (HIGH) driven primarily by CRITICAL severity, COMBINED_ANOMALY attack profile (+20 pts), and +142% deviation from baseline (+8 pts).",
+      "recommendations": [
+        "Investigate source IPs and verify whether activity stems from automated bot re-attempts.",
+        "Inspect server authentication logs for repeated failure patterns and hold times."
+      ]
+    },
+    "confidence": 0.24,
+    "primaryStationId": "CS-0421",
+    "affectedStations": [
+      "CS-0421"
+    ],
+    "sourceIps": [
+      "192.168.1.50",
+      "127.0.0.1",
+      "10.0.184.134",
+      "10.0.19.179",
+      "192.168.1.99"
+    ],
+    "targetInfrastructure": "Gateway Zone (CS-0421 / 127.0.0.1:8080)",
+    "detectorAttribution": "RANDOM_FOREST",
+    "createdAt": "2026-10-31T20:00:08.640Z",
+    "firstDetectedAt": "2026-10-31T20:00:08.633Z",
+    "lastUpdatedAt": "2026-10-31T20:01:19.407Z",
+    "correlationGroup": {
+      "groupId": "GRP-1793476808640",
+      "primaryCategory": "COMBINED_ANOMALY",
+      "alertCount": 27,
+      "firstAlertTimestamp": "2026-10-31T20:00:08.633Z",
+      "lastAlertTimestamp": "2026-10-31T20:01:18.909Z",
+      "correlationReason": "Single qualifying CRITICAL anomaly alert initiated incident boundary on CS-0421.",
+      "patternType": "SINGLE_VECTOR_BURST",
+      "alerts": [
+        {
+          "alertId": "ALT-1793476878909-4120",
+          "timestamp": "2026-10-31T20:01:18.909Z",
+          "category": "REPEATED_REQUESTS",
+          "severity": "MEDIUM",
+          "sourceIp": "192.168.1.99",
+          "targetStationId": "CS-0421",
+          "metricValue": 17,
+          "deviationPercent": 1600,
+          "explanation": "Excessive repeated requests detected (17 identical queries in recent window). Indicative of automated replay attack, authentication brute-force, or client retry storm."
+        },
+        {
+          "alertId": "ALT-1793476876900-7453",
+          "timestamp": "2026-10-31T20:01:16.900Z",
+          "category": "EXCESSIVE_DATA_TRANSFER",
+          "severity": "HIGH",
+          "sourceIp": "127.0.0.1",
+          "targetStationId": "CS-0421",
+          "metricValue": 15400,
+          "deviationPercent": 171.2,
+          "explanation": "Data-transfer volume reached 15400 bytes/sec (+171.2% increase over baseline 5677.53 bytes/sec)."
+        },
+        {
+          "alertId": "ALT-1793476876900-8921",
+          "timestamp": "2026-10-31T20:01:16.900Z",
+          "category": "ABNORMAL_PACKET_RATE",
+          "severity": "MEDIUM",
+          "sourceIp": "127.0.0.1",
+          "targetStationId": "CS-0421",
+          "metricValue": 100,
+          "deviationPercent": 120.4,
+          "explanation": "Packet delivery rate reached 100 packets/sec compared to nominal 45.37 packets/sec (+120.4% increase, Z-Score: 5.96)."
+        },
+        {
+          "alertId": "ALT-1793476876900-2292",
+          "timestamp": "2026-10-31T20:01:16.900Z",
+          "category": "HIGH_CONNECTION_RATE",
+          "severity": "CRITICAL",
+          "sourceIp": "127.0.0.1",
+          "targetStationId": "CS-0421",
+          "metricValue": 50,
+          "deviationPercent": 425.2,
+          "explanation": "Connection creation rate of 50 connections/sec significantly exceeded the established baseline of 9.52 connections/sec (+425.2% increase)."
+        },
+        {
+          "alertId": "ALT-1793476876900-8600",
+          "timestamp": "2026-10-31T20:01:16.900Z",
+          "category": "TRAFFIC_BURST",
+          "severity": "CRITICAL",
+          "sourceIp": "127.0.0.1",
+          "targetStationId": "CS-0421",
+          "metricValue": 50,
+          "deviationPercent": 340.5,
+          "explanation": "Observed request rate surged to 50 req/s against nominal baseline of 11.35 req/s (+340.5% increase, Z-Score: 15.46)."
+        },
+        {
+          "alertId": "ALT-1793476876900-9251",
+          "timestamp": "2026-10-31T20:01:16.900Z",
+          "category": "COMBINED_ANOMALY",
+          "severity": "CRITICAL",
+          "sourceIp": "127.0.0.1",
+          "targetStationId": "CS-0421",
+          "metricValue": 50,
+          "deviationPercent": 425.2,
+          "explanation": "Multi-vector traffic anomaly observed. Request rate (50 req/s, +340.5%), connection rate (50 conn/s), and packet rate (100 pps) show systemic synchronized deviation across charging gateway."
+        },
+        {
+          "alertId": "ALT-1793476875896-4100",
+          "timestamp": "2026-10-31T20:01:15.896Z",
+          "category": "REPEATED_REQUESTS",
+          "severity": "HIGH",
+          "sourceIp": "127.0.0.1",
+          "targetStationId": "CS-0421",
+          "metricValue": 25,
+          "deviationPercent": 2400,
+          "explanation": "Excessive repeated requests detected (25 identical queries in recent window). Indicative of automated replay attack, authentication brute-force, or client retry storm."
+        },
+        {
+          "alertId": "ALT-1793476873887-1275",
+          "timestamp": "2026-10-31T20:01:13.887Z",
+          "category": "EXCESSIVE_DATA_TRANSFER",
+          "severity": "CRITICAL",
+          "sourceIp": "10.0.19.179",
+          "targetStationId": "CS-0421",
+          "metricValue": 33096,
+          "deviationPercent": 471.8,
+          "explanation": "Data-transfer volume reached 33096 bytes/sec (+471.8% increase over baseline 5788.47 bytes/sec)."
+        },
+        {
+          "alertId": "ALT-1793476873887-2839",
+          "timestamp": "2026-10-31T20:01:13.887Z",
+          "category": "ABNORMAL_PACKET_RATE",
+          "severity": "HIGH",
+          "sourceIp": "10.0.19.179",
+          "targetStationId": "CS-0421",
+          "metricValue": 140,
+          "deviationPercent": 202.8,
+          "explanation": "Packet delivery rate reached 140 packets/sec compared to nominal 46.23 packets/sec (+202.8% increase, Z-Score: 11.72)."
+        },
+        {
+          "alertId": "ALT-1793476873887-3281",
+          "timestamp": "2026-10-31T20:01:13.887Z",
+          "category": "HIGH_CONNECTION_RATE",
+          "severity": "CRITICAL",
+          "sourceIp": "10.0.19.179",
+          "targetStationId": "CS-0421",
+          "metricValue": 341,
+          "deviationPercent": 3415.5,
+          "explanation": "Connection creation rate of 341 connections/sec significantly exceeded the established baseline of 9.7 connections/sec (+3415.5% increase)."
+        },
+        {
+          "alertId": "ALT-1793476873887-5523",
+          "timestamp": "2026-10-31T20:01:13.887Z",
+          "category": "TRAFFIC_BURST",
+          "severity": "CRITICAL",
+          "sourceIp": "10.0.19.179",
+          "targetStationId": "CS-0421",
+          "metricValue": 69,
+          "deviationPercent": 496.4,
+          "explanation": "Observed request rate surged to 69 req/s against nominal baseline of 11.57 req/s (+496.4% increase, Z-Score: 22.97)."
+        },
+        {
+          "alertId": "ALT-1793476873887-4576",
+          "timestamp": "2026-10-31T20:01:13.887Z",
+          "category": "COMBINED_ANOMALY",
+          "severity": "CRITICAL",
+          "sourceIp": "10.0.19.179",
+          "targetStationId": "CS-0421",
+          "metricValue": 69,
+          "deviationPercent": 3415.5,
+          "explanation": "Multi-vector traffic anomaly observed. Request rate (69 req/s, +496.4%), connection rate (341 conn/s), and packet rate (140 pps) show systemic synchronized deviation across charging gateway."
+        },
+        {
+          "alertId": "ALT-1793476870884-1098",
+          "timestamp": "2026-10-31T20:01:10.884Z",
+          "category": "EXCESSIVE_DATA_TRANSFER",
+          "severity": "CRITICAL",
+          "sourceIp": "127.0.0.1",
+          "targetStationId": "CS-0421",
+          "metricValue": 29805,
+          "deviationPercent": 414.9,
+          "explanation": "Data-transfer volume reached 29805 bytes/sec (+414.9% increase over baseline 5788.47 bytes/sec)."
+        },
+        {
+          "alertId": "ALT-1793476870884-6646",
+          "timestamp": "2026-10-31T20:01:10.884Z",
+          "category": "ABNORMAL_PACKET_RATE",
+          "severity": "CRITICAL",
+          "sourceIp": "127.0.0.1",
+          "targetStationId": "CS-0421",
+          "metricValue": 616,
+          "deviationPercent": 1232.5,
+          "explanation": "Packet delivery rate reached 616 packets/sec compared to nominal 46.23 packets/sec (+1232.5% increase, Z-Score: 71.22)."
+        },
+        {
+          "alertId": "ALT-1793476870884-4349",
+          "timestamp": "2026-10-31T20:01:10.884Z",
+          "category": "REPEATED_REQUESTS",
+          "severity": "MEDIUM",
+          "sourceIp": "127.0.0.1",
+          "targetStationId": "CS-0421",
+          "metricValue": 24,
+          "deviationPercent": 2300,
+          "explanation": "Excessive repeated requests detected (24 identical queries in recent window). Indicative of automated replay attack, authentication brute-force, or client retry storm."
+        },
+        {
+          "alertId": "ALT-1793476870884-9588",
+          "timestamp": "2026-10-31T20:01:10.884Z",
+          "category": "HIGH_CONNECTION_RATE",
+          "severity": "CRITICAL",
+          "sourceIp": "127.0.0.1",
+          "targetStationId": "CS-0421",
+          "metricValue": 205,
+          "deviationPercent": 2013.4,
+          "explanation": "Connection creation rate of 205 connections/sec significantly exceeded the established baseline of 9.7 connections/sec (+2013.4% increase)."
+        },
+        {
+          "alertId": "ALT-1793476870884-1558",
+          "timestamp": "2026-10-31T20:01:10.884Z",
+          "category": "TRAFFIC_BURST",
+          "severity": "CRITICAL",
+          "sourceIp": "127.0.0.1",
+          "targetStationId": "CS-0421",
+          "metricValue": 103,
+          "deviationPercent": 790.2,
+          "explanation": "Observed request rate surged to 103 req/s against nominal baseline of 11.57 req/s (+790.2% increase, Z-Score: 36.57)."
+        },
+        {
+          "alertId": "ALT-1793476870884-1995",
+          "timestamp": "2026-10-31T20:01:10.884Z",
+          "category": "COMBINED_ANOMALY",
+          "severity": "CRITICAL",
+          "sourceIp": "127.0.0.1",
+          "targetStationId": "CS-0421",
+          "metricValue": 103,
+          "deviationPercent": 2013.4,
+          "explanation": "Multi-vector traffic anomaly observed. Request rate (103 req/s, +790.2%), connection rate (205 conn/s), and packet rate (616 pps) show systemic synchronized deviation across charging gateway."
+        },
+        {
+          "alertId": "ALT-1793476856394-8867",
+          "timestamp": "2026-10-31T20:00:56.394Z",
+          "category": "REPEATED_REQUESTS",
+          "severity": "MEDIUM",
+          "sourceIp": "127.0.0.1",
+          "targetStationId": "CS-0421",
+          "metricValue": 24,
+          "deviationPercent": 2300,
+          "explanation": "Excessive repeated requests detected (24 identical queries in recent window). Indicative of automated replay attack, authentication brute-force, or client retry storm."
+        },
+        {
+          "alertId": "ALT-1793476854389-8458",
+          "timestamp": "2026-10-31T20:00:54.389Z",
+          "category": "ABNORMAL_PACKET_RATE",
+          "severity": "MEDIUM",
+          "sourceIp": "192.168.1.50",
+          "targetStationId": "CS-0421",
+          "metricValue": 84,
+          "deviationPercent": 74.7,
+          "explanation": "Packet delivery rate reached 84 packets/sec compared to nominal 48.07 packets/sec (+74.7% increase, Z-Score: 4.49)."
+        },
+        {
+          "alertId": "ALT-1793476854389-3605",
+          "timestamp": "2026-10-31T20:00:54.389Z",
+          "category": "HIGH_CONNECTION_RATE",
+          "severity": "MEDIUM",
+          "sourceIp": "192.168.1.50",
+          "targetStationId": "CS-0421",
+          "metricValue": 21,
+          "deviationPercent": 109,
+          "explanation": "Connection creation rate of 21 connections/sec significantly exceeded the established baseline of 10.05 connections/sec (+109% increase)."
+        },
+        {
+          "alertId": "ALT-1793476854389-6207",
+          "timestamp": "2026-10-31T20:00:54.389Z",
+          "category": "TRAFFIC_BURST",
+          "severity": "MEDIUM",
+          "sourceIp": "192.168.1.50",
+          "targetStationId": "CS-0421",
+          "metricValue": 21,
+          "deviationPercent": 74.7,
+          "explanation": "Observed request rate surged to 21 req/s against nominal baseline of 12.02 req/s (+74.7% increase, Z-Score: 3.59)."
+        },
+        {
+          "alertId": "ALT-1793476854389-1781",
+          "timestamp": "2026-10-31T20:00:54.389Z",
+          "category": "COMBINED_ANOMALY",
+          "severity": "CRITICAL",
+          "sourceIp": "192.168.1.50",
+          "targetStationId": "CS-0421",
+          "metricValue": 21,
+          "deviationPercent": 109,
+          "explanation": "Multi-vector traffic anomaly observed. Request rate (21 req/s, +74.7%), connection rate (21 conn/s), and packet rate (84 pps) show systemic synchronized deviation across charging gateway."
+        },
+        {
+          "alertId": "ALT-1793476808633-1359",
+          "timestamp": "2026-10-31T20:00:08.633Z",
+          "category": "ABNORMAL_PACKET_RATE",
+          "severity": "MEDIUM",
+          "sourceIp": "192.168.1.50",
+          "targetStationId": "CS-0421",
+          "metricValue": 84,
+          "deviationPercent": 76.2,
+          "explanation": "Packet delivery rate reached 84 packets/sec compared to nominal 47.67 packets/sec (+76.2% increase, Z-Score: 4.54)."
+        },
+        {
+          "alertId": "ALT-1793476808633-4994",
+          "timestamp": "2026-10-31T20:00:08.633Z",
+          "category": "HIGH_CONNECTION_RATE",
+          "severity": "MEDIUM",
+          "sourceIp": "192.168.1.50",
+          "targetStationId": "CS-0421",
+          "metricValue": 21,
+          "deviationPercent": 111.1,
+          "explanation": "Connection creation rate of 21 connections/sec significantly exceeded the established baseline of 9.95 connections/sec (+111.1% increase)."
+        },
+        {
+          "alertId": "ALT-1793476808633-2116",
+          "timestamp": "2026-10-31T20:00:08.633Z",
+          "category": "TRAFFIC_BURST",
+          "severity": "MEDIUM",
+          "sourceIp": "192.168.1.50",
+          "targetStationId": "CS-0421",
+          "metricValue": 21,
+          "deviationPercent": 76.2,
+          "explanation": "Observed request rate surged to 21 req/s against nominal baseline of 11.92 req/s (+76.2% increase, Z-Score: 3.63)."
+        },
+        {
+          "alertId": "ALT-1793476808633-3089",
+          "timestamp": "2026-10-31T20:00:08.633Z",
+          "category": "COMBINED_ANOMALY",
+          "severity": "CRITICAL",
+          "sourceIp": "192.168.1.50",
+          "targetStationId": "CS-0421",
+          "metricValue": 21,
+          "deviationPercent": 111.1,
+          "explanation": "Multi-vector traffic anomaly observed. Request rate (21 req/s, +76.2%), connection rate (21 conn/s), and packet rate (84 pps) show systemic synchronized deviation across charging gateway."
+        }
+      ]
+    },
+    "alerts": [
+      {
+        "alertId": "ALT-1793476878909-4120",
+        "timestamp": "2026-10-31T20:01:18.909Z",
+        "category": "REPEATED_REQUESTS",
+        "severity": "MEDIUM",
+        "sourceIp": "192.168.1.99",
+        "targetStationId": "CS-0421",
+        "metricValue": 17,
+        "deviationPercent": 1600,
+        "explanation": "Excessive repeated requests detected (17 identical queries in recent window). Indicative of automated replay attack, authentication brute-force, or client retry storm."
+      },
+      {
+        "alertId": "ALT-1793476876900-7453",
+        "timestamp": "2026-10-31T20:01:16.900Z",
+        "category": "EXCESSIVE_DATA_TRANSFER",
+        "severity": "HIGH",
+        "sourceIp": "127.0.0.1",
+        "targetStationId": "CS-0421",
+        "metricValue": 15400,
+        "deviationPercent": 171.2,
+        "explanation": "Data-transfer volume reached 15400 bytes/sec (+171.2% increase over baseline 5677.53 bytes/sec)."
+      },
+      {
+        "alertId": "ALT-1793476876900-8921",
+        "timestamp": "2026-10-31T20:01:16.900Z",
+        "category": "ABNORMAL_PACKET_RATE",
+        "severity": "MEDIUM",
+        "sourceIp": "127.0.0.1",
+        "targetStationId": "CS-0421",
+        "metricValue": 100,
+        "deviationPercent": 120.4,
+        "explanation": "Packet delivery rate reached 100 packets/sec compared to nominal 45.37 packets/sec (+120.4% increase, Z-Score: 5.96)."
+      },
+      {
+        "alertId": "ALT-1793476876900-2292",
+        "timestamp": "2026-10-31T20:01:16.900Z",
+        "category": "HIGH_CONNECTION_RATE",
+        "severity": "CRITICAL",
+        "sourceIp": "127.0.0.1",
+        "targetStationId": "CS-0421",
+        "metricValue": 50,
+        "deviationPercent": 425.2,
+        "explanation": "Connection creation rate of 50 connections/sec significantly exceeded the established baseline of 9.52 connections/sec (+425.2% increase)."
+      },
+      {
+        "alertId": "ALT-1793476876900-8600",
+        "timestamp": "2026-10-31T20:01:16.900Z",
+        "category": "TRAFFIC_BURST",
+        "severity": "CRITICAL",
+        "sourceIp": "127.0.0.1",
+        "targetStationId": "CS-0421",
+        "metricValue": 50,
+        "deviationPercent": 340.5,
+        "explanation": "Observed request rate surged to 50 req/s against nominal baseline of 11.35 req/s (+340.5% increase, Z-Score: 15.46)."
+      },
+      {
+        "alertId": "ALT-1793476876900-9251",
+        "timestamp": "2026-10-31T20:01:16.900Z",
+        "category": "COMBINED_ANOMALY",
+        "severity": "CRITICAL",
+        "sourceIp": "127.0.0.1",
+        "targetStationId": "CS-0421",
+        "metricValue": 50,
+        "deviationPercent": 425.2,
+        "explanation": "Multi-vector traffic anomaly observed. Request rate (50 req/s, +340.5%), connection rate (50 conn/s), and packet rate (100 pps) show systemic synchronized deviation across charging gateway."
+      },
+      {
+        "alertId": "ALT-1793476875896-4100",
+        "timestamp": "2026-10-31T20:01:15.896Z",
+        "category": "REPEATED_REQUESTS",
+        "severity": "HIGH",
+        "sourceIp": "127.0.0.1",
+        "targetStationId": "CS-0421",
+        "metricValue": 25,
+        "deviationPercent": 2400,
+        "explanation": "Excessive repeated requests detected (25 identical queries in recent window). Indicative of automated replay attack, authentication brute-force, or client retry storm."
+      },
+      {
+        "alertId": "ALT-1793476873887-1275",
+        "timestamp": "2026-10-31T20:01:13.887Z",
+        "category": "EXCESSIVE_DATA_TRANSFER",
+        "severity": "CRITICAL",
+        "sourceIp": "10.0.19.179",
+        "targetStationId": "CS-0421",
+        "metricValue": 33096,
+        "deviationPercent": 471.8,
+        "explanation": "Data-transfer volume reached 33096 bytes/sec (+471.8% increase over baseline 5788.47 bytes/sec)."
+      },
+      {
+        "alertId": "ALT-1793476873887-2839",
+        "timestamp": "2026-10-31T20:01:13.887Z",
+        "category": "ABNORMAL_PACKET_RATE",
+        "severity": "HIGH",
+        "sourceIp": "10.0.19.179",
+        "targetStationId": "CS-0421",
+        "metricValue": 140,
+        "deviationPercent": 202.8,
+        "explanation": "Packet delivery rate reached 140 packets/sec compared to nominal 46.23 packets/sec (+202.8% increase, Z-Score: 11.72)."
+      },
+      {
+        "alertId": "ALT-1793476873887-3281",
+        "timestamp": "2026-10-31T20:01:13.887Z",
+        "category": "HIGH_CONNECTION_RATE",
+        "severity": "CRITICAL",
+        "sourceIp": "10.0.19.179",
+        "targetStationId": "CS-0421",
+        "metricValue": 341,
+        "deviationPercent": 3415.5,
+        "explanation": "Connection creation rate of 341 connections/sec significantly exceeded the established baseline of 9.7 connections/sec (+3415.5% increase)."
+      },
+      {
+        "alertId": "ALT-1793476873887-5523",
+        "timestamp": "2026-10-31T20:01:13.887Z",
+        "category": "TRAFFIC_BURST",
+        "severity": "CRITICAL",
+        "sourceIp": "10.0.19.179",
+        "targetStationId": "CS-0421",
+        "metricValue": 69,
+        "deviationPercent": 496.4,
+        "explanation": "Observed request rate surged to 69 req/s against nominal baseline of 11.57 req/s (+496.4% increase, Z-Score: 22.97)."
+      },
+      {
+        "alertId": "ALT-1793476873887-4576",
+        "timestamp": "2026-10-31T20:01:13.887Z",
+        "category": "COMBINED_ANOMALY",
+        "severity": "CRITICAL",
+        "sourceIp": "10.0.19.179",
+        "targetStationId": "CS-0421",
+        "metricValue": 69,
+        "deviationPercent": 3415.5,
+        "explanation": "Multi-vector traffic anomaly observed. Request rate (69 req/s, +496.4%), connection rate (341 conn/s), and packet rate (140 pps) show systemic synchronized deviation across charging gateway."
+      },
+      {
+        "alertId": "ALT-1793476870884-1098",
+        "timestamp": "2026-10-31T20:01:10.884Z",
+        "category": "EXCESSIVE_DATA_TRANSFER",
+        "severity": "CRITICAL",
+        "sourceIp": "127.0.0.1",
+        "targetStationId": "CS-0421",
+        "metricValue": 29805,
+        "deviationPercent": 414.9,
+        "explanation": "Data-transfer volume reached 29805 bytes/sec (+414.9% increase over baseline 5788.47 bytes/sec)."
+      },
+      {
+        "alertId": "ALT-1793476870884-6646",
+        "timestamp": "2026-10-31T20:01:10.884Z",
+        "category": "ABNORMAL_PACKET_RATE",
+        "severity": "CRITICAL",
+        "sourceIp": "127.0.0.1",
+        "targetStationId": "CS-0421",
+        "metricValue": 616,
+        "deviationPercent": 1232.5,
+        "explanation": "Packet delivery rate reached 616 packets/sec compared to nominal 46.23 packets/sec (+1232.5% increase, Z-Score: 71.22)."
+      },
+      {
+        "alertId": "ALT-1793476870884-4349",
+        "timestamp": "2026-10-31T20:01:10.884Z",
+        "category": "REPEATED_REQUESTS",
+        "severity": "MEDIUM",
+        "sourceIp": "127.0.0.1",
+        "targetStationId": "CS-0421",
+        "metricValue": 24,
+        "deviationPercent": 2300,
+        "explanation": "Excessive repeated requests detected (24 identical queries in recent window). Indicative of automated replay attack, authentication brute-force, or client retry storm."
+      },
+      {
+        "alertId": "ALT-1793476870884-9588",
+        "timestamp": "2026-10-31T20:01:10.884Z",
+        "category": "HIGH_CONNECTION_RATE",
+        "severity": "CRITICAL",
+        "sourceIp": "127.0.0.1",
+        "targetStationId": "CS-0421",
+        "metricValue": 205,
+        "deviationPercent": 2013.4,
+        "explanation": "Connection creation rate of 205 connections/sec significantly exceeded the established baseline of 9.7 connections/sec (+2013.4% increase)."
+      },
+      {
+        "alertId": "ALT-1793476870884-1558",
+        "timestamp": "2026-10-31T20:01:10.884Z",
+        "category": "TRAFFIC_BURST",
+        "severity": "CRITICAL",
+        "sourceIp": "127.0.0.1",
+        "targetStationId": "CS-0421",
+        "metricValue": 103,
+        "deviationPercent": 790.2,
+        "explanation": "Observed request rate surged to 103 req/s against nominal baseline of 11.57 req/s (+790.2% increase, Z-Score: 36.57)."
+      },
+      {
+        "alertId": "ALT-1793476870884-1995",
+        "timestamp": "2026-10-31T20:01:10.884Z",
+        "category": "COMBINED_ANOMALY",
+        "severity": "CRITICAL",
+        "sourceIp": "127.0.0.1",
+        "targetStationId": "CS-0421",
+        "metricValue": 103,
+        "deviationPercent": 2013.4,
+        "explanation": "Multi-vector traffic anomaly observed. Request rate (103 req/s, +790.2%), connection rate (205 conn/s), and packet rate (616 pps) show systemic synchronized deviation across charging gateway."
+      },
+      {
+        "alertId": "ALT-1793476856394-8867",
+        "timestamp": "2026-10-31T20:00:56.394Z",
+        "category": "REPEATED_REQUESTS",
+        "severity": "MEDIUM",
+        "sourceIp": "127.0.0.1",
+        "targetStationId": "CS-0421",
+        "metricValue": 24,
+        "deviationPercent": 2300,
+        "explanation": "Excessive repeated requests detected (24 identical queries in recent window). Indicative of automated replay attack, authentication brute-force, or client retry storm."
+      },
+      {
+        "alertId": "ALT-1793476854389-8458",
+        "timestamp": "2026-10-31T20:00:54.389Z",
+        "category": "ABNORMAL_PACKET_RATE",
+        "severity": "MEDIUM",
+        "sourceIp": "192.168.1.50",
+        "targetStationId": "CS-0421",
+        "metricValue": 84,
+        "deviationPercent": 74.7,
+        "explanation": "Packet delivery rate reached 84 packets/sec compared to nominal 48.07 packets/sec (+74.7% increase, Z-Score: 4.49)."
+      },
+      {
+        "alertId": "ALT-1793476854389-3605",
+        "timestamp": "2026-10-31T20:00:54.389Z",
+        "category": "HIGH_CONNECTION_RATE",
+        "severity": "MEDIUM",
+        "sourceIp": "192.168.1.50",
+        "targetStationId": "CS-0421",
+        "metricValue": 21,
+        "deviationPercent": 109,
+        "explanation": "Connection creation rate of 21 connections/sec significantly exceeded the established baseline of 10.05 connections/sec (+109% increase)."
+      },
+      {
+        "alertId": "ALT-1793476854389-6207",
+        "timestamp": "2026-10-31T20:00:54.389Z",
+        "category": "TRAFFIC_BURST",
+        "severity": "MEDIUM",
+        "sourceIp": "192.168.1.50",
+        "targetStationId": "CS-0421",
+        "metricValue": 21,
+        "deviationPercent": 74.7,
+        "explanation": "Observed request rate surged to 21 req/s against nominal baseline of 12.02 req/s (+74.7% increase, Z-Score: 3.59)."
+      },
+      {
+        "alertId": "ALT-1793476854389-1781",
+        "timestamp": "2026-10-31T20:00:54.389Z",
+        "category": "COMBINED_ANOMALY",
+        "severity": "CRITICAL",
+        "sourceIp": "192.168.1.50",
+        "targetStationId": "CS-0421",
+        "metricValue": 21,
+        "deviationPercent": 109,
+        "explanation": "Multi-vector traffic anomaly observed. Request rate (21 req/s, +74.7%), connection rate (21 conn/s), and packet rate (84 pps) show systemic synchronized deviation across charging gateway."
+      },
+      {
+        "alertId": "ALT-1793476808633-1359",
+        "timestamp": "2026-10-31T20:00:08.633Z",
+        "category": "ABNORMAL_PACKET_RATE",
+        "severity": "MEDIUM",
+        "sourceIp": "192.168.1.50",
+        "targetStationId": "CS-0421",
+        "metricValue": 84,
+        "deviationPercent": 76.2,
+        "explanation": "Packet delivery rate reached 84 packets/sec compared to nominal 47.67 packets/sec (+76.2% increase, Z-Score: 4.54)."
+      },
+      {
+        "alertId": "ALT-1793476808633-4994",
+        "timestamp": "2026-10-31T20:00:08.633Z",
+        "category": "HIGH_CONNECTION_RATE",
+        "severity": "MEDIUM",
+        "sourceIp": "192.168.1.50",
+        "targetStationId": "CS-0421",
+        "metricValue": 21,
+        "deviationPercent": 111.1,
+        "explanation": "Connection creation rate of 21 connections/sec significantly exceeded the established baseline of 9.95 connections/sec (+111.1% increase)."
+      },
+      {
+        "alertId": "ALT-1793476808633-2116",
+        "timestamp": "2026-10-31T20:00:08.633Z",
+        "category": "TRAFFIC_BURST",
+        "severity": "MEDIUM",
+        "sourceIp": "192.168.1.50",
+        "targetStationId": "CS-0421",
+        "metricValue": 21,
+        "deviationPercent": 76.2,
+        "explanation": "Observed request rate surged to 21 req/s against nominal baseline of 11.92 req/s (+76.2% increase, Z-Score: 3.63)."
+      },
+      {
+        "alertId": "ALT-1793476808633-3089",
+        "timestamp": "2026-10-31T20:00:08.633Z",
+        "category": "COMBINED_ANOMALY",
+        "severity": "CRITICAL",
+        "sourceIp": "192.168.1.50",
+        "targetStationId": "CS-0421",
+        "metricValue": 21,
+        "deviationPercent": 111.1,
+        "explanation": "Multi-vector traffic anomaly observed. Request rate (21 req/s, +76.2%), connection rate (21 conn/s), and packet rate (84 pps) show systemic synchronized deviation across charging gateway."
+      }
+    ],
+    "timeline": [
+      {
+        "id": "EVT-1793476808640-1",
+        "incidentId": "INC-20261031-9911",
+        "timestamp": "2026-10-31T20:00:08.633Z",
+        "eventType": "ANOMALY_DETECTED",
+        "title": "Multi-Vector Combined Attack Surge Detected",
+        "description": "Multi-vector traffic anomaly observed. Request rate (21 req/s, +76.2%), connection rate (21 conn/s), and packet rate (84 pps) show systemic synchronized deviation across charging gateway.",
+        "actor": {
+          "type": "DETECTOR",
+          "name": "RANDOM_FOREST"
+        },
+        "evidence": {
+          "alertId": "ALT-1793476808633-3089",
+          "detector": "RANDOM_FOREST",
+          "deviationPercent": 111.1,
+          "sourceIp": "192.168.1.50"
+        }
+      },
+      {
+        "id": "EVT-1793476808640-2",
+        "incidentId": "INC-20261031-9911",
+        "timestamp": "2026-10-31T20:00:08.640Z",
+        "eventType": "INCIDENT_CREATED",
+        "title": "Incident Automatically Created",
+        "description": "Qualifying CRITICAL alert breached security threshold. Assigned incident ID INC-20261031-9911.",
+        "actor": {
+          "type": "SYSTEM",
+          "name": "AlertCorrelationEngine"
+        }
+      }
+    ],
+    "notes": [],
+    "responseActions": [
+      {
+        "id": "ACT-1793476808640-1",
+        "incidentId": "INC-20261031-9911",
+        "title": "Acknowledge Incident & Validate Telemetry Stream",
+        "description": "Review active latency, requests/sec, and packet rates on the live monitoring dashboard to confirm anomaly persistence.",
+        "category": "COMBINED_ANOMALY",
+        "priority": "HIGH",
+        "status": "PENDING",
+        "actionType": "INVESTIGATION",
+        "rationale": "Establishes initial operational scope and rules out transient network hiccups."
+      },
+      {
+        "id": "ACT-1793476808640-2",
+        "incidentId": "INC-20261031-9911",
+        "title": "Initiate Coordinated Multi-Vector Shield Protocol",
+        "description": "Engage gateway rate clamping, connection duration ceilings, and strict token nonce checks concurrently.",
+        "category": "COMBINED_ANOMALY",
+        "priority": "HIGH",
+        "status": "PENDING",
+        "actionType": "CONTAINMENT",
+        "rationale": "Attacks spanning multiple metrics require layered defense across both rate and transport layers."
+      },
+      {
+        "id": "ACT-1793476808640-4",
+        "incidentId": "INC-20261031-9911",
+        "title": "Conduct Post-Mitigation Recovery Verification",
+        "description": "Observe 2 consecutive 1-second telemetry cycles at baseline (~12 req/s) before marking incident RESOLVED.",
+        "category": "COMBINED_ANOMALY",
+        "priority": "LOW",
+        "status": "PENDING",
+        "actionType": "RECOVERY",
+        "rationale": "Ensures security status returns to PROTECTED only after abnormal activity has completely subsided."
+      }
+    ],
+    "rootCauseAnalysis": "Multi-vector traffic anomaly observed. Request rate (21 req/s, +76.2%), connection rate (21 conn/s), and packet rate (84 pps) show systemic synchronized deviation across charging gateway.",
+    "threatIntel": [
+      {
+        "indicator": "192.168.1.50",
+        "type": "IP",
+        "provider": "INTERNAL_RANGE",
+        "reputation": "BENIGN",
+        "confidence": 1,
+        "threatCategory": "Private Network Range (RFC 1918)",
+        "country": "Local Subnet",
+        "lookupTimestamp": "2026-10-31T20:00:08.640Z",
+        "status": "AVAILABLE",
+        "details": "Internal EV charging network station subnet. IP belongs to private address allocation (RFC 1918)."
+      }
+    ]
+  },
+  {
+    "id": "INC-20261031-4835",
+    "title": "Multi-Vector Combined Attack Surge on Station CS-0421",
+    "description": "Multi-vector traffic anomaly observed. Request rate (106 req/s, +792.3%), connection rate (211 conn/s), and packet rate (634 pps) show systemic synchronized deviation across charging gateway.",
+    "category": "COMBINED_ANOMALY",
+    "categoryLabel": "Multi-Vector Combined Attack Surge",
+    "severity": "CRITICAL",
+    "status": "RESOLVED",
+    "riskScore": 34,
+    "riskLevel": "LOW",
+    "riskAssessment": {
+      "score": 34,
+      "level": "LOW",
+      "calculatedAt": "2026-10-31T20:03:52.958Z",
+      "factors": [
+        {
+          "name": "Incident Severity Tier",
+          "weight": 30,
+          "score": 30,
+          "impact": "CRITICAL",
+          "description": "Baseline classification assigned at CRITICAL severity rating."
+        },
+        {
+          "name": "Attack Vector Profile",
+          "weight": 20,
+          "score": 20,
+          "impact": "COMBINED_ANOMALY",
+          "description": "Multi-vector distributed volumetric surge threatening EV gateway availability."
+        },
+        {
+          "name": "Baseline Deviation Magnitude",
+          "weight": 15,
+          "score": 1,
+          "impact": "+0%",
+          "description": "Observed traffic metrics exceed established normal baseline by +0%."
+        },
+        {
+          "name": "Alert Clustering Density",
+          "weight": 10,
+          "score": 10,
+          "impact": "18 alerts",
+          "description": "18 correlated alert observations aggregated within sliding observation window."
+        },
+        {
+          "name": "Infrastructure Blast Radius",
+          "weight": 10,
+          "score": 4,
+          "impact": "1 station(s)",
+          "description": "1 charging terminal(s) actively reporting correlated degradation."
+        },
+        {
+          "name": "ML Detector Confidence",
+          "weight": 10,
+          "score": 3,
+          "impact": "25%",
+          "description": "Consensus confidence across supervised and unsupervised detection models."
+        },
+        {
+          "name": "Threat Intelligence Signals",
+          "weight": 10,
+          "score": 1,
+          "impact": "NOMINAL",
+          "description": "Target source IPs verified clean or benign in threat database."
+        },
+        {
+          "name": "Incident Resolution Credit",
+          "weight": -35,
+          "score": -35,
+          "impact": "RESOLVED",
+          "description": "Incident verified recovered and nominal traffic baseline re-established."
+        }
+      ],
+      "explanation": "Calculated risk score of 34/100 (LOW) driven primarily by CRITICAL severity, COMBINED_ANOMALY attack profile (+20 pts), and +0% deviation from baseline (+1 pts).",
+      "recommendations": [
+        "Continue standard continuous monitoring. Incident within nominal operating risk bounds."
+      ]
+    },
+    "confidence": 0.25,
+    "primaryStationId": "CS-0421",
+    "affectedStations": [
+      "CS-0421"
+    ],
+    "sourceIps": [
+      "127.0.0.1",
+      "10.0.139.134",
+      "10.0.157.177",
+      "192.168.1.99"
+    ],
+    "targetInfrastructure": "Gateway Zone (CS-0421 / 127.0.0.1:8080)",
+    "detectorAttribution": "RANDOM_FOREST",
+    "createdAt": "2026-10-31T20:02:56.781Z",
+    "firstDetectedAt": "2026-10-31T20:02:56.780Z",
+    "lastUpdatedAt": "2026-10-31T20:03:52.958Z",
+    "correlationGroup": {
+      "groupId": "GRP-1793476976781",
+      "primaryCategory": "COMBINED_ANOMALY",
+      "alertCount": 18,
+      "firstAlertTimestamp": "2026-10-31T20:02:56.780Z",
+      "lastAlertTimestamp": "2026-10-31T20:03:04.822Z",
+      "correlationReason": "Single qualifying CRITICAL anomaly alert initiated incident boundary on CS-0421.",
+      "patternType": "SINGLE_VECTOR_BURST",
+      "alerts": [
+        {
+          "alertId": "ALT-1793476984822-6238",
+          "timestamp": "2026-10-31T20:03:04.822Z",
+          "category": "REPEATED_REQUESTS",
+          "severity": "MEDIUM",
+          "sourceIp": "192.168.1.99",
+          "targetStationId": "CS-0421",
+          "metricValue": 19,
+          "deviationPercent": 1800,
+          "explanation": "Excessive repeated requests detected (19 identical queries in recent window). Indicative of automated replay attack, authentication brute-force, or client retry storm."
+        },
+        {
+          "alertId": "ALT-1793476982817-6638",
+          "timestamp": "2026-10-31T20:03:02.817Z",
+          "category": "EXCESSIVE_DATA_TRANSFER",
+          "severity": "MEDIUM",
+          "sourceIp": "127.0.0.1",
+          "targetStationId": "CS-0421",
+          "metricValue": 12320,
+          "deviationPercent": 108,
+          "explanation": "Data-transfer volume reached 12320 bytes/sec (+108% increase over baseline 5923.17 bytes/sec)."
+        },
+        {
+          "alertId": "ALT-1793476982817-2987",
+          "timestamp": "2026-10-31T20:03:02.817Z",
+          "category": "ABNORMAL_PACKET_RATE",
+          "severity": "MEDIUM",
+          "sourceIp": "127.0.0.1",
+          "targetStationId": "CS-0421",
+          "metricValue": 80,
+          "deviationPercent": 67.7,
+          "explanation": "Packet delivery rate reached 80 packets/sec compared to nominal 47.7 packets/sec (+67.7% increase, Z-Score: 4.04)."
+        },
+        {
+          "alertId": "ALT-1793476982817-5547",
+          "timestamp": "2026-10-31T20:03:02.817Z",
+          "category": "HIGH_CONNECTION_RATE",
+          "severity": "HIGH",
+          "sourceIp": "127.0.0.1",
+          "targetStationId": "CS-0421",
+          "metricValue": 40,
+          "deviationPercent": 294.9,
+          "explanation": "Connection creation rate of 40 connections/sec significantly exceeded the established baseline of 10.13 connections/sec (+294.9% increase)."
+        },
+        {
+          "alertId": "ALT-1793476982817-5412",
+          "timestamp": "2026-10-31T20:03:02.817Z",
+          "category": "TRAFFIC_BURST",
+          "severity": "HIGH",
+          "sourceIp": "127.0.0.1",
+          "targetStationId": "CS-0421",
+          "metricValue": 40,
+          "deviationPercent": 236.7,
+          "explanation": "Observed request rate surged to 40 req/s against nominal baseline of 11.88 req/s (+236.7% increase, Z-Score: 11.25)."
+        },
+        {
+          "alertId": "ALT-1793476982817-2736",
+          "timestamp": "2026-10-31T20:03:02.817Z",
+          "category": "COMBINED_ANOMALY",
+          "severity": "CRITICAL",
+          "sourceIp": "127.0.0.1",
+          "targetStationId": "CS-0421",
+          "metricValue": 40,
+          "deviationPercent": 294.9,
+          "explanation": "Multi-vector traffic anomaly observed. Request rate (40 req/s, +236.7%), connection rate (40 conn/s), and packet rate (80 pps) show systemic synchronized deviation across charging gateway."
+        },
+        {
+          "alertId": "ALT-1793476980817-3681",
+          "timestamp": "2026-10-31T20:03:00.817Z",
+          "category": "REPEATED_REQUESTS",
+          "severity": "HIGH",
+          "sourceIp": "127.0.0.1",
+          "targetStationId": "CS-0421",
+          "metricValue": 25,
+          "deviationPercent": 2400,
+          "explanation": "Excessive repeated requests detected (25 identical queries in recent window). Indicative of automated replay attack, authentication brute-force, or client retry storm."
+        },
+        {
+          "alertId": "ALT-1793476979813-7617",
+          "timestamp": "2026-10-31T20:02:59.813Z",
+          "category": "EXCESSIVE_DATA_TRANSFER",
+          "severity": "CRITICAL",
+          "sourceIp": "10.0.157.177",
+          "targetStationId": "CS-0421",
+          "metricValue": 33087,
+          "deviationPercent": 458.6,
+          "explanation": "Data-transfer volume reached 33087 bytes/sec (+458.6% increase over baseline 5923.17 bytes/sec)."
+        },
+        {
+          "alertId": "ALT-1793476979813-1290",
+          "timestamp": "2026-10-31T20:02:59.813Z",
+          "category": "ABNORMAL_PACKET_RATE",
+          "severity": "HIGH",
+          "sourceIp": "10.0.157.177",
+          "targetStationId": "CS-0421",
+          "metricValue": 140,
+          "deviationPercent": 193.5,
+          "explanation": "Packet delivery rate reached 140 packets/sec compared to nominal 47.7 packets/sec (+193.5% increase, Z-Score: 11.54)."
+        },
+        {
+          "alertId": "ALT-1793476979813-9757",
+          "timestamp": "2026-10-31T20:02:59.813Z",
+          "category": "HIGH_CONNECTION_RATE",
+          "severity": "CRITICAL",
+          "sourceIp": "10.0.157.177",
+          "targetStationId": "CS-0421",
+          "metricValue": 341,
+          "deviationPercent": 3266.2,
+          "explanation": "Connection creation rate of 341 connections/sec significantly exceeded the established baseline of 10.13 connections/sec (+3266.2% increase)."
+        },
+        {
+          "alertId": "ALT-1793476979813-4164",
+          "timestamp": "2026-10-31T20:02:59.813Z",
+          "category": "TRAFFIC_BURST",
+          "severity": "CRITICAL",
+          "sourceIp": "10.0.157.177",
+          "targetStationId": "CS-0421",
+          "metricValue": 69,
+          "deviationPercent": 480.8,
+          "explanation": "Observed request rate surged to 69 req/s against nominal baseline of 11.88 req/s (+480.8% increase, Z-Score: 22.85)."
+        },
+        {
+          "alertId": "ALT-1793476979813-9971",
+          "timestamp": "2026-10-31T20:02:59.813Z",
+          "category": "COMBINED_ANOMALY",
+          "severity": "CRITICAL",
+          "sourceIp": "10.0.157.177",
+          "targetStationId": "CS-0421",
+          "metricValue": 69,
+          "deviationPercent": 3266.2,
+          "explanation": "Multi-vector traffic anomaly observed. Request rate (69 req/s, +480.8%), connection rate (341 conn/s), and packet rate (140 pps) show systemic synchronized deviation across charging gateway."
+        },
+        {
+          "alertId": "ALT-1793476976781-4271",
+          "timestamp": "2026-10-31T20:02:56.781Z",
+          "category": "EXCESSIVE_DATA_TRANSFER",
+          "severity": "CRITICAL",
+          "sourceIp": "127.0.0.1",
+          "targetStationId": "CS-0421",
+          "metricValue": 30581,
+          "deviationPercent": 416.3,
+          "explanation": "Data-transfer volume reached 30581 bytes/sec (+416.3% increase over baseline 5923.17 bytes/sec)."
+        },
+        {
+          "alertId": "ALT-1793476976781-8148",
+          "timestamp": "2026-10-31T20:02:56.781Z",
+          "category": "ABNORMAL_PACKET_RATE",
+          "severity": "CRITICAL",
+          "sourceIp": "127.0.0.1",
+          "targetStationId": "CS-0421",
+          "metricValue": 634,
+          "deviationPercent": 1229.1,
+          "explanation": "Packet delivery rate reached 634 packets/sec compared to nominal 47.7 packets/sec (+1229.1% increase, Z-Score: 73.29)."
+        },
+        {
+          "alertId": "ALT-1793476976780-2847",
+          "timestamp": "2026-10-31T20:02:56.780Z",
+          "category": "REPEATED_REQUESTS",
+          "severity": "MEDIUM",
+          "sourceIp": "127.0.0.1",
+          "targetStationId": "CS-0421",
+          "metricValue": 24,
+          "deviationPercent": 2300,
+          "explanation": "Excessive repeated requests detected (24 identical queries in recent window). Indicative of automated replay attack, authentication brute-force, or client retry storm."
+        },
+        {
+          "alertId": "ALT-1793476976780-9626",
+          "timestamp": "2026-10-31T20:02:56.780Z",
+          "category": "HIGH_CONNECTION_RATE",
+          "severity": "CRITICAL",
+          "sourceIp": "127.0.0.1",
+          "targetStationId": "CS-0421",
+          "metricValue": 211,
+          "deviationPercent": 1982.9,
+          "explanation": "Connection creation rate of 211 connections/sec significantly exceeded the established baseline of 10.13 connections/sec (+1982.9% increase)."
+        },
+        {
+          "alertId": "ALT-1793476976780-3371",
+          "timestamp": "2026-10-31T20:02:56.780Z",
+          "category": "TRAFFIC_BURST",
+          "severity": "CRITICAL",
+          "sourceIp": "127.0.0.1",
+          "targetStationId": "CS-0421",
+          "metricValue": 106,
+          "deviationPercent": 792.3,
+          "explanation": "Observed request rate surged to 106 req/s against nominal baseline of 11.88 req/s (+792.3% increase, Z-Score: 37.65)."
+        },
+        {
+          "alertId": "ALT-1793476976780-3873",
+          "timestamp": "2026-10-31T20:02:56.780Z",
+          "category": "COMBINED_ANOMALY",
+          "severity": "CRITICAL",
+          "sourceIp": "127.0.0.1",
+          "targetStationId": "CS-0421",
+          "metricValue": 106,
+          "deviationPercent": 1982.9,
+          "explanation": "Multi-vector traffic anomaly observed. Request rate (106 req/s, +792.3%), connection rate (211 conn/s), and packet rate (634 pps) show systemic synchronized deviation across charging gateway."
+        }
+      ]
+    },
+    "alerts": [
+      {
+        "alertId": "ALT-1793476984822-6238",
+        "timestamp": "2026-10-31T20:03:04.822Z",
+        "category": "REPEATED_REQUESTS",
+        "severity": "MEDIUM",
+        "sourceIp": "192.168.1.99",
+        "targetStationId": "CS-0421",
+        "metricValue": 19,
+        "deviationPercent": 1800,
+        "explanation": "Excessive repeated requests detected (19 identical queries in recent window). Indicative of automated replay attack, authentication brute-force, or client retry storm."
+      },
+      {
+        "alertId": "ALT-1793476982817-6638",
+        "timestamp": "2026-10-31T20:03:02.817Z",
+        "category": "EXCESSIVE_DATA_TRANSFER",
+        "severity": "MEDIUM",
+        "sourceIp": "127.0.0.1",
+        "targetStationId": "CS-0421",
+        "metricValue": 12320,
+        "deviationPercent": 108,
+        "explanation": "Data-transfer volume reached 12320 bytes/sec (+108% increase over baseline 5923.17 bytes/sec)."
+      },
+      {
+        "alertId": "ALT-1793476982817-2987",
+        "timestamp": "2026-10-31T20:03:02.817Z",
+        "category": "ABNORMAL_PACKET_RATE",
+        "severity": "MEDIUM",
+        "sourceIp": "127.0.0.1",
+        "targetStationId": "CS-0421",
+        "metricValue": 80,
+        "deviationPercent": 67.7,
+        "explanation": "Packet delivery rate reached 80 packets/sec compared to nominal 47.7 packets/sec (+67.7% increase, Z-Score: 4.04)."
+      },
+      {
+        "alertId": "ALT-1793476982817-5547",
+        "timestamp": "2026-10-31T20:03:02.817Z",
+        "category": "HIGH_CONNECTION_RATE",
+        "severity": "HIGH",
+        "sourceIp": "127.0.0.1",
+        "targetStationId": "CS-0421",
+        "metricValue": 40,
+        "deviationPercent": 294.9,
+        "explanation": "Connection creation rate of 40 connections/sec significantly exceeded the established baseline of 10.13 connections/sec (+294.9% increase)."
+      },
+      {
+        "alertId": "ALT-1793476982817-5412",
+        "timestamp": "2026-10-31T20:03:02.817Z",
+        "category": "TRAFFIC_BURST",
+        "severity": "HIGH",
+        "sourceIp": "127.0.0.1",
+        "targetStationId": "CS-0421",
+        "metricValue": 40,
+        "deviationPercent": 236.7,
+        "explanation": "Observed request rate surged to 40 req/s against nominal baseline of 11.88 req/s (+236.7% increase, Z-Score: 11.25)."
+      },
+      {
+        "alertId": "ALT-1793476982817-2736",
+        "timestamp": "2026-10-31T20:03:02.817Z",
+        "category": "COMBINED_ANOMALY",
+        "severity": "CRITICAL",
+        "sourceIp": "127.0.0.1",
+        "targetStationId": "CS-0421",
+        "metricValue": 40,
+        "deviationPercent": 294.9,
+        "explanation": "Multi-vector traffic anomaly observed. Request rate (40 req/s, +236.7%), connection rate (40 conn/s), and packet rate (80 pps) show systemic synchronized deviation across charging gateway."
+      },
+      {
+        "alertId": "ALT-1793476980817-3681",
+        "timestamp": "2026-10-31T20:03:00.817Z",
+        "category": "REPEATED_REQUESTS",
+        "severity": "HIGH",
+        "sourceIp": "127.0.0.1",
+        "targetStationId": "CS-0421",
+        "metricValue": 25,
+        "deviationPercent": 2400,
+        "explanation": "Excessive repeated requests detected (25 identical queries in recent window). Indicative of automated replay attack, authentication brute-force, or client retry storm."
+      },
+      {
+        "alertId": "ALT-1793476979813-7617",
+        "timestamp": "2026-10-31T20:02:59.813Z",
+        "category": "EXCESSIVE_DATA_TRANSFER",
+        "severity": "CRITICAL",
+        "sourceIp": "10.0.157.177",
+        "targetStationId": "CS-0421",
+        "metricValue": 33087,
+        "deviationPercent": 458.6,
+        "explanation": "Data-transfer volume reached 33087 bytes/sec (+458.6% increase over baseline 5923.17 bytes/sec)."
+      },
+      {
+        "alertId": "ALT-1793476979813-1290",
+        "timestamp": "2026-10-31T20:02:59.813Z",
+        "category": "ABNORMAL_PACKET_RATE",
+        "severity": "HIGH",
+        "sourceIp": "10.0.157.177",
+        "targetStationId": "CS-0421",
+        "metricValue": 140,
+        "deviationPercent": 193.5,
+        "explanation": "Packet delivery rate reached 140 packets/sec compared to nominal 47.7 packets/sec (+193.5% increase, Z-Score: 11.54)."
+      },
+      {
+        "alertId": "ALT-1793476979813-9757",
+        "timestamp": "2026-10-31T20:02:59.813Z",
+        "category": "HIGH_CONNECTION_RATE",
+        "severity": "CRITICAL",
+        "sourceIp": "10.0.157.177",
+        "targetStationId": "CS-0421",
+        "metricValue": 341,
+        "deviationPercent": 3266.2,
+        "explanation": "Connection creation rate of 341 connections/sec significantly exceeded the established baseline of 10.13 connections/sec (+3266.2% increase)."
+      },
+      {
+        "alertId": "ALT-1793476979813-4164",
+        "timestamp": "2026-10-31T20:02:59.813Z",
+        "category": "TRAFFIC_BURST",
+        "severity": "CRITICAL",
+        "sourceIp": "10.0.157.177",
+        "targetStationId": "CS-0421",
+        "metricValue": 69,
+        "deviationPercent": 480.8,
+        "explanation": "Observed request rate surged to 69 req/s against nominal baseline of 11.88 req/s (+480.8% increase, Z-Score: 22.85)."
+      },
+      {
+        "alertId": "ALT-1793476979813-9971",
+        "timestamp": "2026-10-31T20:02:59.813Z",
+        "category": "COMBINED_ANOMALY",
+        "severity": "CRITICAL",
+        "sourceIp": "10.0.157.177",
+        "targetStationId": "CS-0421",
+        "metricValue": 69,
+        "deviationPercent": 3266.2,
+        "explanation": "Multi-vector traffic anomaly observed. Request rate (69 req/s, +480.8%), connection rate (341 conn/s), and packet rate (140 pps) show systemic synchronized deviation across charging gateway."
+      },
+      {
+        "alertId": "ALT-1793476976781-4271",
+        "timestamp": "2026-10-31T20:02:56.781Z",
+        "category": "EXCESSIVE_DATA_TRANSFER",
+        "severity": "CRITICAL",
+        "sourceIp": "127.0.0.1",
+        "targetStationId": "CS-0421",
+        "metricValue": 30581,
+        "deviationPercent": 416.3,
+        "explanation": "Data-transfer volume reached 30581 bytes/sec (+416.3% increase over baseline 5923.17 bytes/sec)."
+      },
+      {
+        "alertId": "ALT-1793476976781-8148",
+        "timestamp": "2026-10-31T20:02:56.781Z",
+        "category": "ABNORMAL_PACKET_RATE",
+        "severity": "CRITICAL",
+        "sourceIp": "127.0.0.1",
+        "targetStationId": "CS-0421",
+        "metricValue": 634,
+        "deviationPercent": 1229.1,
+        "explanation": "Packet delivery rate reached 634 packets/sec compared to nominal 47.7 packets/sec (+1229.1% increase, Z-Score: 73.29)."
+      },
+      {
+        "alertId": "ALT-1793476976780-2847",
+        "timestamp": "2026-10-31T20:02:56.780Z",
+        "category": "REPEATED_REQUESTS",
+        "severity": "MEDIUM",
+        "sourceIp": "127.0.0.1",
+        "targetStationId": "CS-0421",
+        "metricValue": 24,
+        "deviationPercent": 2300,
+        "explanation": "Excessive repeated requests detected (24 identical queries in recent window). Indicative of automated replay attack, authentication brute-force, or client retry storm."
+      },
+      {
+        "alertId": "ALT-1793476976780-9626",
+        "timestamp": "2026-10-31T20:02:56.780Z",
+        "category": "HIGH_CONNECTION_RATE",
+        "severity": "CRITICAL",
+        "sourceIp": "127.0.0.1",
+        "targetStationId": "CS-0421",
+        "metricValue": 211,
+        "deviationPercent": 1982.9,
+        "explanation": "Connection creation rate of 211 connections/sec significantly exceeded the established baseline of 10.13 connections/sec (+1982.9% increase)."
+      },
+      {
+        "alertId": "ALT-1793476976780-3371",
+        "timestamp": "2026-10-31T20:02:56.780Z",
+        "category": "TRAFFIC_BURST",
+        "severity": "CRITICAL",
+        "sourceIp": "127.0.0.1",
+        "targetStationId": "CS-0421",
+        "metricValue": 106,
+        "deviationPercent": 792.3,
+        "explanation": "Observed request rate surged to 106 req/s against nominal baseline of 11.88 req/s (+792.3% increase, Z-Score: 37.65)."
+      },
+      {
+        "alertId": "ALT-1793476976780-3873",
+        "timestamp": "2026-10-31T20:02:56.780Z",
+        "category": "COMBINED_ANOMALY",
+        "severity": "CRITICAL",
+        "sourceIp": "127.0.0.1",
+        "targetStationId": "CS-0421",
+        "metricValue": 106,
+        "deviationPercent": 1982.9,
+        "explanation": "Multi-vector traffic anomaly observed. Request rate (106 req/s, +792.3%), connection rate (211 conn/s), and packet rate (634 pps) show systemic synchronized deviation across charging gateway."
+      }
+    ],
+    "timeline": [
+      {
+        "id": "EVT-1793477032958-44",
+        "incidentId": "INC-20261031-4835",
+        "timestamp": "2026-10-31T20:03:52.958Z",
+        "eventType": "STATUS_CHANGED",
+        "title": "Status Changed to RESOLVED",
+        "description": "Incident transitioned from CONTAINED to RESOLVED. Note: Normal traffic resumed.",
+        "actor": {
+          "type": "ANALYST",
+          "name": "Security Analyst",
+          "role": "security_analyst"
+        }
+      },
+      {
+        "id": "EVT-1793477032956-24",
+        "incidentId": "INC-20261031-4835",
+        "timestamp": "2026-10-31T20:03:52.956Z",
+        "eventType": "STATUS_CHANGED",
+        "title": "Status Changed to CONTAINED",
+        "description": "Incident transitioned from INVESTIGATING to CONTAINED. Note: Attacking traffic isolated.",
+        "actor": {
+          "type": "ANALYST",
+          "name": "Security Analyst",
+          "role": "security_analyst"
+        }
+      },
+      {
+        "id": "EVT-1793477032943-19",
+        "incidentId": "INC-20261031-4835",
+        "timestamp": "2026-10-31T20:03:52.943Z",
+        "eventType": "ACTION_EXECUTED",
+        "title": "Response Action Marked COMPLETED",
+        "description": "Action 'Acknowledge Incident & Validate Telemetry Stream' set to COMPLETED by Security Analyst. Note: Rate limiting applied successfully.",
+        "actor": {
+          "type": "ANALYST",
+          "name": "Security Analyst",
+          "role": "security_analyst"
+        }
+      },
+      {
+        "id": "EVT-1793477032941-92",
+        "incidentId": "INC-20261031-4835",
+        "timestamp": "2026-10-31T20:03:52.941Z",
+        "eventType": "NOTE_ADDED",
+        "title": "Investigation Note Added",
+        "description": "Verified packet rate surge originated from test probe IP 192.168.1.145.",
+        "actor": {
+          "type": "ANALYST",
+          "name": "Security Analyst",
+          "role": "security_analyst"
+        }
+      },
+      {
+        "id": "EVT-1793477032925-18",
+        "incidentId": "INC-20261031-4835",
+        "timestamp": "2026-10-31T20:03:52.925Z",
+        "eventType": "ANALYST_ASSIGNED",
+        "title": "Analyst Assigned",
+        "description": "Assigned to Security Analyst (analyst@evshield.demo).",
+        "actor": {
+          "type": "ANALYST",
+          "name": "Security Analyst",
+          "role": "security_analyst"
+        }
+      },
+      {
+        "id": "EVT-1793477032909-64",
+        "incidentId": "INC-20261031-4835",
+        "timestamp": "2026-10-31T20:03:52.909Z",
+        "eventType": "STATUS_CHANGED",
+        "title": "Status Changed to INVESTIGATING",
+        "description": "Incident transitioned from OPEN to INVESTIGATING. Note: Lead analyst started investigation.",
+        "actor": {
+          "type": "ANALYST",
+          "name": "Security Analyst",
+          "role": "security_analyst"
+        }
+      },
+      {
+        "id": "EVT-1793476976781-1",
+        "incidentId": "INC-20261031-4835",
+        "timestamp": "2026-10-31T20:02:56.780Z",
+        "eventType": "ANOMALY_DETECTED",
+        "title": "Multi-Vector Combined Attack Surge Detected",
+        "description": "Multi-vector traffic anomaly observed. Request rate (106 req/s, +792.3%), connection rate (211 conn/s), and packet rate (634 pps) show systemic synchronized deviation across charging gateway.",
+        "actor": {
+          "type": "DETECTOR",
+          "name": "RANDOM_FOREST"
+        },
+        "evidence": {
+          "alertId": "ALT-1793476976780-3873",
+          "detector": "RANDOM_FOREST",
+          "deviationPercent": 1982.9,
+          "sourceIp": "127.0.0.1"
+        }
+      },
+      {
+        "id": "EVT-1793476976781-2",
+        "incidentId": "INC-20261031-4835",
+        "timestamp": "2026-10-31T20:02:56.781Z",
+        "eventType": "INCIDENT_CREATED",
+        "title": "Incident Automatically Created",
+        "description": "Qualifying CRITICAL alert breached security threshold. Assigned incident ID INC-20261031-4835.",
+        "actor": {
+          "type": "SYSTEM",
+          "name": "AlertCorrelationEngine"
+        }
+      }
+    ],
+    "notes": [
+      {
+        "id": "NOTE-1793477032958-40",
+        "incidentId": "INC-20261031-4835",
+        "authorEmail": "analyst@evshield.demo",
+        "authorName": "Security Analyst",
+        "authorRole": "security_analyst",
+        "content": "Normal traffic resumed.",
+        "timestamp": "2026-10-31T20:03:52.958Z"
+      },
+      {
+        "id": "NOTE-1793477032956-69",
+        "incidentId": "INC-20261031-4835",
+        "authorEmail": "analyst@evshield.demo",
+        "authorName": "Security Analyst",
+        "authorRole": "security_analyst",
+        "content": "Attacking traffic isolated.",
+        "timestamp": "2026-10-31T20:03:52.956Z"
+      },
+      {
+        "id": "NOTE-1793477032941-54",
+        "incidentId": "INC-20261031-4835",
+        "authorEmail": "analyst@evshield.demo",
+        "authorName": "Security Analyst",
+        "authorRole": "security_analyst",
+        "content": "Verified packet rate surge originated from test probe IP 192.168.1.145.",
+        "timestamp": "2026-10-31T20:03:52.941Z"
+      },
+      {
+        "id": "NOTE-1793477032909-29",
+        "incidentId": "INC-20261031-4835",
+        "authorEmail": "analyst@evshield.demo",
+        "authorName": "Security Analyst",
+        "authorRole": "security_analyst",
+        "content": "Lead analyst started investigation.",
+        "timestamp": "2026-10-31T20:03:52.909Z"
+      }
+    ],
+    "responseActions": [
+      {
+        "id": "ACT-1793476976781-1",
+        "incidentId": "INC-20261031-4835",
+        "title": "Acknowledge Incident & Validate Telemetry Stream",
+        "description": "Review active latency, requests/sec, and packet rates on the live monitoring dashboard to confirm anomaly persistence.",
+        "category": "COMBINED_ANOMALY",
+        "priority": "HIGH",
+        "status": "COMPLETED",
+        "actionType": "INVESTIGATION",
+        "rationale": "Establishes initial operational scope and rules out transient network hiccups.",
+        "updatedBy": "analyst@evshield.demo",
+        "updatedAt": "2026-10-31T20:03:52.943Z",
+        "notes": "Rate limiting applied successfully."
+      },
+      {
+        "id": "ACT-1793476976781-2",
+        "incidentId": "INC-20261031-4835",
+        "title": "Initiate Coordinated Multi-Vector Shield Protocol",
+        "description": "Engage gateway rate clamping, connection duration ceilings, and strict token nonce checks concurrently.",
+        "category": "COMBINED_ANOMALY",
+        "priority": "HIGH",
+        "status": "PENDING",
+        "actionType": "CONTAINMENT",
+        "rationale": "Attacks spanning multiple metrics require layered defense across both rate and transport layers."
+      },
+      {
+        "id": "ACT-1793476976781-4",
+        "incidentId": "INC-20261031-4835",
+        "title": "Conduct Post-Mitigation Recovery Verification",
+        "description": "Observe 2 consecutive 1-second telemetry cycles at baseline (~12 req/s) before marking incident RESOLVED.",
+        "category": "COMBINED_ANOMALY",
+        "priority": "LOW",
+        "status": "PENDING",
+        "actionType": "RECOVERY",
+        "rationale": "Ensures security status returns to PROTECTED only after abnormal activity has completely subsided."
+      }
+    ],
+    "rootCauseAnalysis": "Multi-vector traffic anomaly observed. Request rate (106 req/s, +792.3%), connection rate (211 conn/s), and packet rate (634 pps) show systemic synchronized deviation across charging gateway.",
+    "threatIntel": [
+      {
+        "indicator": "127.0.0.1",
+        "type": "IP",
+        "provider": "INTERNAL_RANGE",
+        "reputation": "BENIGN",
+        "confidence": 1,
+        "threatCategory": "Private Network Range (RFC 1918)",
+        "country": "Local Subnet",
+        "lookupTimestamp": "2026-10-31T20:02:56.781Z",
+        "status": "AVAILABLE",
+        "details": "Internal EV charging network station subnet. IP belongs to private address allocation (RFC 1918)."
+      }
+    ],
+    "assignedTo": {
+      "email": "analyst@evshield.demo",
+      "name": "Security Analyst",
+      "role": "security_analyst",
+      "assignedAt": "2026-10-31T20:03:52.925Z"
+    },
+    "containedAt": "2026-10-31T20:03:52.956Z",
+    "resolvedAt": "2026-10-31T20:03:52.958Z"
+  },
+  {
+    "id": "INC-20261031-8120",
+    "title": "Multi-Vector Combined Attack Surge on Station CS-0421",
+    "description": "Multi-vector traffic anomaly observed. Request rate (21 req/s, +74.7%), connection rate (21 conn/s), and packet rate (84 pps) show systemic synchronized deviation across charging gateway.",
+    "category": "COMBINED_ANOMALY",
+    "categoryLabel": "Multi-Vector Combined Attack Surge",
+    "severity": "CRITICAL",
+    "status": "OPEN",
+    "riskScore": 70,
+    "riskLevel": "HIGH",
+    "riskAssessment": {
+      "score": 70,
+      "level": "HIGH",
+      "calculatedAt": "2026-10-31T20:03:53.388Z",
+      "factors": [
+        {
+          "name": "Incident Severity Tier",
+          "weight": 30,
+          "score": 30,
+          "impact": "CRITICAL",
+          "description": "Baseline classification assigned at CRITICAL severity rating."
+        },
+        {
+          "name": "Attack Vector Profile",
+          "weight": 20,
+          "score": 20,
+          "impact": "COMBINED_ANOMALY",
+          "description": "Multi-vector distributed volumetric surge threatening EV gateway availability."
+        },
+        {
+          "name": "Baseline Deviation Magnitude",
+          "weight": 15,
+          "score": 8,
+          "impact": "+111%",
+          "description": "Observed traffic metrics exceed established normal baseline by +111%."
+        },
+        {
+          "name": "Alert Clustering Density",
+          "weight": 10,
+          "score": 5,
+          "impact": "4 alerts",
+          "description": "4 correlated alert observations aggregated within sliding observation window."
+        },
+        {
+          "name": "Infrastructure Blast Radius",
+          "weight": 10,
+          "score": 4,
+          "impact": "1 station(s)",
+          "description": "1 charging terminal(s) actively reporting correlated degradation."
+        },
+        {
+          "name": "ML Detector Confidence",
+          "weight": 10,
+          "score": 2,
+          "impact": "24%",
+          "description": "Consensus confidence across supervised and unsupervised detection models."
+        },
+        {
+          "name": "Threat Intelligence Signals",
+          "weight": 10,
+          "score": 1,
+          "impact": "NOMINAL",
+          "description": "Target source IPs verified clean or benign in threat database."
+        }
+      ],
+      "explanation": "Calculated risk score of 70/100 (HIGH) driven primarily by CRITICAL severity, COMBINED_ANOMALY attack profile (+20 pts), and +111% deviation from baseline (+8 pts).",
+      "recommendations": [
+        "Investigate source IPs and verify whether activity stems from automated bot re-attempts.",
+        "Inspect server authentication logs for repeated failure patterns and hold times."
+      ]
+    },
+    "confidence": 0.24,
+    "primaryStationId": "CS-0421",
+    "affectedStations": [
+      "CS-0421"
+    ],
+    "sourceIps": [
+      "192.168.1.50"
+    ],
+    "targetInfrastructure": "Gateway Zone (CS-0421 / 127.0.0.1:8080)",
+    "detectorAttribution": "RANDOM_FOREST",
+    "createdAt": "2026-10-31T20:03:53.383Z",
+    "firstDetectedAt": "2026-10-31T20:03:53.376Z",
+    "lastUpdatedAt": "2026-10-31T20:03:53.387Z",
+    "correlationGroup": {
+      "groupId": "GRP-1793477033383",
+      "primaryCategory": "COMBINED_ANOMALY",
+      "alertCount": 4,
+      "firstAlertTimestamp": "2026-10-31T20:03:53.376Z",
+      "lastAlertTimestamp": "2026-10-31T20:03:53.376Z",
+      "correlationReason": "Single qualifying CRITICAL anomaly alert initiated incident boundary on CS-0421.",
+      "patternType": "SINGLE_VECTOR_BURST",
+      "alerts": [
+        {
+          "alertId": "ALT-1793477033376-2761",
+          "timestamp": "2026-10-31T20:03:53.376Z",
+          "category": "ABNORMAL_PACKET_RATE",
+          "severity": "MEDIUM",
+          "sourceIp": "192.168.1.50",
+          "targetStationId": "CS-0421",
+          "metricValue": 84,
+          "deviationPercent": 74.7,
+          "explanation": "Packet delivery rate reached 84 packets/sec compared to nominal 48.07 packets/sec (+74.7% increase, Z-Score: 4.49)."
+        },
+        {
+          "alertId": "ALT-1793477033376-5502",
+          "timestamp": "2026-10-31T20:03:53.376Z",
+          "category": "HIGH_CONNECTION_RATE",
+          "severity": "MEDIUM",
+          "sourceIp": "192.168.1.50",
+          "targetStationId": "CS-0421",
+          "metricValue": 21,
+          "deviationPercent": 110.6,
+          "explanation": "Connection creation rate of 21 connections/sec significantly exceeded the established baseline of 9.97 connections/sec (+110.6% increase)."
+        },
+        {
+          "alertId": "ALT-1793477033376-3822",
+          "timestamp": "2026-10-31T20:03:53.376Z",
+          "category": "TRAFFIC_BURST",
+          "severity": "MEDIUM",
+          "sourceIp": "192.168.1.50",
+          "targetStationId": "CS-0421",
+          "metricValue": 21,
+          "deviationPercent": 74.7,
+          "explanation": "Observed request rate surged to 21 req/s against nominal baseline of 12.02 req/s (+74.7% increase, Z-Score: 3.59)."
+        },
+        {
+          "alertId": "ALT-1793477033376-7989",
+          "timestamp": "2026-10-31T20:03:53.376Z",
+          "category": "COMBINED_ANOMALY",
+          "severity": "CRITICAL",
+          "sourceIp": "192.168.1.50",
+          "targetStationId": "CS-0421",
+          "metricValue": 21,
+          "deviationPercent": 110.6,
+          "explanation": "Multi-vector traffic anomaly observed. Request rate (21 req/s, +74.7%), connection rate (21 conn/s), and packet rate (84 pps) show systemic synchronized deviation across charging gateway."
+        }
+      ]
+    },
+    "alerts": [
+      {
+        "alertId": "ALT-1793477033376-2761",
+        "timestamp": "2026-10-31T20:03:53.376Z",
+        "category": "ABNORMAL_PACKET_RATE",
+        "severity": "MEDIUM",
+        "sourceIp": "192.168.1.50",
+        "targetStationId": "CS-0421",
+        "metricValue": 84,
+        "deviationPercent": 74.7,
+        "explanation": "Packet delivery rate reached 84 packets/sec compared to nominal 48.07 packets/sec (+74.7% increase, Z-Score: 4.49)."
+      },
+      {
+        "alertId": "ALT-1793477033376-5502",
+        "timestamp": "2026-10-31T20:03:53.376Z",
+        "category": "HIGH_CONNECTION_RATE",
+        "severity": "MEDIUM",
+        "sourceIp": "192.168.1.50",
+        "targetStationId": "CS-0421",
+        "metricValue": 21,
+        "deviationPercent": 110.6,
+        "explanation": "Connection creation rate of 21 connections/sec significantly exceeded the established baseline of 9.97 connections/sec (+110.6% increase)."
+      },
+      {
+        "alertId": "ALT-1793477033376-3822",
+        "timestamp": "2026-10-31T20:03:53.376Z",
+        "category": "TRAFFIC_BURST",
+        "severity": "MEDIUM",
+        "sourceIp": "192.168.1.50",
+        "targetStationId": "CS-0421",
+        "metricValue": 21,
+        "deviationPercent": 74.7,
+        "explanation": "Observed request rate surged to 21 req/s against nominal baseline of 12.02 req/s (+74.7% increase, Z-Score: 3.59)."
+      },
+      {
+        "alertId": "ALT-1793477033376-7989",
+        "timestamp": "2026-10-31T20:03:53.376Z",
+        "category": "COMBINED_ANOMALY",
+        "severity": "CRITICAL",
+        "sourceIp": "192.168.1.50",
+        "targetStationId": "CS-0421",
+        "metricValue": 21,
+        "deviationPercent": 110.6,
+        "explanation": "Multi-vector traffic anomaly observed. Request rate (21 req/s, +74.7%), connection rate (21 conn/s), and packet rate (84 pps) show systemic synchronized deviation across charging gateway."
+      }
+    ],
+    "timeline": [
+      {
+        "id": "EVT-1793477033383-1",
+        "incidentId": "INC-20261031-8120",
+        "timestamp": "2026-10-31T20:03:53.376Z",
+        "eventType": "ANOMALY_DETECTED",
+        "title": "Multi-Vector Combined Attack Surge Detected",
+        "description": "Multi-vector traffic anomaly observed. Request rate (21 req/s, +74.7%), connection rate (21 conn/s), and packet rate (84 pps) show systemic synchronized deviation across charging gateway.",
+        "actor": {
+          "type": "DETECTOR",
+          "name": "RANDOM_FOREST"
+        },
+        "evidence": {
+          "alertId": "ALT-1793477033376-7989",
+          "detector": "RANDOM_FOREST",
+          "deviationPercent": 110.6,
+          "sourceIp": "192.168.1.50"
+        }
+      },
+      {
+        "id": "EVT-1793477033383-2",
+        "incidentId": "INC-20261031-8120",
+        "timestamp": "2026-10-31T20:03:53.383Z",
+        "eventType": "INCIDENT_CREATED",
+        "title": "Incident Automatically Created",
+        "description": "Qualifying CRITICAL alert breached security threshold. Assigned incident ID INC-20261031-8120.",
+        "actor": {
+          "type": "SYSTEM",
+          "name": "AlertCorrelationEngine"
+        }
+      }
+    ],
+    "notes": [],
+    "responseActions": [
+      {
+        "id": "ACT-1793477033383-1",
+        "incidentId": "INC-20261031-8120",
+        "title": "Acknowledge Incident & Validate Telemetry Stream",
+        "description": "Review active latency, requests/sec, and packet rates on the live monitoring dashboard to confirm anomaly persistence.",
+        "category": "COMBINED_ANOMALY",
+        "priority": "HIGH",
+        "status": "PENDING",
+        "actionType": "INVESTIGATION",
+        "rationale": "Establishes initial operational scope and rules out transient network hiccups."
+      },
+      {
+        "id": "ACT-1793477033383-2",
+        "incidentId": "INC-20261031-8120",
+        "title": "Initiate Coordinated Multi-Vector Shield Protocol",
+        "description": "Engage gateway rate clamping, connection duration ceilings, and strict token nonce checks concurrently.",
+        "category": "COMBINED_ANOMALY",
+        "priority": "HIGH",
+        "status": "PENDING",
+        "actionType": "CONTAINMENT",
+        "rationale": "Attacks spanning multiple metrics require layered defense across both rate and transport layers."
+      },
+      {
+        "id": "ACT-1793477033383-4",
+        "incidentId": "INC-20261031-8120",
+        "title": "Conduct Post-Mitigation Recovery Verification",
+        "description": "Observe 2 consecutive 1-second telemetry cycles at baseline (~12 req/s) before marking incident RESOLVED.",
+        "category": "COMBINED_ANOMALY",
+        "priority": "LOW",
+        "status": "PENDING",
+        "actionType": "RECOVERY",
+        "rationale": "Ensures security status returns to PROTECTED only after abnormal activity has completely subsided."
+      }
+    ],
+    "rootCauseAnalysis": "Multi-vector traffic anomaly observed. Request rate (21 req/s, +74.7%), connection rate (21 conn/s), and packet rate (84 pps) show systemic synchronized deviation across charging gateway.",
+    "threatIntel": [
+      {
+        "indicator": "192.168.1.50",
+        "type": "IP",
+        "provider": "INTERNAL_RANGE",
+        "reputation": "BENIGN",
+        "confidence": 1,
+        "threatCategory": "Private Network Range (RFC 1918)",
+        "country": "Local Subnet",
+        "lookupTimestamp": "2026-10-31T20:03:53.383Z",
+        "status": "AVAILABLE",
+        "details": "Internal EV charging network station subnet. IP belongs to private address allocation (RFC 1918)."
+      }
+    ]
+  },
+  {
+    "id": "INC-20261031-5920",
+    "title": "Multi-Vector Combined Attack Surge on Station CS-0421",
+    "description": "Multi-vector traffic anomaly observed. Request rate (22 req/s, +81.8%), connection rate (22 conn/s), and packet rate (88 pps) show systemic synchronized deviation across charging gateway.",
+    "category": "COMBINED_ANOMALY",
+    "categoryLabel": "Multi-Vector Combined Attack Surge",
+    "severity": "CRITICAL",
+    "status": "OPEN",
+    "riskScore": 69,
+    "riskLevel": "MEDIUM",
+    "riskAssessment": {
+      "score": 69,
+      "level": "MEDIUM",
+      "calculatedAt": "2026-10-31T20:05:35.704Z",
+      "factors": [
+        {
+          "name": "Incident Severity Tier",
+          "weight": 30,
+          "score": 30,
+          "impact": "CRITICAL",
+          "description": "Baseline classification assigned at CRITICAL severity rating."
+        },
+        {
+          "name": "Attack Vector Profile",
+          "weight": 20,
+          "score": 20,
+          "impact": "COMBINED_ANOMALY",
+          "description": "Multi-vector distributed volumetric surge threatening EV gateway availability."
+        },
+        {
+          "name": "Baseline Deviation Magnitude",
+          "weight": 15,
+          "score": 4,
+          "impact": "+67%",
+          "description": "Observed traffic metrics exceed established normal baseline by +67%."
+        },
+        {
+          "name": "Alert Clustering Density",
+          "weight": 10,
+          "score": 7,
+          "impact": "5 alerts",
+          "description": "5 correlated alert observations aggregated within sliding observation window."
+        },
+        {
+          "name": "Infrastructure Blast Radius",
+          "weight": 10,
+          "score": 4,
+          "impact": "1 station(s)",
+          "description": "1 charging terminal(s) actively reporting correlated degradation."
+        },
+        {
+          "name": "ML Detector Confidence",
+          "weight": 10,
+          "score": 3,
+          "impact": "25%",
+          "description": "Consensus confidence across supervised and unsupervised detection models."
+        },
+        {
+          "name": "Threat Intelligence Signals",
+          "weight": 10,
+          "score": 1,
+          "impact": "NOMINAL",
+          "description": "Target source IPs verified clean or benign in threat database."
+        }
+      ],
+      "explanation": "Calculated risk score of 69/100 (MEDIUM) driven primarily by CRITICAL severity, COMBINED_ANOMALY attack profile (+20 pts), and +67% deviation from baseline (+4 pts).",
+      "recommendations": [
+        "Monitor connection durations and telemetry graph trends over the next 15 minutes.",
+        "Verify station network firmware and latency characteristics."
+      ]
+    },
+    "confidence": 0.25,
+    "primaryStationId": "CS-0421",
+    "affectedStations": [
+      "CS-0421"
+    ],
+    "sourceIps": [
+      "127.0.0.1"
+    ],
+    "targetInfrastructure": "Gateway Zone (CS-0421 / 127.0.0.1:8080)",
+    "detectorAttribution": "RANDOM_FOREST",
+    "createdAt": "2026-10-31T20:05:34.672Z",
+    "firstDetectedAt": "2026-10-31T20:05:34.671Z",
+    "lastUpdatedAt": "2026-10-31T20:09:08.515Z",
+    "correlationGroup": {
+      "groupId": "GRP-1793477134672",
+      "primaryCategory": "COMBINED_ANOMALY",
+      "alertCount": 5,
+      "firstAlertTimestamp": "2026-10-31T20:05:34.671Z",
+      "lastAlertTimestamp": "2026-10-31T20:05:35.700Z",
+      "correlationReason": "Single qualifying CRITICAL anomaly alert initiated incident boundary on CS-0421.",
+      "patternType": "SINGLE_VECTOR_BURST",
+      "alerts": [
+        {
+          "alertId": "ALT-1793477135700-6321",
+          "timestamp": "2026-10-31T20:05:35.700Z",
+          "category": "EXCESSIVE_DATA_TRANSFER",
+          "severity": "MEDIUM",
+          "sourceIp": "127.0.0.1",
+          "targetStationId": "CS-0421",
+          "metricValue": 10291,
+          "deviationPercent": 66.6,
+          "explanation": "Data-transfer volume reached 10291 bytes/sec (+66.6% increase over baseline 6177.53 bytes/sec)."
+        },
+        {
+          "alertId": "ALT-1793477134671-4995",
+          "timestamp": "2026-10-31T20:05:34.671Z",
+          "category": "ABNORMAL_PACKET_RATE",
+          "severity": "MEDIUM",
+          "sourceIp": "127.0.0.1",
+          "targetStationId": "CS-0421",
+          "metricValue": 88,
+          "deviationPercent": 81.8,
+          "explanation": "Packet delivery rate reached 88 packets/sec compared to nominal 48.4 packets/sec (+81.8% increase, Z-Score: 4.95)."
+        },
+        {
+          "alertId": "ALT-1793477134671-4346",
+          "timestamp": "2026-10-31T20:05:34.671Z",
+          "category": "HIGH_CONNECTION_RATE",
+          "severity": "MEDIUM",
+          "sourceIp": "127.0.0.1",
+          "targetStationId": "CS-0421",
+          "metricValue": 22,
+          "deviationPercent": 115.3,
+          "explanation": "Connection creation rate of 22 connections/sec significantly exceeded the established baseline of 10.22 connections/sec (+115.3% increase)."
+        },
+        {
+          "alertId": "ALT-1793477134671-1958",
+          "timestamp": "2026-10-31T20:05:34.671Z",
+          "category": "TRAFFIC_BURST",
+          "severity": "MEDIUM",
+          "sourceIp": "127.0.0.1",
+          "targetStationId": "CS-0421",
+          "metricValue": 22,
+          "deviationPercent": 81.8,
+          "explanation": "Observed request rate surged to 22 req/s against nominal baseline of 12.1 req/s (+81.8% increase, Z-Score: 3.96)."
+        },
+        {
+          "alertId": "ALT-1793477134671-7222",
+          "timestamp": "2026-10-31T20:05:34.671Z",
+          "category": "COMBINED_ANOMALY",
+          "severity": "CRITICAL",
+          "sourceIp": "127.0.0.1",
+          "targetStationId": "CS-0421",
+          "metricValue": 22,
+          "deviationPercent": 115.3,
+          "explanation": "Multi-vector traffic anomaly observed. Request rate (22 req/s, +81.8%), connection rate (22 conn/s), and packet rate (88 pps) show systemic synchronized deviation across charging gateway."
+        }
+      ]
+    },
+    "alerts": [
+      {
+        "alertId": "ALT-1793477135700-6321",
+        "timestamp": "2026-10-31T20:05:35.700Z",
+        "category": "EXCESSIVE_DATA_TRANSFER",
+        "severity": "MEDIUM",
+        "sourceIp": "127.0.0.1",
+        "targetStationId": "CS-0421",
+        "metricValue": 10291,
+        "deviationPercent": 66.6,
+        "explanation": "Data-transfer volume reached 10291 bytes/sec (+66.6% increase over baseline 6177.53 bytes/sec)."
+      },
+      {
+        "alertId": "ALT-1793477134671-4995",
+        "timestamp": "2026-10-31T20:05:34.671Z",
+        "category": "ABNORMAL_PACKET_RATE",
+        "severity": "MEDIUM",
+        "sourceIp": "127.0.0.1",
+        "targetStationId": "CS-0421",
+        "metricValue": 88,
+        "deviationPercent": 81.8,
+        "explanation": "Packet delivery rate reached 88 packets/sec compared to nominal 48.4 packets/sec (+81.8% increase, Z-Score: 4.95)."
+      },
+      {
+        "alertId": "ALT-1793477134671-4346",
+        "timestamp": "2026-10-31T20:05:34.671Z",
+        "category": "HIGH_CONNECTION_RATE",
+        "severity": "MEDIUM",
+        "sourceIp": "127.0.0.1",
+        "targetStationId": "CS-0421",
+        "metricValue": 22,
+        "deviationPercent": 115.3,
+        "explanation": "Connection creation rate of 22 connections/sec significantly exceeded the established baseline of 10.22 connections/sec (+115.3% increase)."
+      },
+      {
+        "alertId": "ALT-1793477134671-1958",
+        "timestamp": "2026-10-31T20:05:34.671Z",
+        "category": "TRAFFIC_BURST",
+        "severity": "MEDIUM",
+        "sourceIp": "127.0.0.1",
+        "targetStationId": "CS-0421",
+        "metricValue": 22,
+        "deviationPercent": 81.8,
+        "explanation": "Observed request rate surged to 22 req/s against nominal baseline of 12.1 req/s (+81.8% increase, Z-Score: 3.96)."
+      },
+      {
+        "alertId": "ALT-1793477134671-7222",
+        "timestamp": "2026-10-31T20:05:34.671Z",
+        "category": "COMBINED_ANOMALY",
+        "severity": "CRITICAL",
+        "sourceIp": "127.0.0.1",
+        "targetStationId": "CS-0421",
+        "metricValue": 22,
+        "deviationPercent": 115.3,
+        "explanation": "Multi-vector traffic anomaly observed. Request rate (22 req/s, +81.8%), connection rate (22 conn/s), and packet rate (88 pps) show systemic synchronized deviation across charging gateway."
+      }
+    ],
+    "timeline": [
+      {
+        "id": "EVT-1793477348515-59",
+        "incidentId": "INC-20261031-5920",
+        "timestamp": "2026-10-31T20:09:08.515Z",
+        "eventType": "NOTE_ADDED",
+        "title": "Investigation Note Added",
+        "description": "solved",
+        "actor": {
+          "type": "ANALYST",
+          "name": "Admin",
+          "role": "admin"
+        }
+      },
+      {
+        "id": "EVT-1793477134672-1",
+        "incidentId": "INC-20261031-5920",
+        "timestamp": "2026-10-31T20:05:34.671Z",
+        "eventType": "ANOMALY_DETECTED",
+        "title": "Multi-Vector Combined Attack Surge Detected",
+        "description": "Multi-vector traffic anomaly observed. Request rate (22 req/s, +81.8%), connection rate (22 conn/s), and packet rate (88 pps) show systemic synchronized deviation across charging gateway.",
+        "actor": {
+          "type": "DETECTOR",
+          "name": "RANDOM_FOREST"
+        },
+        "evidence": {
+          "alertId": "ALT-1793477134671-7222",
+          "detector": "RANDOM_FOREST",
+          "deviationPercent": 115.3,
+          "sourceIp": "127.0.0.1"
+        }
+      },
+      {
+        "id": "EVT-1793477134672-2",
+        "incidentId": "INC-20261031-5920",
+        "timestamp": "2026-10-31T20:05:34.672Z",
+        "eventType": "INCIDENT_CREATED",
+        "title": "Incident Automatically Created",
+        "description": "Qualifying CRITICAL alert breached security threshold. Assigned incident ID INC-20261031-5920.",
+        "actor": {
+          "type": "SYSTEM",
+          "name": "AlertCorrelationEngine"
+        }
+      }
+    ],
+    "notes": [
+      {
+        "id": "NOTE-1793477348515-62",
+        "incidentId": "INC-20261031-5920",
+        "authorEmail": "admin@evshield.demo",
+        "authorName": "Admin",
+        "authorRole": "admin",
+        "content": "solved",
+        "timestamp": "2026-10-31T20:09:08.515Z"
+      }
+    ],
+    "responseActions": [
+      {
+        "id": "ACT-1793477134672-1",
+        "incidentId": "INC-20261031-5920",
+        "title": "Acknowledge Incident & Validate Telemetry Stream",
+        "description": "Review active latency, requests/sec, and packet rates on the live monitoring dashboard to confirm anomaly persistence.",
+        "category": "COMBINED_ANOMALY",
+        "priority": "HIGH",
+        "status": "PENDING",
+        "actionType": "INVESTIGATION",
+        "rationale": "Establishes initial operational scope and rules out transient network hiccups."
+      },
+      {
+        "id": "ACT-1793477134672-2",
+        "incidentId": "INC-20261031-5920",
+        "title": "Initiate Coordinated Multi-Vector Shield Protocol",
+        "description": "Engage gateway rate clamping, connection duration ceilings, and strict token nonce checks concurrently.",
+        "category": "COMBINED_ANOMALY",
+        "priority": "HIGH",
+        "status": "PENDING",
+        "actionType": "CONTAINMENT",
+        "rationale": "Attacks spanning multiple metrics require layered defense across both rate and transport layers."
+      },
+      {
+        "id": "ACT-1793477134672-4",
+        "incidentId": "INC-20261031-5920",
+        "title": "Conduct Post-Mitigation Recovery Verification",
+        "description": "Observe 2 consecutive 1-second telemetry cycles at baseline (~12 req/s) before marking incident RESOLVED.",
+        "category": "COMBINED_ANOMALY",
+        "priority": "LOW",
+        "status": "PENDING",
+        "actionType": "RECOVERY",
+        "rationale": "Ensures security status returns to PROTECTED only after abnormal activity has completely subsided."
+      }
+    ],
+    "rootCauseAnalysis": "Multi-vector traffic anomaly observed. Request rate (22 req/s, +81.8%), connection rate (22 conn/s), and packet rate (88 pps) show systemic synchronized deviation across charging gateway.",
+    "threatIntel": [
+      {
+        "indicator": "127.0.0.1",
+        "type": "IP",
+        "provider": "INTERNAL_RANGE",
+        "reputation": "BENIGN",
+        "confidence": 1,
+        "threatCategory": "Private Network Range (RFC 1918)",
+        "country": "Local Subnet",
+        "lookupTimestamp": "2026-10-31T20:05:34.672Z",
+        "status": "AVAILABLE",
+        "details": "Internal EV charging network station subnet. IP belongs to private address allocation (RFC 1918)."
+      }
+    ]
+  }
+]

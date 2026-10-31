@@ -1,0 +1,469 @@
+[
+  {
+    "incidentId": "INC-20261031-5920",
+    "actor": {
+      "email": "admin@evshield.demo",
+      "name": "Admin",
+      "role": "admin"
+    },
+    "action": "ADD_NOTE",
+    "entityType": "NOTE",
+    "details": "Added investigation note to incident INC-20261031-5920.",
+    "id": "AUD-1793477348517-382",
+    "timestamp": "2026-10-31T20:09:08.517Z"
+  },
+  {
+    "incidentId": "INC-20261031-5920",
+    "actor": {
+      "email": "system@evshield.internal",
+      "name": "AlertCorrelationEngine",
+      "role": "system"
+    },
+    "action": "CREATE_INCIDENT",
+    "entityType": "INCIDENT",
+    "details": "Created security incident INC-20261031-5920 for Multi-Vector Combined Attack Surge on station CS-0421.",
+    "id": "AUD-1793477134673-526",
+    "timestamp": "2026-10-31T20:05:34.673Z"
+  },
+  {
+    "incidentId": "INC-20261031-8120",
+    "actor": {
+      "email": "system@evshield.internal",
+      "name": "AlertCorrelationEngine",
+      "role": "system"
+    },
+    "action": "CREATE_INCIDENT",
+    "entityType": "INCIDENT",
+    "details": "Created security incident INC-20261031-8120 for Multi-Vector Combined Attack Surge on station CS-0421.",
+    "id": "AUD-1793477033384-737",
+    "timestamp": "2026-10-31T20:03:53.384Z"
+  },
+  {
+    "incidentId": "INC-20261031-4835",
+    "actor": {
+      "email": "analyst@evshield.demo",
+      "name": "Security Analyst",
+      "role": "security_analyst"
+    },
+    "action": "UPDATE_STATUS",
+    "entityType": "INCIDENT",
+    "details": "Status changed from CONTAINED to RESOLVED. Note: Normal traffic resumed.",
+    "metadata": {
+      "oldStatus": "CONTAINED",
+      "newStatus": "RESOLVED"
+    },
+    "id": "AUD-1793477032959-467",
+    "timestamp": "2026-10-31T20:03:52.959Z"
+  },
+  {
+    "incidentId": "INC-20261031-4835",
+    "actor": {
+      "email": "analyst@evshield.demo",
+      "name": "Security Analyst",
+      "role": "security_analyst"
+    },
+    "action": "UPDATE_STATUS",
+    "entityType": "INCIDENT",
+    "details": "Status changed from INVESTIGATING to CONTAINED. Note: Attacking traffic isolated.",
+    "metadata": {
+      "oldStatus": "INVESTIGATING",
+      "newStatus": "CONTAINED"
+    },
+    "id": "AUD-1793477032956-676",
+    "timestamp": "2026-10-31T20:03:52.956Z"
+  },
+  {
+    "incidentId": "INC-20261031-4835",
+    "actor": {
+      "email": "analyst@evshield.demo",
+      "name": "Security Analyst",
+      "role": "security_analyst"
+    },
+    "action": "UPDATE_RESPONSE_ACTION",
+    "entityType": "RESPONSE_ACTION",
+    "details": "Marked action 'Acknowledge Incident & Validate Telemetry Stream' as COMPLETED.",
+    "metadata": {
+      "actionId": "ACT-1793476976781-1",
+      "status": "COMPLETED"
+    },
+    "id": "AUD-1793477032944-473",
+    "timestamp": "2026-10-31T20:03:52.944Z"
+  },
+  {
+    "incidentId": "INC-20261031-4835",
+    "actor": {
+      "email": "analyst@evshield.demo",
+      "name": "Security Analyst",
+      "role": "security_analyst"
+    },
+    "action": "ADD_NOTE",
+    "entityType": "NOTE",
+    "details": "Added investigation note to incident INC-20261031-4835.",
+    "id": "AUD-1793477032941-152",
+    "timestamp": "2026-10-31T20:03:52.941Z"
+  },
+  {
+    "incidentId": "INC-20261031-4835",
+    "actor": {
+      "email": "analyst@evshield.demo",
+      "name": "Security Analyst",
+      "role": "security_analyst"
+    },
+    "action": "ASSIGN_ANALYST",
+    "entityType": "INCIDENT",
+    "details": "Assigned incident to Security Analyst (analyst@evshield.demo).",
+    "metadata": {
+      "analystEmail": "analyst@evshield.demo"
+    },
+    "id": "AUD-1793477032926-654",
+    "timestamp": "2026-10-31T20:03:52.926Z"
+  },
+  {
+    "incidentId": "INC-20261031-4835",
+    "actor": {
+      "email": "analyst@evshield.demo",
+      "name": "Security Analyst",
+      "role": "security_analyst"
+    },
+    "action": "UPDATE_STATUS",
+    "entityType": "INCIDENT",
+    "details": "Status changed from OPEN to INVESTIGATING. Note: Lead analyst started investigation.",
+    "metadata": {
+      "oldStatus": "OPEN",
+      "newStatus": "INVESTIGATING"
+    },
+    "id": "AUD-1793477032910-430",
+    "timestamp": "2026-10-31T20:03:52.910Z"
+  },
+  {
+    "incidentId": "INC-20261031-4835",
+    "actor": {
+      "email": "system@evshield.internal",
+      "name": "AlertCorrelationEngine",
+      "role": "system"
+    },
+    "action": "CREATE_INCIDENT",
+    "entityType": "INCIDENT",
+    "details": "Created security incident INC-20261031-4835 for Multi-Vector Combined Attack Surge on station CS-0421.",
+    "id": "AUD-1793476976783-235",
+    "timestamp": "2026-10-31T20:02:56.783Z"
+  },
+  {
+    "incidentId": "INC-20261031-9911",
+    "actor": {
+      "email": "system@evshield.internal",
+      "name": "AlertCorrelationEngine",
+      "role": "system"
+    },
+    "action": "CREATE_INCIDENT",
+    "entityType": "INCIDENT",
+    "details": "Created security incident INC-20261031-9911 for Multi-Vector Combined Attack Surge on station CS-0421.",
+    "id": "AUD-1793476808641-851",
+    "timestamp": "2026-10-31T20:00:08.641Z"
+  },
+  {
+    "incidentId": "INC-20261031-4450",
+    "actor": {
+      "email": "analyst@evshield.demo",
+      "name": "Security Analyst",
+      "role": "security_analyst"
+    },
+    "action": "UPDATE_STATUS",
+    "entityType": "INCIDENT",
+    "details": "Status changed from CONTAINED to RESOLVED. Note: Normal traffic resumed.",
+    "metadata": {
+      "oldStatus": "CONTAINED",
+      "newStatus": "RESOLVED"
+    },
+    "id": "AUD-1793476808166-608",
+    "timestamp": "2026-10-31T20:00:08.166Z"
+  },
+  {
+    "incidentId": "INC-20261031-4450",
+    "actor": {
+      "email": "analyst@evshield.demo",
+      "name": "Security Analyst",
+      "role": "security_analyst"
+    },
+    "action": "UPDATE_STATUS",
+    "entityType": "INCIDENT",
+    "details": "Status changed from INVESTIGATING to CONTAINED. Note: Attacking traffic isolated.",
+    "metadata": {
+      "oldStatus": "INVESTIGATING",
+      "newStatus": "CONTAINED"
+    },
+    "id": "AUD-1793476808164-975",
+    "timestamp": "2026-10-31T20:00:08.164Z"
+  },
+  {
+    "incidentId": "INC-20261031-4450",
+    "actor": {
+      "email": "analyst@evshield.demo",
+      "name": "Security Analyst",
+      "role": "security_analyst"
+    },
+    "action": "UPDATE_RESPONSE_ACTION",
+    "entityType": "RESPONSE_ACTION",
+    "details": "Marked action 'Acknowledge Incident & Validate Telemetry Stream' as COMPLETED.",
+    "metadata": {
+      "actionId": "ACT-1793476741075-1",
+      "status": "COMPLETED"
+    },
+    "id": "AUD-1793476808157-400",
+    "timestamp": "2026-10-31T20:00:08.157Z"
+  },
+  {
+    "incidentId": "INC-20261031-4450",
+    "actor": {
+      "email": "analyst@evshield.demo",
+      "name": "Security Analyst",
+      "role": "security_analyst"
+    },
+    "action": "ADD_NOTE",
+    "entityType": "NOTE",
+    "details": "Added investigation note to incident INC-20261031-4450.",
+    "id": "AUD-1793476808151-975",
+    "timestamp": "2026-10-31T20:00:08.151Z"
+  },
+  {
+    "incidentId": "INC-20261031-4450",
+    "actor": {
+      "email": "analyst@evshield.demo",
+      "name": "Security Analyst",
+      "role": "security_analyst"
+    },
+    "action": "ASSIGN_ANALYST",
+    "entityType": "INCIDENT",
+    "details": "Assigned incident to Security Analyst (analyst@evshield.demo).",
+    "metadata": {
+      "analystEmail": "analyst@evshield.demo"
+    },
+    "id": "AUD-1793476808143-736",
+    "timestamp": "2026-10-31T20:00:08.143Z"
+  },
+  {
+    "incidentId": "INC-20261031-4450",
+    "actor": {
+      "email": "analyst@evshield.demo",
+      "name": "Security Analyst",
+      "role": "security_analyst"
+    },
+    "action": "UPDATE_STATUS",
+    "entityType": "INCIDENT",
+    "details": "Status changed from OPEN to INVESTIGATING. Note: Lead analyst started investigation.",
+    "metadata": {
+      "oldStatus": "OPEN",
+      "newStatus": "INVESTIGATING"
+    },
+    "id": "AUD-1793476808137-380",
+    "timestamp": "2026-10-31T20:00:08.137Z"
+  },
+  {
+    "incidentId": "INC-20261031-4450",
+    "actor": {
+      "email": "system@evshield.internal",
+      "name": "AlertCorrelationEngine",
+      "role": "system"
+    },
+    "action": "CREATE_INCIDENT",
+    "entityType": "INCIDENT",
+    "details": "Created security incident INC-20261031-4450 for Multi-Vector Combined Attack Surge on station CS-0421.",
+    "id": "AUD-1793476741076-100",
+    "timestamp": "2026-10-31T19:59:01.076Z"
+  },
+  {
+    "incidentId": "INC-20261031-1042",
+    "actor": {
+      "email": "analyst@evshield.demo",
+      "name": "Security Analyst",
+      "role": "security_analyst"
+    },
+    "action": "UPDATE_STATUS",
+    "entityType": "INCIDENT",
+    "details": "Status changed from CONTAINED to RESOLVED. Note: Normal traffic resumed.",
+    "metadata": {
+      "oldStatus": "CONTAINED",
+      "newStatus": "RESOLVED"
+    },
+    "id": "AUD-1793476740964-764",
+    "timestamp": "2026-10-31T19:59:00.964Z"
+  },
+  {
+    "incidentId": "INC-20261031-1042",
+    "actor": {
+      "email": "analyst@evshield.demo",
+      "name": "Security Analyst",
+      "role": "security_analyst"
+    },
+    "action": "UPDATE_STATUS",
+    "entityType": "INCIDENT",
+    "details": "Status changed from INVESTIGATING to CONTAINED. Note: Attacking traffic isolated.",
+    "metadata": {
+      "oldStatus": "INVESTIGATING",
+      "newStatus": "CONTAINED"
+    },
+    "id": "AUD-1793476740944-958",
+    "timestamp": "2026-10-31T19:59:00.944Z"
+  },
+  {
+    "incidentId": "INC-20261031-1042",
+    "actor": {
+      "email": "analyst@evshield.demo",
+      "name": "Security Analyst",
+      "role": "security_analyst"
+    },
+    "action": "UPDATE_RESPONSE_ACTION",
+    "entityType": "RESPONSE_ACTION",
+    "details": "Marked action 'Verify Ingress Rate Limiter' as COMPLETED.",
+    "metadata": {
+      "actionId": "ACT-01",
+      "status": "COMPLETED"
+    },
+    "id": "AUD-1793476740929-360",
+    "timestamp": "2026-10-31T19:59:00.929Z"
+  },
+  {
+    "incidentId": "INC-20261031-1042",
+    "actor": {
+      "email": "analyst@evshield.demo",
+      "name": "Security Analyst",
+      "role": "security_analyst"
+    },
+    "action": "ADD_NOTE",
+    "entityType": "NOTE",
+    "details": "Added investigation note to incident INC-20261031-1042.",
+    "id": "AUD-1793476740917-385",
+    "timestamp": "2026-10-31T19:59:00.917Z"
+  },
+  {
+    "incidentId": "INC-20261031-1042",
+    "actor": {
+      "email": "analyst@evshield.demo",
+      "name": "Security Analyst",
+      "role": "security_analyst"
+    },
+    "action": "ASSIGN_ANALYST",
+    "entityType": "INCIDENT",
+    "details": "Assigned incident to Security Analyst (analyst@evshield.demo).",
+    "metadata": {
+      "analystEmail": "analyst@evshield.demo"
+    },
+    "id": "AUD-1793476740901-385",
+    "timestamp": "2026-10-31T19:59:00.901Z"
+  },
+  {
+    "incidentId": "INC-20261031-1042",
+    "actor": {
+      "email": "analyst@evshield.demo",
+      "name": "Security Analyst",
+      "role": "security_analyst"
+    },
+    "action": "UPDATE_STATUS",
+    "entityType": "INCIDENT",
+    "details": "Status changed from RESOLVED to INVESTIGATING. Note: Lead analyst started investigation.",
+    "metadata": {
+      "oldStatus": "RESOLVED",
+      "newStatus": "INVESTIGATING"
+    },
+    "id": "AUD-1793476740883-470",
+    "timestamp": "2026-10-31T19:59:00.883Z"
+  },
+  {
+    "incidentId": "INC-20261031-1042",
+    "actor": {
+      "email": "analyst@evshield.demo",
+      "name": "Security Analyst",
+      "role": "security_analyst"
+    },
+    "action": "UPDATE_STATUS",
+    "entityType": "INCIDENT",
+    "details": "Status changed from CONTAINED to RESOLVED. Note: Normal traffic resumed.",
+    "metadata": {
+      "oldStatus": "CONTAINED",
+      "newStatus": "RESOLVED"
+    },
+    "id": "AUD-1793476560912-784",
+    "timestamp": "2026-10-31T19:56:00.912Z"
+  },
+  {
+    "incidentId": "INC-20261031-1042",
+    "actor": {
+      "email": "analyst@evshield.demo",
+      "name": "Security Analyst",
+      "role": "security_analyst"
+    },
+    "action": "UPDATE_STATUS",
+    "entityType": "INCIDENT",
+    "details": "Status changed from INVESTIGATING to CONTAINED. Note: Attacking traffic isolated.",
+    "metadata": {
+      "oldStatus": "INVESTIGATING",
+      "newStatus": "CONTAINED"
+    },
+    "id": "AUD-1793476560908-400",
+    "timestamp": "2026-10-31T19:56:00.908Z"
+  },
+  {
+    "incidentId": "INC-20261031-1042",
+    "actor": {
+      "email": "analyst@evshield.demo",
+      "name": "Security Analyst",
+      "role": "security_analyst"
+    },
+    "action": "UPDATE_RESPONSE_ACTION",
+    "entityType": "RESPONSE_ACTION",
+    "details": "Marked action 'Verify Ingress Rate Limiter' as COMPLETED.",
+    "metadata": {
+      "actionId": "ACT-01",
+      "status": "COMPLETED"
+    },
+    "id": "AUD-1793476560906-125",
+    "timestamp": "2026-10-31T19:56:00.906Z"
+  },
+  {
+    "incidentId": "INC-20261031-1042",
+    "actor": {
+      "email": "analyst@evshield.demo",
+      "name": "Security Analyst",
+      "role": "security_analyst"
+    },
+    "action": "ADD_NOTE",
+    "entityType": "NOTE",
+    "details": "Added investigation note to incident INC-20261031-1042.",
+    "id": "AUD-1793476560885-777",
+    "timestamp": "2026-10-31T19:56:00.885Z"
+  },
+  {
+    "incidentId": "INC-20261031-1042",
+    "actor": {
+      "email": "analyst@evshield.demo",
+      "name": "Security Analyst",
+      "role": "security_analyst"
+    },
+    "action": "UPDATE_STATUS",
+    "entityType": "INCIDENT",
+    "details": "Status changed from INVESTIGATING to INVESTIGATING. Note: Lead analyst started investigation.",
+    "metadata": {
+      "oldStatus": "INVESTIGATING",
+      "newStatus": "INVESTIGATING"
+    },
+    "id": "AUD-1793476560869-283",
+    "timestamp": "2026-10-31T19:56:00.869Z"
+  },
+  {
+    "incidentId": "INC-20261031-1042",
+    "actor": {
+      "email": "analyst@evshield.demo",
+      "name": "Security Analyst",
+      "role": "security_analyst"
+    },
+    "action": "UPDATE_STATUS",
+    "entityType": "INCIDENT",
+    "details": "Status changed from CONTAINED to INVESTIGATING. Note: Lead analyst started investigation.",
+    "metadata": {
+      "oldStatus": "CONTAINED",
+      "newStatus": "INVESTIGATING"
+    },
+    "id": "AUD-1793476399209-414",
+    "timestamp": "2026-10-31T19:53:19.209Z"
+  }
+]

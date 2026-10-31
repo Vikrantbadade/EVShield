@@ -1,0 +1,48 @@
+[
+  {
+    "indicator": "192.168.1.145",
+    "type": "IP",
+    "provider": "INTERNAL_RANGE",
+    "reputation": "BENIGN",
+    "confidence": 1,
+    "threatCategory": "Private Network Range (RFC 1918)",
+    "country": "Local Subnet",
+    "lookupTimestamp": "2026-10-31T20:03:52.985Z",
+    "status": "AVAILABLE",
+    "details": "Internal EV charging network station subnet. IP belongs to private address allocation (RFC 1918)."
+  },
+  {
+    "indicator": "8.8.8.8",
+    "type": "IP",
+    "provider": "NONE",
+    "reputation": "UNKNOWN",
+    "confidence": 0,
+    "lookupTimestamp": "2026-10-31T19:56:00.968Z",
+    "status": "UNAVAILABLE",
+    "details": "No external threat intelligence API key is configured. Configure provider in Settings to enable live reputation scoring."
+  },
+  {
+    "indicator": "127.0.0.1",
+    "type": "IP",
+    "provider": "INTERNAL_RANGE",
+    "reputation": "BENIGN",
+    "confidence": 1,
+    "threatCategory": "Private Network Range (RFC 1918)",
+    "country": "Local Subnet",
+    "lookupTimestamp": "2026-10-31T20:05:34.672Z",
+    "status": "AVAILABLE",
+    "details": "Internal EV charging network station subnet. IP belongs to private address allocation (RFC 1918)."
+  },
+  {
+    "indicator": "192.168.1.50",
+    "type": "IP",
+    "provider": "INTERNAL_RANGE",
+    "reputation": "BENIGN",
+    "confidence": 1,
+    "threatCategory": "Private Network Range (RFC 1918)",
+    "country": "Local Subnet",
+    "lookupTimestamp": "2026-10-31T20:03:53.383Z",
+    "status": "AVAILABLE",
+    "details": "Internal EV charging network station subnet. IP belongs to private address allocation (RFC 1918)."
+  }
+]

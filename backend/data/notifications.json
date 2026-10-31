@@ -1,0 +1,52 @@
+[
+  {
+    "incidentId": "INC-20261031-5920",
+    "title": "New CRITICAL Incident: Multi-Vector Combined Attack Surge",
+    "message": "Station CS-0421 is experiencing an active attack. Immediate triage recommended.",
+    "severity": "CRITICAL",
+    "link": "/analysis/INC-20261031-5920",
+    "id": "NOTIF-1793477134674-800",
+    "timestamp": "2026-10-31T20:05:34.674Z",
+    "read": true
+  },
+  {
+    "incidentId": "INC-20261031-8120",
+    "title": "New CRITICAL Incident: Multi-Vector Combined Attack Surge",
+    "message": "Station CS-0421 is experiencing an active attack. Immediate triage recommended.",
+    "severity": "CRITICAL",
+    "link": "/analysis/INC-20261031-8120",
+    "id": "NOTIF-1793477033384-650",
+    "timestamp": "2026-10-31T20:03:53.384Z",
+    "read": true
+  },
+  {
+    "incidentId": "INC-20261031-4835",
+    "title": "New CRITICAL Incident: Multi-Vector Combined Attack Surge",
+    "message": "Station CS-0421 is experiencing an active attack. Immediate triage recommended.",
+    "severity": "CRITICAL",
+    "link": "/analysis/INC-20261031-4835",
+    "id": "NOTIF-1793476976783-285",
+    "timestamp": "2026-10-31T20:02:56.783Z",
+    "read": true
+  },
+  {
+    "incidentId": "INC-20261031-9911",
+    "title": "New CRITICAL Incident: Multi-Vector Combined Attack Surge",
+    "message": "Station CS-0421 is experiencing an active attack. Immediate triage recommended.",
+    "severity": "CRITICAL",
+    "link": "/analysis/INC-20261031-9911",
+    "id": "NOTIF-1793476808641-246",
+    "timestamp": "2026-10-31T20:00:08.641Z",
+    "read": true
+  },
+  {
+    "incidentId": "INC-20261031-4450",
+    "title": "New CRITICAL Incident: Multi-Vector Combined Attack Surge",
+    "message": "Station CS-0421 is experiencing an active attack. Immediate triage recommended.",
+    "severity": "CRITICAL",
+    "link": "/analysis/INC-20261031-4450",
+    "id": "NOTIF-1793476741077-467",
+    "timestamp": "2026-10-31T19:59:01.077Z",
+    "read": true
+  }
+]
