@@ -1,0 +1,4 @@
+# EVShield ML Dependencies
+# Compatible pinned dependencies matching the trained Random Forest model (TOP_richer_stats_v1)
+-r ml/requirements.txt
+

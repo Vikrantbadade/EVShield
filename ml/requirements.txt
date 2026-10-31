@@ -1,0 +1,9 @@
+# EVShield ML Dependencies
+# Compatible pinned dependencies matching the trained Random Forest model (TOP_richer_stats_v1)
+joblib==1.5.3
+numpy==2.5.2
+pandas==3.0.5
+scikit-learn==1.9.0
+scipy==1.18.0
+xgboost==3.4.1
+

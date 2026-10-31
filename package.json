@@ -4,6 +4,10 @@
   "private": true,
   "description": "EVShield - Real-Time EV Charging Cybersecurity & ML Defense Demonstration Lab",
   "scripts": {
+    "install:all": "npm --prefix services/charging-server ci && npm --prefix backend ci && npm --prefix Frontend ci",
+    "install:server": "npm --prefix services/charging-server ci",
+    "install:backend": "npm --prefix backend ci",
+    "install:frontend": "npm --prefix Frontend ci",
     "server": "node services/charging-server/src/server.js",
     "backend": "npm --prefix backend run dev",
     "frontend": "npm --prefix Frontend run dev"

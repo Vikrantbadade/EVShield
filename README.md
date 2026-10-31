@@ -83,34 +83,114 @@ The CICEV2023 Random Forest model strictly requires the following 10 statistical
 
 ---
 
-## 🛠️ Quick Start Guide
+## 🛠️ Installation & Setup Guide
 
-### Prerequisites
-- **Node.js**: v18+ (Node v24.19.0 recommended)
-- **Python**: 3.10+ with `scikit-learn==1.9.0`, `joblib==1.5.3`, `pandas==3.0.5`, `numpy==2.5.1`
+### 1. Prerequisites
+- **Node.js**: v18.0.0 or later (v20+ recommended)
+- **Python**: 3.10 to 3.13 (Python 3.12 recommended)
+- **Git**
 
-### Step 1: Start Fake EV Charging Server
-```bash
-# From repository root
-node services/charging-server/src/server.js
+---
+
+### 2. Python Virtual Environment Setup (ML Engine)
+Backend and charging services automatically detect Python in `.venv` at the repository root.
+
+**Windows (PowerShell):**
+```powershell
+# From repository root:
+python -m venv .venv
+.\.venv\Scripts\pip install -r ml/requirements.txt
 ```
-*Server starts on `http://127.0.0.1:8080` (Endpoints: `/health`, `/api/auth`, `/api/charging`).*
 
-### Step 2: Start EVShield Backend API
+**Linux / macOS:**
 ```bash
-cd backend
-npm install
-npm run dev
+# From repository root:
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r ml/requirements.txt
 ```
-*Backend starts on `http://localhost:5000` (Endpoints: `/api/v1/health`, `/api/v1/telemetry/live`, `/api/v1/demo/*`).*
 
-### Step 3: Start React / Vite Frontend
-```bash
-cd Frontend
-npm install
-npm run dev
+Verify ML inference:
+```powershell
+# Windows
+'{"data_point": [2.5, 2.6, 2.7, 2.4, 2.5]}' | .\.venv\Scripts\python.exe ml\inference\extract_and_predict.py
+
+# Linux / macOS
+echo '{"data_point": [2.5, 2.6, 2.7, 2.4, 2.5]}' | .venv/bin/python ml/inference/extract_and_predict.py
 ```
-*Frontend starts on `http://localhost:3000`.*
+
+---
+
+### 3. Environment Configuration
+Create the `.env` files from their corresponding examples:
+
+**Backend:**
+```bash
+# Windows: Copy-Item backend\.env.example backend\.env
+cp backend/.env.example backend/.env
+```
+
+**Frontend:**
+```bash
+# Windows: Copy-Item Frontend\.env.example Frontend\.env
+cp Frontend/.env.example Frontend/.env
+```
+
+**Charging Server (Optional):**
+```bash
+# Windows: Copy-Item services\charging-server\.env.example services\charging-server\.env
+cp services/charging-server/.env.example services/charging-server/.env
+```
+
+---
+
+### 4. Node.js Dependency Installation
+Each Node.js component maintains its own clean `package.json` and lockfile. Install dependencies cleanly using `npm ci`:
+
+**Option A — All components in one command (from repository root):**
+```bash
+npm run install:all
+```
+
+**Option B — Individually per component:**
+```bash
+# 1. Fake EV Charging Server
+cd services/charging-server && npm ci && cd ../..
+
+# 2. EVShield Backend (installs express, prisma, tsx, etc.)
+cd backend && npm ci && cd ..
+
+# 3. React / Vite Frontend (installs axios, vite, three, etc.)
+cd Frontend && npm ci && cd ..
+```
+
+---
+
+### 5. Running the Application
+
+Open 3 separate terminals (or run from root):
+
+**Terminal 1 — Fake EV Charging Station (Port 8080):**
+```bash
+npm run server
+# Or: cd services/charging-server && npm start
+```
+*Health endpoint: `http://localhost:8080/health`*
+
+**Terminal 2 — EVShield Backend API (Port 5000):**
+```bash
+npm run backend
+# Or: cd backend && npm run dev
+```
+*Health endpoint: `http://localhost:5000/api/v1/health`*
+*(Note: If PostgreSQL is not running, the backend automatically falls back to an in-memory session store.)*
+
+**Terminal 3 — React / Vite SOC Frontend (Port 3000):**
+```bash
+npm run frontend
+# Or: cd Frontend && npm run dev
+```
+*Dashboard: `http://localhost:3000`*
 
 ---
 

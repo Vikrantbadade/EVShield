@@ -1,12 +1,48 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
 # Python
 __pycache__/
 *.py[cod]
+*$py.class
 *.pyo
 
-# Virtual environments
+# Python virtual environments
 .venv/
 venv/
-env/
+/.env/
+/env/
+ENV/
+env.bak/
+venv.bak/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+.env.development
+.env.test
+.env.production
+!.env.example
+
+# Build outputs and compiler caches
+dist/
+build/
+out/
+*.tsbuildinfo
+.vite/
+.cache/
+.parcel-cache/
+
+# Testing & Coverage
+coverage/
+.nyc_output/
+.pytest_cache/
+.mypy_cache/
 
 # IDE
 .vscode/
@@ -14,10 +50,11 @@ env/
 
 # OS
 .DS_Store
+Thumbs.db
 
-# Python tooling
-.pytest_cache/
-.mypy_cache/
-
-# Local logs
+# Logs and profiles
 *.log
+*.cpuprofile
+
+
+
