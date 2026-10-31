@@ -1,0 +1,43 @@
+{
+  "dataset_name": "EVShield_Network_Flow_v1",
+  "description": "Standardized network-flow benchmark for EV charging network anomaly detection and multi-model comparison.",
+  "random_seed": 42,
+  "total_samples": 3998,
+  "split_counts": {
+    "train": 2798,
+    "val": 600,
+    "test": 600
+  },
+  "feature_columns": [
+    "packet_rate",
+    "request_rate",
+    "new_connection_rate",
+    "active_connections",
+    "data_transfer_volume",
+    "connection_duration",
+    "request_frequency"
+  ],
+  "target_columns": [
+    "label",
+    "class_name",
+    "is_anomaly"
+  ],
+  "classes": {
+    "0": "NORMAL",
+    "1": "TRAFFIC_BURST",
+    "2": "HIGH_CONNECTION_RATE",
+    "3": "REPEATED_REQUESTS",
+    "4": "EXCESSIVE_DATA",
+    "5": "UNUSUAL_LATENCY",
+    "6": "COMBINED_ANOMALY"
+  },
+  "feature_descriptions": {
+    "packet_rate": "Number of packets transferred per second (pkt/s)",
+    "request_rate": "HTTP/OCPP request throughput per second (req/s)",
+    "new_connection_rate": "Rate of newly created TCP connections per second (conn/s)",
+    "active_connections": "Current concurrent open active connections count",
+    "data_transfer_volume": "Total volume of data transferred per second in bytes (B/s)",
+    "connection_duration": "Average latency or connection hold time in milliseconds (ms)",
+    "request_frequency": "Observed request frequency in Hertz (Hz)"
+  }
+}

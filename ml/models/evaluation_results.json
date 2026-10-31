@@ -1,0 +1,227 @@
+{
+  "evaluation_timestamp": "2026-11-01T00:07:13.079137",
+  "dataset": {
+    "name": "EVShield_Network_Flow_v1",
+    "features": [
+      "packet_rate",
+      "request_rate",
+      "new_connection_rate",
+      "active_connections",
+      "data_transfer_volume",
+      "connection_duration",
+      "request_frequency"
+    ],
+    "classes": {
+      "0": "NORMAL",
+      "1": "TRAFFIC_BURST",
+      "2": "HIGH_CONNECTION_RATE",
+      "3": "REPEATED_REQUESTS",
+      "4": "EXCESSIVE_DATA",
+      "5": "UNUSUAL_LATENCY",
+      "6": "COMBINED_ANOMALY"
+    },
+    "train_samples": 2798,
+    "test_samples": 600,
+    "test_normal_count": 300,
+    "test_anomaly_count": 300
+  },
+  "models": {
+    "THRESHOLD": {
+      "id": "THRESHOLD",
+      "name": "Statistical Threshold Detector",
+      "type": "Rule-Based & Dynamic Baseline Z-Score",
+      "status": "READY",
+      "is_supervised": false,
+      "training_samples": 1400,
+      "training_time_seconds": 0.012,
+      "metrics": {
+        "accuracy": 0.995,
+        "precision": 0.9901,
+        "recall": 1.0,
+        "f1_score": 0.995,
+        "false_positive_rate": 0.01,
+        "true_positive_rate": 1.0,
+        "confusion_matrix": [
+          [
+            297,
+            3
+          ],
+          [
+            0,
+            300
+          ]
+        ],
+        "latency_ms": 0.021,
+        "throughput_samples_per_sec": 46693.0
+      },
+      "summary": "Fast, fully explainable baseline Z-score rules; highly effective on volumetric anomalies, requires careful tuning for subtle duration drifts."
+    },
+    "RANDOM_FOREST": {
+      "id": "RANDOM_FOREST",
+      "name": "Random Forest Classifier",
+      "type": "Supervised Multi-Class Ensemble (120 Trees)",
+      "status": "READY",
+      "is_supervised": true,
+      "training_samples": 2798,
+      "training_time_seconds": 0.176,
+      "metrics": {
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1_score": 1.0,
+        "false_positive_rate": 0.0,
+        "true_positive_rate": 1.0,
+        "confusion_matrix": [
+          [
+            300,
+            0
+          ],
+          [
+            0,
+            300
+          ]
+        ],
+        "latency_ms": 0.096,
+        "throughput_samples_per_sec": 10428.3,
+        "multi_class": {
+          "accuracy": 1.0,
+          "macro_f1": 1.0,
+          "weighted_f1": 1.0,
+          "confusion_matrix_7x7": [
+            [
+              300,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              50,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              50,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              50,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              50,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              50,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              50
+            ]
+          ],
+          "classes": [
+            "NORMAL",
+            "TRAFFIC_BURST",
+            "HIGH_CONNECTION_RATE",
+            "REPEATED_REQUESTS",
+            "EXCESSIVE_DATA",
+            "UNUSUAL_LATENCY",
+            "COMBINED_ANOMALY"
+          ]
+        }
+      },
+      "feature_importance": {
+        "packet_rate": 0.1923,
+        "data_transfer_volume": 0.1723,
+        "connection_duration": 0.1476,
+        "request_rate": 0.1461,
+        "new_connection_rate": 0.1292,
+        "active_connections": 0.1189,
+        "request_frequency": 0.0935
+      },
+      "summary": "Highest overall classification accuracy and multi-vector pattern discrimination; provides explicit class attribution and Gini feature rankings."
+    },
+    "ISOLATION_FOREST": {
+      "id": "ISOLATION_FOREST",
+      "name": "Isolation Forest Outlier Detector",
+      "type": "Unsupervised Outlier Tree Partitioning (120 Trees)",
+      "status": "READY",
+      "is_supervised": false,
+      "training_samples": 1400,
+      "training_time_seconds": 0.14,
+      "metrics": {
+        "accuracy": 0.9783,
+        "precision": 0.9585,
+        "recall": 1.0,
+        "f1_score": 0.9788,
+        "false_positive_rate": 0.0433,
+        "true_positive_rate": 1.0,
+        "confusion_matrix": [
+          [
+            287,
+            13
+          ],
+          [
+            0,
+            300
+          ]
+        ],
+        "latency_ms": 0.027,
+        "throughput_samples_per_sec": 37405.8
+      },
+      "score_distribution": {
+        "normal": {
+          "mean": 0.1231,
+          "median": 0.1364,
+          "std": 0.0519,
+          "q25": 0.1035,
+          "q75": 0.1593
+        },
+        "anomalous": {
+          "mean": -0.123,
+          "median": -0.1311,
+          "std": 0.0441,
+          "q25": -0.1576,
+          "q75": -0.0962
+        },
+        "decision_threshold": 0.0
+      },
+      "summary": "Zero labelled attack data required during training; excels at zero-day anomaly isolation with robust negative decision-score boundaries."
+    }
+  },
+  "best_performing_method": "RANDOM_FOREST",
+  "comparative_analysis": "Random Forest achieves the highest overall F1-score across all 7 traffic classes by learning complex non-linear combinations of request rate, connection rate, and payload volume. Threshold detection delivers sub-millisecond throughput with zero model storage overhead and transparent attribution. Isolation Forest proves strongest for novel, unseen anomaly detection without requiring prior attack labels."
+}
