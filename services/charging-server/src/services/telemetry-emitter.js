@@ -14,6 +14,10 @@ class TelemetryEmitter {
     }, this.flushIntervalMs);
   }
 
+  clear() {
+    this.queue = [];
+  }
+
   record(sample) {
     if (!sample) return;
     this.queue.push(sample);

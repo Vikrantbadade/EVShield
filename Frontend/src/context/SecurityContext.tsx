@@ -10,6 +10,19 @@ import {
 } from '../types';
 import { AttackIncident } from '../types/attack';
 import {
+  TrafficCategory,
+  NormalBaseline,
+  ExplainableAnomalyAlert,
+  DetectionThresholdsConfig,
+  SimulationState,
+  SimulationMode,
+  DetectionStatus,
+  SimulationLifecycle,
+  AutoSimulationConfig,
+  RecoveryStatus,
+} from '../types/monitoring';
+import { DetectionMethod } from '../types/ml';
+import {
   initialTrafficData,
   initialChargingStations,
   initialTimelineEvents,
@@ -32,13 +45,33 @@ export const SecurityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [telemetryStatus, setTelemetryStatus] = useState<'ACTIVE' | 'IDLE'>('IDLE');
 
   // Simulation & Threat states
-  const [simulationMode, setSimulationMode] = useState<'NORMAL' | 'ATTACK' | 'IDLE'>('IDLE');
+  const [activeDetector, setActiveDetectorState] = useState<DetectionMethod>('RANDOM_FOREST');
+  const [simulationMode, setSimulationMode] = useState<SimulationMode>('NORMAL');
+  const [detectionStatus, setDetectionStatus] = useState<DetectionStatus>('NORMAL');
+  const [simulationLifecycle, setSimulationLifecycle] = useState<SimulationLifecycle>('RUNNING');
   const [threatLevelState, setThreatLevelState] = useState<'NORMAL' | 'ANALYZING' | 'CRITICAL' | 'RECOVERING'>('NORMAL');
   const [isAttackMode, setIsAttackMode] = useState<boolean>(false);
+  const [isRecovering, setIsRecovering] = useState<boolean>(false);
+  const [isStopped, setIsStopped] = useState<boolean>(false);
   const [securityStatus, setSecurityStatus] = useState<'PROTECTED' | 'THREAT DETECTED'>('PROTECTED');
+  const [autoSimulation, setAutoSimulation] = useState<AutoSimulationConfig | null>(null);
+  const [recoveryStatus, setRecoveryStatus] = useState<RecoveryStatus | null>(null);
   const [activeThreats, setActiveThreats] = useState<number>(0);
   const [requestsPerSec, setRequestsPerSec] = useState<number>(0);
   const [affectedNodes, setAffectedNodes] = useState<number>(0);
+
+  // Stage 1 Telemetry Metrics State
+  const [packetRate, setPacketRate] = useState<number>(0);
+  const [bytesPerSecond, setBytesPerSecond] = useState<number>(0);
+  const [dataTransferredMB, setDataTransferredMB] = useState<number>(0);
+  const [activeConnections, setActiveConnections] = useState<number>(0);
+  const [newConnectionRate, setNewConnectionRate] = useState<number>(0);
+  const [trafficCategory, setTrafficCategory] = useState<TrafficCategory>('NORMAL');
+  const [baseline, setBaseline] = useState<NormalBaseline | null>(null);
+  const [anomalyAlerts, setAnomalyAlerts] = useState<ExplainableAnomalyAlert[]>([]);
+  const [anomalyScore, setAnomalyScore] = useState<number>(0);
+  const [detectionThresholds, setDetectionThresholds] = useState<DetectionThresholdsConfig | null>(null);
+  const [simulationState, setSimulationState] = useState<SimulationState | null>(null);
 
   // ML real output
   const [mlConfidence, setMlConfidence] = useState<number>(24.0);
@@ -81,21 +114,76 @@ export const SecurityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setMlEngineStatus(snap.health.mlEngine);
     setTelemetryStatus(snap.health.telemetry);
 
-    setSimulationMode(snap.simulation.mode);
+    const detStatus: DetectionStatus =
+      snap.detectionStatus ||
+      (snap.threatLevel === 'CRITICAL' ? 'ANOMALY_ACTIVE' : snap.threatLevel === 'RECOVERING' ? 'RECOVERING' : 'NORMAL');
+    setDetectionStatus(detStatus);
+
+    const lifecycle: SimulationLifecycle =
+      snap.simulationLifecycle ||
+      (snap.simulation.active ? 'RUNNING' : 'STOPPED');
+    setSimulationLifecycle(lifecycle);
+
+    const simMode: SimulationMode = (snap.simulationMode || snap.simulation.mode || 'NORMAL') as SimulationMode;
+    setSimulationMode(simMode);
     setThreatLevelState(snap.threatLevel);
 
-    const isAtk = snap.ml.label === 'ATTACK' || snap.threatLevel === 'CRITICAL';
+    const isAtk = detStatus === 'ANOMALY_ACTIVE';
     setIsAttackMode(isAtk);
+    setIsRecovering(detStatus === 'RECOVERING');
+    setIsStopped(lifecycle === 'STOPPED');
     setSecurityStatus(snap.securityStatus);
     setActiveThreats(isAtk ? 1 : 0);
     setAffectedNodes(isAtk ? 24 : 0);
 
+    if (snap.autoSimulation) {
+      setAutoSimulation(snap.autoSimulation);
+    }
+    if (snap.recoveryStatus) {
+      setRecoveryStatus(snap.recoveryStatus);
+    }
+    if (snap.activeDetector) {
+      setActiveDetectorState(snap.activeDetector);
+    } else if (snap.detectionMethod) {
+      setActiveDetectorState(snap.detectionMethod);
+    }
+
+    // Standard telemetry
     setRequestsPerSec(snap.telemetry.requestsPerSecond);
     setAvgLatencyMs(snap.telemetry.averageLatencyMs);
     setMinLatencyMs(snap.telemetry.minLatencyMs);
     setMaxLatencyMs(snap.telemetry.maxLatencyMs);
     setTotalRequests(snap.telemetry.totalRequests);
     setErrorRatePercent(snap.telemetry.errorRatePercent);
+
+    // Stage 1 Telemetry metrics
+    setPacketRate(snap.telemetry.packetRate ?? Math.round(snap.telemetry.requestsPerSecond * 4));
+    setBytesPerSecond(snap.telemetry.bytesPerSecond ?? Math.round(snap.telemetry.requestsPerSecond * 512));
+    setDataTransferredMB(snap.telemetry.dataTransferredMB ?? 0);
+    setActiveConnections(snap.telemetry.activeConnections ?? 1);
+    setNewConnectionRate(snap.telemetry.newConnectionRate ?? snap.telemetry.requestsPerSecond);
+    setTrafficCategory(snap.telemetry.trafficCategory ?? 'NORMAL');
+
+    if (snap.telemetry.baseline) {
+      setBaseline(snap.telemetry.baseline);
+    }
+
+    if (snap.telemetry.recentAlerts && snap.telemetry.recentAlerts.length > 0) {
+      setAnomalyAlerts(snap.telemetry.recentAlerts);
+    }
+
+    if (snap.telemetry.detectionResult) {
+      setAnomalyScore(snap.telemetry.detectionResult.anomalyScore);
+    }
+
+    setSimulationState({
+      mode: snap.simulation.mode,
+      intensity: snap.simulation.intensity || 'MEDIUM',
+      targetRps: snap.simulation.targetRps || 12,
+      startedAt: snap.simulation.startedAt,
+      durationSeconds: snap.simulation.durationSeconds,
+      isSimulated: snap.simulation.isSimulated ?? true,
+    });
 
     // Real ML values
     const confidencePct = Math.round(snap.ml.probability_attack * 1000) / 10;
@@ -123,7 +211,7 @@ export const SecurityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setLastIncident(snap.lastIncident);
     }
 
-    // Events mapping with canonical time formatting
+    // Events mapping
     if (snap.events && snap.events.length > 0) {
       setTimelineEvents(
         snap.events.map((ev) => ({
@@ -226,12 +314,47 @@ export const SecurityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, [applySnapshot]);
 
-  // Polling loop (every 800ms)
+  // Connect native WebSocket with automatic reconnect, plus background polling backup
   useEffect(() => {
+    // Initial fetch
     fetchLiveTelemetry();
-    const interval = setInterval(fetchLiveTelemetry, 800);
-    return () => clearInterval(interval);
-  }, [fetchLiveTelemetry]);
+
+    // WebSocket connection
+    const unsubscribeWs = telemetryService.connectWebSocket(
+      (snapshot) => applySnapshot(snapshot),
+      (alert) => {
+        setAnomalyAlerts((prev) => [alert, ...prev.filter((a) => a.alertId !== alert.alertId).slice(0, 49)]);
+      },
+      (connected) => {
+        setIsLiveConnected(connected);
+        if (connected) {
+          setLiveError(null);
+          setBackendStatus('ONLINE');
+        }
+      }
+    );
+
+    // Polling backup every 1500ms
+    const interval = setInterval(fetchLiveTelemetry, 1500);
+
+    return () => {
+      unsubscribeWs();
+      clearInterval(interval);
+    };
+  }, [fetchLiveTelemetry, applySnapshot]);
+
+  // Initial load of thresholds and baseline
+  useEffect(() => {
+    telemetryService
+      .getThresholds()
+      .then((t) => setDetectionThresholds(t))
+      .catch(() => {});
+
+    telemetryService
+      .getBaseline()
+      .then((b) => setBaseline(b))
+      .catch(() => {});
+  }, []);
 
   // Demo Control Handlers
   const startNormalTraffic = async () => {
@@ -292,10 +415,84 @@ export const SecurityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const toggleDDoSAttack = () => {
-    if (isAttackMode || simulationMode === 'ATTACK') {
+    if (isAttackMode || simulationMode !== 'NORMAL') {
       stopTraffic();
     } else {
       startAttackSimulation();
+    }
+  };
+
+  // Stage 1 Simulation Actions
+  const triggerScenario = async (scenario: string) => {
+    try {
+      const snap = await telemetryService.triggerScenario(scenario);
+      applySnapshot(snap);
+    } catch (err: any) {
+      setLiveError(err?.message || `Failed to trigger scenario '${scenario}'`);
+    }
+  };
+
+  const setSimulationIntensity = async (
+    intensity: 'LOW' | 'MEDIUM' | 'HIGH' | 'EXTREME',
+    targetRps?: number
+  ) => {
+    try {
+      const snap = await telemetryService.setSimulationIntensity(intensity, targetRps);
+      applySnapshot(snap);
+    } catch (err: any) {
+      setLiveError(err?.message || 'Failed to update simulation intensity');
+    }
+  };
+
+  const updateThresholds = async (config: Partial<DetectionThresholdsConfig>) => {
+    try {
+      const updated = await telemetryService.updateThresholds(config);
+      setDetectionThresholds(updated);
+    } catch (err: any) {
+      setLiveError(err?.message || 'Failed to update thresholds');
+    }
+  };
+
+  const resetBaseline = async () => {
+    try {
+      const base = await telemetryService.resetBaseline();
+      setBaseline(base);
+    } catch (err: any) {
+      setLiveError(err?.message || 'Failed to reset baseline');
+    }
+  };
+
+  const enableAutoDemo = async (intervalSeconds?: number, durationSeconds?: number) => {
+    try {
+      const res = await telemetryService.enableAutoDemo(intervalSeconds, durationSeconds);
+      if (res && res.snapshot) {
+        applySnapshot(res.snapshot);
+      }
+    } catch (err: any) {
+      setLiveError(err?.message || 'Failed to enable automatic demo simulation');
+    }
+  };
+
+  const disableAutoDemo = async () => {
+    try {
+      const res = await telemetryService.disableAutoDemo();
+      if (res && res.snapshot) {
+        applySnapshot(res.snapshot);
+      }
+    } catch (err: any) {
+      setLiveError(err?.message || 'Failed to disable automatic demo simulation');
+    }
+  };
+
+  const setActiveDetector = async (detector: DetectionMethod) => {
+    try {
+      const res = await telemetryService.selectDetector(detector);
+      setActiveDetectorState(res.activeDetector);
+      if (res.snapshot) {
+        applySnapshot(res.snapshot);
+      }
+    } catch (err: any) {
+      setLiveError(err?.message || `Failed to set active detector to ${detector}`);
     }
   };
 
@@ -303,6 +500,16 @@ export const SecurityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     <SecurityContext.Provider
       value={{
         isAttackMode,
+        isRecovering,
+        isStopped,
+        activeDetector,
+        setActiveDetector,
+        detectionStatus,
+        simulationLifecycle,
+        autoSimulation,
+        recoveryStatus,
+        enableAutoDemo,
+        disableAutoDemo,
         toggleDDoSAttack,
         startNormalTraffic,
         startAttackSimulation,
@@ -340,6 +547,22 @@ export const SecurityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         errorRatePercent,
         activeIncident,
         lastIncident,
+        // Stage 1 Telemetry & Explainable Anomaly Detection Extensions
+        packetRate,
+        bytesPerSecond,
+        dataTransferredMB,
+        activeConnections,
+        newConnectionRate,
+        trafficCategory,
+        baseline,
+        anomalyAlerts,
+        anomalyScore,
+        detectionThresholds,
+        simulationState,
+        triggerScenario,
+        setSimulationIntensity,
+        updateThresholds,
+        resetBaseline,
       }}
     >
       {children}

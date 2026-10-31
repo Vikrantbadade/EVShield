@@ -99,28 +99,33 @@ class AuthService {
       });
     }
 
-    // Attempt persistent PostgreSQL database seeding via Prisma
+    // Attempt persistent PostgreSQL database seeding via Prisma (with fast timeout fallback)
     try {
-      for (const demo of DEMO_ACCOUNTS) {
-        const emailLower = demo.email.toLowerCase();
-        const pwdHash = this.hashPassword(DEMO_PASSWORD);
+      await Promise.race([
+        (async () => {
+          for (const demo of DEMO_ACCOUNTS) {
+            const emailLower = demo.email.toLowerCase();
+            const pwdHash = this.hashPassword(DEMO_PASSWORD);
 
-        await db.user.upsert({
-          where: { email: emailLower },
-          update: {
-            name: demo.name,
-            role: demo.role,
-            password: pwdHash,
-          },
-          create: {
-            email: emailLower,
-            name: demo.name,
-            role: demo.role,
-            password: pwdHash,
-          },
-        });
-      }
-      console.log('🔐 [AuthService] 4 Demo accounts seeded idempotently in PostgreSQL.');
+            await db.user.upsert({
+              where: { email: emailLower },
+              update: {
+                name: demo.name,
+                role: demo.role,
+                password: pwdHash,
+              },
+              create: {
+                email: emailLower,
+                name: demo.name,
+                role: demo.role,
+                password: pwdHash,
+              },
+            });
+          }
+          console.log('🔐 [AuthService] 4 Demo accounts seeded idempotently in PostgreSQL.');
+        })(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error("Database connection timeout (offline mode)")), 1500)),
+      ]);
     } catch (err) {
       console.warn('⚠️ [AuthService] Database seed fallback to memory store:', err instanceof Error ? err.message : err);
     }

@@ -39,7 +39,7 @@ export const AnalyticsPage: React.FC = () => {
                 Security Analytics
               </h2>
               <StatusChip label="BACKEND CONNECTED" variant="live" dot pulse />
-              <StatusChip label="DEMO BACKEND DATA" variant="demo" />
+              <StatusChip label="TELEMETRY ANALYTICS" variant="live" />
             </div>
             <p className="text-xs sm:text-sm text-[#C4C2D6]">
               System throughput, attack distributions, and security trend reports consumed from backend REST API.

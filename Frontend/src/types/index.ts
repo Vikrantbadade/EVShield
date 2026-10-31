@@ -64,9 +64,26 @@ export interface AttackLogRecord {
 }
 
 import { AttackIncident } from './attack';
+import {
+  NormalBaseline,
+  ExplainableAnomalyAlert,
+  DetectionThresholdsConfig,
+  SimulationState,
+  TrafficCategory,
+  SimulationMode,
+  DetectionStatus,
+  SimulationLifecycle,
+  AutoSimulationConfig,
+  RecoveryStatus,
+} from './monitoring';
+import { DetectionMethod } from './ml';
 
 export interface SecurityContextType {
   isAttackMode: boolean;
+  isRecovering: boolean;
+  isStopped: boolean;
+  activeDetector: DetectionMethod;
+  setActiveDetector: (detector: DetectionMethod) => Promise<void>;
   toggleDDoSAttack: () => void;
   startNormalTraffic: () => Promise<void>;
   startAttackSimulation: () => Promise<void>;
@@ -92,7 +109,11 @@ export interface SecurityContextType {
   mlEngineStatus: 'ONLINE' | 'OFFLINE';
   backendStatus: 'ONLINE' | 'OFFLINE';
   telemetryStatus: 'ACTIVE' | 'IDLE';
-  simulationMode: 'NORMAL' | 'ATTACK' | 'IDLE';
+  simulationMode: SimulationMode;
+  detectionStatus: DetectionStatus;
+  simulationLifecycle: SimulationLifecycle;
+  autoSimulation: AutoSimulationConfig | null;
+  recoveryStatus: RecoveryStatus | null;
   threatLevelState: 'NORMAL' | 'ANALYZING' | 'CRITICAL' | 'RECOVERING';
   mlThreshold: number;
   mlLabel: 'NORMAL' | 'ATTACK';
@@ -104,4 +125,22 @@ export interface SecurityContextType {
   errorRatePercent: number;
   activeIncident: AttackIncident | null;
   lastIncident: AttackIncident | null;
+  // Stage 1 Telemetry & Explainable Anomaly Detection Extensions
+  packetRate: number;
+  bytesPerSecond: number;
+  dataTransferredMB: number;
+  activeConnections: number;
+  newConnectionRate: number;
+  trafficCategory: TrafficCategory;
+  baseline: NormalBaseline | null;
+  anomalyAlerts: ExplainableAnomalyAlert[];
+  anomalyScore: number;
+  detectionThresholds: DetectionThresholdsConfig | null;
+  simulationState: SimulationState | null;
+  triggerScenario: (scenario: string) => Promise<void>;
+  setSimulationIntensity: (intensity: 'LOW' | 'MEDIUM' | 'HIGH' | 'EXTREME', targetRps?: number) => Promise<void>;
+  enableAutoDemo: (intervalSeconds?: number, durationSeconds?: number, scenario?: SimulationMode) => Promise<void>;
+  disableAutoDemo: () => Promise<void>;
+  updateThresholds: (config: Partial<DetectionThresholdsConfig>) => Promise<void>;
+  resetBaseline: () => Promise<void>;
 }

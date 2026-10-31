@@ -9,6 +9,7 @@ import {
   MLPrediction,
   MLPredictionRequest,
 } from '../types/ml.types.js';
+import { mlEngineService } from './ml-engine.service.js';
 
 function resolveProjectRoot(): string {
   if (fs.existsSync(path.resolve(process.cwd(), 'ml'))) {
@@ -116,20 +117,7 @@ export class MLService {
    * Fetch current ML Model loading status and pipeline state from filesystem artifacts
    */
   public async getModelStatus(): Promise<MLModelStatus> {
-    const modelExists = fs.existsSync(MODEL_PATH);
-    const scriptExists = fs.existsSync(SCRIPT_PATH);
-    const thresholdExists = fs.existsSync(THRESHOLD_PATH);
-    const isReady = modelExists && scriptExists && thresholdExists;
-
-    return {
-      modelLoaded: isReady,
-      modelName: 'CICEV2023_RandomForest_v1',
-      version: '1.0.0',
-      pipelineVersion: 'CICEV2023-TOP-RicherStats-v1',
-      status: isReady ? 'READY' : 'UNAVAILABLE',
-      lastEvaluationTimestamp: new Date('2026-08-08T00:00:00Z').toISOString(),
-      isDemo: false,
-    };
+    return mlEngineService.getStatus();
   }
 
   /**

@@ -17,6 +17,7 @@ import { KpiStat } from '../types';
 import { RefreshCw, Shield, Activity, Radio } from 'lucide-react';
 
 import { DemoControls } from '../components/monitoring/DemoControls';
+import { AnomalyAlertsPanel } from '../components/monitoring/AnomalyAlertsPanel';
 
 export const DashboardPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'command' | 'traffic' | 'threats'>('command');
@@ -32,6 +33,10 @@ export const DashboardPage: React.FC = () => {
     serverStatus,
     mlConfidence,
     totalRequests,
+    anomalyAlerts,
+    detectionThresholds,
+    updateThresholds,
+    activeDetector,
   } = useSecurity();
 
   const fetchBackendData = useCallback(async () => {
@@ -202,6 +207,16 @@ export const DashboardPage: React.FC = () => {
 
           {/* 4. ML Threat Alert Panel */}
           <MLThreatAlert />
+
+          {/* 5. Explainable Anomaly Alerts */}
+          {anomalyAlerts.length > 0 && (
+            <AnomalyAlertsPanel
+              alerts={anomalyAlerts}
+              sensitivity={detectionThresholds?.sensitivity || 'MEDIUM'}
+              onUpdateSensitivity={(level) => updateThresholds({ sensitivity: level })}
+              activeDetector={activeDetector}
+            />
+          )}
         </div>
       )}
 
